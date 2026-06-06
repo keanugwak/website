@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brain Dump Hub — Priority Matrix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #ffffff;
+      --black:     #0a0a0a;
+      --blue:      #1a6bff;
+      --blue-dark: #1456cc;
+      --blue-tint: #f0f4ff;
+      --muted:     #888888;
+      --border:    #e8e8e8;
+      --q1:        #ef4444;   --q1-tint: #fff5f5;   --q1-border: #fecaca;
+      --q2:        #1a6bff;   --q2-tint: #f0f4ff;   --q2-border: #bfdbfe;
+      --q3:        #f59e0b;   --q3-tint: #fffbeb;   --q3-border: #fde68a;
+      --q4:        #6b7280;   --q4-tint: #f9fafb;   --q4-border: #d1d5db;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 960px; margin: 0 auto;
+      padding: 0 24px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      font-size: 20px; font-weight: 600; color: var(--black);
+      text-decoration: none; letter-spacing: -0.02em;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .nav-dot { width: 5px; height: 5px; background: var(--blue); border-radius: 50%; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a {
+      font-size: 20px; font-weight: 400; color: var(--muted);
+      text-decoration: none; transition: color 0.14s;
+    }
+    .nav-links a:hover { color: var(--black); }
+    .nav-links a.active { color: var(--black); font-weight: 600; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { max-width: 960px; margin: 0 auto; padding: 52px 24px 36px; }
+    .page-eyebrow {
+      font-size: 17px; font-weight: 700; letter-spacing: 0.11em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 8px;
+    }
+    .page-title {
+      font-family: 'DM Serif Display', serif; font-style: italic;
+      font-size: clamp(2.2rem, 5vw, 3.4rem); color: var(--black);
+      line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 10px;
+    }
+    .page-subtitle { font-size: 19px; font-weight: 300; color: var(--muted); }
+
+    /* ── MAIN ── */
+    main { max-width: 960px; margin: 0 auto; padding: 0 24px 80px; flex: 1; width: 100%; }
+
+    /* ── INPUT SECTION ── */
+    .input-card {
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 28px; margin-bottom: 20px;
+    }
+    .input-label {
+      font-size: 17px; font-weight: 600; color: var(--black);
+      margin-bottom: 12px; display: block;
+    }
+    .dump-textarea {
+      width: 100%; min-height: 160px;
+      font-size: 19px; font-family: 'DM Sans', sans-serif;
+      font-weight: 300; color: var(--black);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px; resize: vertical; outline: none;
+      transition: border-color 0.16s; line-height: 1.65;
+    }
+    .dump-textarea:focus { border-color: var(--blue); }
+    .dump-textarea::placeholder { color: #bbb; }
+    .input-actions {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 16px; gap: 12px; flex-wrap: wrap;
+    }
+    .char-count { font-size: 17px; color: var(--muted); font-weight: 300; }
+    .btn-row { display: flex; gap: 10px; align-items: center; }
+    .btn-analyse {
+      padding: 11px 32px; background: var(--blue); color: white;
+      border: none; border-radius: 8px; font-size: 19px; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.14s; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-analyse:hover { background: var(--blue-dark); }
+    .btn-analyse:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-clear {
+      padding: 11px 20px; background: transparent; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 8px; font-size: 17px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.14s;
+    }
+    .btn-clear:hover { border-color: #aaa; color: var(--black); }
+
+    /* ── LOADING ── */
+    .loading-state {
+      display: none; text-align: center;
+      padding: 56px 24px; border: 1px solid var(--border);
+      border-radius: 12px; margin-bottom: 28px;
+    }
+    .loading-state.show { display: block; }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 19px; font-weight: 300; color: var(--muted); }
+    .loading-sub { font-size: 17px; color: #bbb; margin-top: 6px; }
+
+    /* ── RESULTS ── */
+    .results { display: none; }
+    .results.show { display: block; }
+
+    /* ── TOP ACTIONS BANNER ── */
+    .top-actions-banner {
+      background: var(--black); border-radius: 12px;
+      padding: 24px 28px; margin-bottom: 24px; color: white;
+    }
+    .banner-label {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 14px;
+    }
+    .banner-summary { font-size: 19px; font-weight: 300; line-height: 1.65; margin-bottom: 18px; color: rgba(255,255,255,0.88); }
+    .top-actions-list { display: flex; flex-direction: column; gap: 10px; }
+    .top-action-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 18px; font-weight: 400; color: rgba(255,255,255,0.9);
+    }
+    .action-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--blue); color: white; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .mindset-advice {
+      margin-top: 16px; padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      font-size: 17px; font-weight: 300; color: rgba(255,255,255,0.5);
+      font-style: italic;
+    }
+
+    /* ── MATRIX GRID ── */
+    .matrix-header {
+      font-size: 17px; font-weight: 500; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+    }
+    .matrix-labels {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 4px; padding: 0 2px;
+    }
+    .matrix-col-label {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; text-align: center; padding: 4px 0;
+    }
+    .matrix-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto; gap: 10px; margin-bottom: 28px;
+    }
+    .quadrant {
+      border-radius: 10px; padding: 20px; border: 1px solid;
+      min-height: 160px;
+    }
+    .quadrant.q1 { background: var(--q1-tint); border-color: var(--q1-border); }
+    .quadrant.q2 { background: var(--q2-tint); border-color: var(--q2-border); }
+    .quadrant.q3 { background: var(--q3-tint); border-color: var(--q3-border); }
+    .quadrant.q4 { background: var(--q4-tint); border-color: var(--q4-border); }
+    .q-header { margin-bottom: 14px; }
+    .q-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 20px;
+      margin-bottom: 4px;
+    }
+    .q1 .q-badge { background: var(--q1); color: white; }
+    .q2 .q-badge { background: var(--q2); color: white; }
+    .q3 .q-badge { background: var(--q3); color: white; }
+    .q4 .q-badge { background: var(--q4); color: white; }
+    .q-desc { font-size: 16px; font-weight: 300; color: var(--muted); }
+
+    /* ── TASK CARDS ── */
+    .task-list { display: flex; flex-direction: column; gap: 8px; }
+    .task-card {
+      background: white; border: 1px solid; border-radius: 8px;
+      padding: 14px 16px; transition: opacity 0.2s;
+    }
+    .q1 .task-card { border-color: var(--q1-border); }
+    .q2 .task-card { border-color: var(--q2-border); }
+    .q3 .task-card { border-color: var(--q3-border); }
+    .q4 .task-card { border-color: var(--q4-border); }
+    .task-card.done { opacity: 0.38; }
+    .task-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+    .task-check {
+      width: 20px; height: 20px; border-radius: 4px; border: 2px solid;
+      flex-shrink: 0; cursor: pointer; margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.14s; background: transparent;
+      appearance: none; -webkit-appearance: none;
+    }
+    .q1 .task-check { border-color: var(--q1); }
+    .q2 .task-check { border-color: var(--q2); }
+    .q3 .task-check { border-color: var(--q3); }
+    .q4 .task-check { border-color: var(--q4); }
+    .task-check:checked { content: ''; }
+    .q1 .task-check:checked { background: var(--q1); border-color: var(--q1); }
+    .q2 .task-check:checked { background: var(--q2); border-color: var(--q2); }
+    .q3 .task-check:checked { background: var(--q3); border-color: var(--q3); }
+    .q4 .task-check:checked { background: var(--q4); border-color: var(--q4); }
+    .check-mark { pointer-events: none; font-size: 11px; color: white; display: none; }
+    .task-check:checked + .check-mark { display: block; }
+    /* Since we can't use :checked pseudo for custom elements, use class-based approach */
+    .task-check-btn {
+      width: 20px; height: 20px; border-radius: 4px; border: 2px solid;
+      flex-shrink: 0; cursor: pointer; margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.14s; background: transparent;
+      font-size: 11px; color: white;
+    }
+    .q1 .task-check-btn { border-color: var(--q1); }
+    .q2 .task-check-btn { border-color: var(--q2); }
+    .q3 .task-check-btn { border-color: var(--q3); }
+    .q4 .task-check-btn { border-color: var(--q4); }
+    .task-check-btn.checked { color: white; }
+    .q1 .task-check-btn.checked { background: var(--q1); border-color: var(--q1); }
+    .q2 .task-check-btn.checked { background: var(--q2); border-color: var(--q2); }
+    .q3 .task-check-btn.checked { background: var(--q3); border-color: var(--q3); }
+    .q4 .task-check-btn.checked { background: var(--q4); border-color: var(--q4); }
+    .rank-badge {
+      font-size: 12px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+      min-width: 28px; height: 22px; border-radius: 6px;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; letter-spacing: 0;
+      background: rgba(0,0,0,0.07); color: var(--muted);
+    }
+    .q1 .rank-badge { background: rgba(239,68,68,0.12); color: var(--q1); }
+    .q2 .rank-badge { background: rgba(26,107,255,0.12); color: var(--q2); }
+    .q3 .rank-badge { background: rgba(245,158,11,0.12); color: var(--q3); }
+    .q4 .rank-badge { background: rgba(107,114,128,0.1); color: var(--q4); }
+    .task-card.done .rank-badge { opacity: 0.35; }
+    .task-title {
+      font-size: 18px; font-weight: 600; color: var(--black);
+      letter-spacing: -0.01em; line-height: 1.3; flex: 1;
+    }
+    .task-card.done .task-title { text-decoration: line-through; color: var(--muted); }
+    .task-time {
+      font-size: 15px; font-weight: 500; color: var(--muted);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .task-action {
+      font-size: 16px; font-weight: 400; color: var(--black);
+      line-height: 1.5; margin-bottom: 4px; padding-left: 30px;
+    }
+    .task-why {
+      font-size: 15px; font-weight: 300; color: var(--muted);
+      font-style: italic; padding-left: 30px;
+    }
+    .empty-q {
+      font-size: 17px; font-weight: 300; color: #bbb;
+      text-align: center; padding: 24px 0;
+    }
+
+    /* ── HISTORY ── */
+    .history-section { margin-top: 36px; }
+    .history-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-label {
+      font-size: 17px; font-weight: 500; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .btn-clear-history {
+      font-size: 16px; color: var(--muted); background: none;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 5px 12px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all 0.14s;
+    }
+    .btn-clear-history:hover { border-color: #ef4444; color: #ef4444; }
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+    .history-item {
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px 18px; display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; cursor: pointer;
+      transition: border-color 0.14s;
+    }
+    .history-item:hover { border-color: var(--blue); }
+    .history-meta { font-size: 14px; color: var(--muted); font-weight: 300; margin-top: 2px; }
+    .history-date-main {
+      font-size: 16px; font-weight: 500; color: var(--black); letter-spacing: -0.01em;
+    }
+    .history-badges { display: flex; gap: 5px; flex-shrink: 0; }
+
+    /* ── EDITING NOTICE ── */
+    .editing-notice {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 12px 18px; margin-bottom: 20px;
+      background: var(--blue-tint); border: 1px solid #d0e2ff;
+      border-left: 3px solid var(--blue); border-radius: 8px;
+    }
+    .editing-notice-text { font-size: 15px; color: var(--black); font-weight: 400; }
+    .editing-notice-text strong { font-weight: 600; }
+    .editing-notice-btn {
+      font-size: 14px; color: var(--blue); background: none;
+      border: 1px solid var(--blue); border-radius: 6px;
+      padding: 5px 13px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      white-space: nowrap; transition: all 0.14s; flex-shrink: 0;
+    }
+    .editing-notice-btn:hover { background: var(--blue); color: white; }
+    .h-badge {
+      font-size: 13px; font-weight: 700; padding: 2px 8px;
+      border-radius: 12px; color: white;
+    }
+    .h-q1 { background: var(--q1); }
+    .h-q2 { background: var(--q2); }
+    .h-q3 { background: var(--q3); }
+    .h-q4 { background: var(--q4); }
+
+    /* ── DRAG & DROP ── */
+    .task-card[draggable="true"] { cursor: grab; }
+    .task-card[draggable="true"]:active { cursor: grabbing; }
+    .task-card.dragging { opacity: 0.35; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
+    .quadrant.drag-over {
+      outline: 2px dashed var(--blue); outline-offset: -2px;
+      background: rgba(26,107,255,0.05) !important;
+    }
+
+    /* ── MOVE BUTTON & MENU ── */
+    .move-btn {
+      flex-shrink: 0; width: 24px; height: 24px; margin-top: 1px;
+      border: 1px solid var(--border); background: transparent;
+      border-radius: 5px; cursor: pointer; color: var(--muted);
+      font-size: 13px; display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+    .move-btn:hover { background: var(--blue-tint); border-color: var(--blue); color: var(--blue); }
+    .move-menu-wrap { position: relative; flex-shrink: 0; }
+    .move-menu {
+      position: absolute; top: calc(100% + 4px); right: 0; z-index: 500;
+      background: white; border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.11); min-width: 168px;
+      padding: 5px; display: none;
+    }
+    .move-menu.open { display: block; }
+    .move-menu-item {
+      display: flex; align-items: center; gap: 9px; width: 100%;
+      padding: 8px 10px; border: none; background: transparent;
+      border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 400;
+      color: var(--black); font-family: 'DM Sans', sans-serif; text-align: left;
+      transition: background 0.1s;
+    }
+    .move-menu-item:hover { background: var(--blue-tint); }
+    .move-menu-item.current { opacity: 0.38; cursor: default; pointer-events: none; }
+    .move-menu-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--black); color: white;
+      padding: 12px 22px; border-radius: 8px; font-size: 17px;
+      z-index: 2000; opacity: 0; transform: translateY(8px);
+      transition: opacity 0.22s, transform 0.22s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── FOOTER ── */
+    footer { border-top: 1px solid var(--border); padding: 18px 24px; text-align: center; }
+    .footer-text { font-size: 18px; font-weight: 300; color: #c0c0c0; letter-spacing: 0.05em; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      .matrix-grid { grid-template-columns: 1fr; }
+      .matrix-labels { grid-template-columns: 1fr; }
+      .matrix-labels .matrix-col-label:last-child { display: none; }
+      .nav-links { gap: 14px; }
+      .nav-links a { font-size: 16px; }
+    }
+    @media (max-width: 380px) { .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      Seun Gwak <span class="nav-dot"></span>
+    </a>
+    <div class="nav-links">
+      <a href="EL1.HTML">EL1</a>
+      <a href="BrainDump.html" class="active">Brain Dump</a>
+      <a href="Newsite.html">Budget</a>
+      <a href="Property_sale_calculator.html">Property</a>
+      <a href="rba_cash_rate_history_3.html">RBA Rate</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-eyebrow">AI Priority Matrix</div>
+  <div class="page-title">Brain Dump Hub</div>
+  <div class="page-subtitle">Dump everything on your mind — AI sorts it by what actually matters</div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- DUMP INPUT -->
+  <div class="input-card">
+    <label class="input-label" for="dumpArea">What's on your mind?</label>
+    <textarea
+      class="dump-textarea"
+      id="dumpArea"
+      placeholder="Just dump everything on your mind — any format works:&#10;&#10;As a list:&#10;• Call the plumber about the leak&#10;• Finish the Q3 report by Friday&#10;• Book flights for July holiday&#10;&#10;As a numbered list:&#10;1. Reply to John's email&#10;2. Kids school forms due tomorrow&#10;&#10;Or just free text (no commas needed):&#10;Research new phone pay credit card organise garage this weekend worry about the mortgage meeting with boss next week"
+    ></textarea>
+    <div class="input-actions">
+      <span class="char-count" id="charCount">0 characters</span>
+      <div class="btn-row">
+        <button class="btn-clear" onclick="clearDump()">Clear</button>
+        <button class="btn-analyse" id="analyseBtn" onclick="analyse()">
+          <span id="btnText">✦ Analyse</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITING NOTICE -->
+  <div class="editing-notice" id="editingNotice" style="display:none">
+    <span class="editing-notice-text">✎ Editing analysis from <strong id="editingDateLabel"></strong> — analyse to update it</span>
+    <button class="editing-notice-btn" onclick="startFresh()">↺ New analysis</button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-state" id="loadingState">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Analysing your brain dump…</div>
+    <div class="loading-sub">Claude is reading and prioritising your tasks</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <!-- TOP ACTIONS BANNER -->
+    <div class="top-actions-banner" id="topBanner">
+      <div class="banner-label">AI Overview</div>
+      <div class="banner-summary" id="bannerSummary"></div>
+      <div class="top-actions-list" id="topActionsList"></div>
+      <div class="mindset-advice" id="mindsetAdvice"></div>
+    </div>
+
+    <!-- MATRIX -->
+    <div class="matrix-header">Priority Matrix</div>
+    <div class="matrix-labels">
+      <div class="matrix-col-label" style="color:var(--q1)">⚡ IMPORTANT</div>
+      <div class="matrix-col-label" style="color:var(--q2)">📅 IMPORTANT</div>
+    </div>
+    <div class="matrix-grid">
+
+      <div class="quadrant q1" id="q1">
+        <div class="q-header">
+          <div class="q-badge">🔥 Do Now</div>
+          <div class="q-desc">Urgent + Important</div>
+        </div>
+        <div class="task-list" id="q1-tasks"></div>
+      </div>
+
+      <div class="quadrant q2" id="q2">
+        <div class="q-header">
+          <div class="q-badge">📅 Schedule</div>
+          <div class="q-desc">Not Urgent + Important</div>
+        </div>
+        <div class="task-list" id="q2-tasks"></div>
+      </div>
+
+      <div class="quadrant q3" id="q3">
+        <div class="q-header">
+          <div class="q-badge">👤 Delegate</div>
+          <div class="q-desc">Urgent + Not Important</div>
+        </div>
+        <div class="task-list" id="q3-tasks"></div>
+      </div>
+
+      <div class="quadrant q4" id="q4">
+        <div class="q-header">
+          <div class="q-badge">🗑 Eliminate</div>
+          <div class="q-desc">Not Urgent + Not Important</div>
+        </div>
+        <div class="task-list" id="q4-tasks"></div>
+      </div>
+
+    </div>
+
+    <!-- RE-ANALYSE -->
+    <div style="text-align:center; margin-bottom: 28px;">
+      <button class="btn-clear" onclick="resetResults()" style="font-size:17px; padding:10px 24px;">
+        ↺ New Brain Dump
+      </button>
+    </div>
+
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section" id="historySection" style="display:none">
+    <div class="history-header">
+      <span class="section-label" id="historyLabel">Past Analyses</span>
+      <button class="btn-clear-history" onclick="clearHistory()">Clear history</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-text">Seun Gwak &nbsp;·&nbsp; 곽승관 &nbsp;·&nbsp; Private &nbsp;·&nbsp; 2026</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTS & STATE
+// ═══════════════════════════════════════════════════════
+const KEY_HISTORY = 'bd_history';
+const KEY_TASKS   = 'bd_tasks';
+
+let currentTasks = [];
+let currentHistoryId = null;
+let draggedTaskId = null;
+
+const SYSTEM_PROMPT = `You are an expert productivity coach specialising in the Eisenhower Priority Matrix.
+
+The user gives you a raw brain dump of tasks, ideas, worries and to-dos. The input may be in ANY format:
+- Bullet points (• item or - item)
+- Numbered lists (1. item, 2. item)
+- Comma-separated (task one, task two, task three)
+- New lines with no punctuation
+- Free-flowing sentences with no separators at all
+- A mix of all of the above
+
+Your job:
+1. Parse and extract every distinct task or item regardless of format. Use line breaks, bullets, numbers, and natural sentence boundaries to identify individual items. Never require commas — a new line or a new thought is enough to separate tasks.
+2. Categorise each using the Eisenhower Matrix:
+   - Q1 (DO NOW): Urgent AND Important — crises, real deadlines today/tomorrow, urgent health/safety/financial
+   - Q2 (SCHEDULE): Not Urgent but Important — strategic goals, planning, relationships, health, learning, key projects
+   - Q3 (DELEGATE): Urgent but Not Important — interruptions, low-value requests, admin, some emails
+   - Q4 (ELIMINATE): Not Urgent AND Not Important — time wasters, trivial tasks, nice-to-haves, busywork
+3. Be opinionated — don't put everything in Q1. Most tasks should be Q2.
+4. Provide specific, direct, actionable advice for each task (not generic).
+5. Return ONLY valid JSON. No explanation, no markdown, no code fences.
+
+6. Within each quadrant, order tasks from most critical to least critical. Assign a "score" (1–100) calculated as urgency × importance. Higher score = rank 1 (most critical). Tasks with score 1 in the same quadrant should appear first.
+
+JSON format:
+{
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Short clean task title",
+      "original": "exact text fragment from user",
+      "quadrant": "Q1",
+      "urgency": 9,
+      "importance": 8,
+      "score": 72,
+      "timeEst": "30 min",
+      "action": "Specific action: call John at 02 9XXX XXXX before 5pm — it's blocking the project",
+      "why": "Deadline is today and it impacts others"
+    }
+  ],
+  "summary": "2-3 sentences describing the overall picture of their brain dump and mental load",
+  "topActions": [
+    "First most important next action (be specific)",
+    "Second priority action",
+    "Third priority action"
+  ],
+  "mindsetAdvice": "One sentence of honest strategic advice based on what you see in their list"
+}`;
+
+// ═══════════════════════════════════════════════════════
+// GEMINI CONFIG — paste your free key from aistudio.google.com
+// ═══════════════════════════════════════════════════════
+const GEMINI_KEY   = 'AIzaSyBR6lH9Qdna7_JJIBnZYSzMZzanzyRwdE4';
+const GEMINI_MODEL = 'gemini-2.5-flash';
+
+// ═══════════════════════════════════════════════════════
+// ANALYSE
+// ═══════════════════════════════════════════════════════
+async function analyse() {
+  const text = document.getElementById('dumpArea').value.trim();
+  if (!text) { showToast('⚠️ Write something first'); return; }
+  if (text.length < 10) { showToast('⚠️ Add a bit more detail'); return; }
+
+  if (!GEMINI_KEY) {
+    showToast('⚠️ Add your Gemini API key in BrainDump.html (GEMINI_KEY)');
+    return;
+  }
+
+  setLoading(true);
+
+  const payload = JSON.stringify({
+    system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    contents: [{ role: 'user', parts: [{ text: text }] }],
+    generationConfig: {
+      temperature: 0.4,
+      maxOutputTokens: 4096,
+      responseMimeType: 'application/json',
+    },
+  });
+
+  let response;
+  try {
+    response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }
+    );
+  } catch (netErr) {
+    setLoading(false);
+    showToast('⚠️ Cannot reach Google API — check internet connection.');
+    console.error('[BrainDump] Network error:', netErr);
+    return;
+  }
+
+  try {
+    const body = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setLoading(false);
+      const err    = body.error || {};
+      const msg    = err.message || 'Unknown error';
+      const status = err.status  || response.status;
+
+      // Extract retryDelay from Gemini's RetryInfo detail if present
+      const retryInfo  = (err.details || []).find(d => d['@type']?.includes('RetryInfo'));
+      const retryDelay = retryInfo?.retryDelay;              // e.g. "47s"
+      const retrySecs  = retryDelay ? parseInt(retryDelay) : null;
+
+      console.error('[BrainDump] API error', response.status, body);
+
+      if (response.status === 429) {
+        const waitMsg = retrySecs
+          ? `Rate limit hit — Gemini says wait ${retrySecs}s before trying again.`
+          : 'Rate limit hit — wait ~60s and try again.';
+        showToast('⚠️ ' + waitMsg);
+
+      } else if (response.status === 403) {
+        showToast('⚠️ 403 Invalid API key — check GEMINI_KEY in the code.');
+
+      } else if (response.status === 404) {
+        showToast('⚠️ 404 Model not found — ' + msg);
+
+      } else if (response.status === 400) {
+        showToast('⚠️ 400 Bad request — ' + msg);
+
+      } else {
+        showToast(`⚠️ ${response.status} ${status} — ${msg}`);
+      }
+      return;
+    }
+
+    const raw = body.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    console.log('[BrainDump] Raw Gemini response:', raw);
+
+    // Check for truncated response
+    const finishReason = body.candidates?.[0]?.finishReason;
+    if (finishReason && finishReason !== 'STOP') {
+      console.warn('[BrainDump] Finish reason:', finishReason);
+    }
+
+    // Strip markdown fences (multiline-safe)
+    let clean = raw.replace(/^```json\s*/im, '').replace(/```\s*$/im, '').trim();
+
+    // If model added preamble/commentary, extract just the JSON object
+    if (!clean.startsWith('{')) {
+      const match = clean.match(/\{[\s\S]*\}/);
+      if (match) {
+        clean = match[0];
+      } else {
+        console.error('[BrainDump] Could not find JSON in response:', clean);
+        setLoading(false);
+        showToast('⚠️ AI did not return JSON — check console (F12) for raw output');
+        return;
+      }
+    }
+
+    const parsed = JSON.parse(clean);
+
+    currentTasks = (parsed.tasks || []).map(t => ({ ...t, done: false }));
+    saveTasksToStorage();
+    saveToHistory(text, parsed);
+    renderResults(parsed);
+
+  } catch (err) {
+    setLoading(false);
+    if (err instanceof SyntaxError) {
+      showToast('⚠️ JSON parse failed — check console (F12) for raw output');
+    } else {
+      showToast('⚠️ ' + (err.message || 'Something went wrong'));
+    }
+    console.error('[BrainDump] Error:', err);
+  }
+}
+
+
+function setLoading(on) {
+  document.getElementById('loadingState').className = 'loading-state' + (on ? ' show' : '');
+  document.getElementById('results').className      = 'results';
+  document.getElementById('analyseBtn').disabled    = on;
+  document.getElementById('btnText').textContent    = on ? 'Analysing…' : '✦ Analyse';
+  if (on) {
+    document.getElementById('loadingText').textContent = 'Analysing your brain dump…';
+    window.scrollTo({ top: document.getElementById('loadingState').offsetTop - 80, behavior: 'smooth' });
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER RESULTS
+// ═══════════════════════════════════════════════════════
+function renderResults(parsed) {
+  setLoading(false);
+
+  // Banner
+  document.getElementById('bannerSummary').textContent = parsed.summary || '';
+  document.getElementById('mindsetAdvice').textContent = parsed.mindsetAdvice
+    ? '💡 ' + parsed.mindsetAdvice : '';
+
+  const topList = document.getElementById('topActionsList');
+  topList.innerHTML = (parsed.topActions || []).map((a, i) =>
+    `<div class="top-action-item">
+      <span class="action-num">${i + 1}</span>
+      <span>${esc(a)}</span>
+    </div>`
+  ).join('');
+
+  // Quadrants — sort by score (urgency × importance) descending, assign rank
+  ['Q1','Q2','Q3','Q4'].forEach(q => {
+    const items = currentTasks
+      .filter(t => t.quadrant === q)
+      .sort((a, b) => {
+        const scoreA = a.score ?? (a.urgency * a.importance);
+        const scoreB = b.score ?? (b.urgency * b.importance);
+        return scoreB - scoreA;
+      })
+      .map((t, i) => ({ ...t, rank: i + 1 }));
+
+    const el = document.getElementById(q.toLowerCase() + '-tasks');
+    el.innerHTML = items.length
+      ? items.map(t => taskCardHtml(t)).join('')
+      : `<div class="empty-q">Nothing here — good sign!</div>`;
+  });
+
+  document.getElementById('results').className = 'results show';
+  window.scrollTo({ top: document.getElementById('topBanner').offsetTop - 80, behavior: 'smooth' });
+  renderHistory();
+}
+
+function taskCardHtml(t) {
+  const doneClass = t.done ? ' done' : '';
+  const chkClass  = t.done ? ' checked' : '';
+  const score     = t.score ?? (t.urgency * t.importance) ?? '—';
+  const moveItems = [
+    { q: 'Q1', label: '🔥 Do Now',    color: 'var(--q1)' },
+    { q: 'Q2', label: '📅 Schedule',  color: 'var(--q2)' },
+    { q: 'Q3', label: '👤 Delegate',  color: 'var(--q3)' },
+    { q: 'Q4', label: '🗑 Eliminate', color: 'var(--q4)' },
+  ].map(({ q, label, color }) =>
+    `<button class="move-menu-item${t.quadrant === q ? ' current' : ''}" onclick="moveTask('${t.id}','${q}')">
+      <span class="move-menu-dot" style="background:${color}"></span>${label}
+    </button>`
+  ).join('');
+
+  return `
+    <div class="task-card${doneClass}" id="card-${t.id}" draggable="true"
+         ondragstart="handleDragStart(event,'${t.id}')"
+         ondragend="handleDragEnd(event)">
+      <div class="task-top">
+        <button class="task-check-btn${chkClass}" onclick="toggleDone('${t.id}')" title="Mark done">
+          ${t.done ? '✓' : ''}
+        </button>
+        <span class="rank-badge" title="Priority rank — score ${score}">#${t.rank}</span>
+        <span class="task-title">${esc(t.title)}</span>
+        <span class="task-time">${esc(t.timeEst || '')}</span>
+        <div class="move-menu-wrap">
+          <button class="move-btn" onclick="toggleMoveMenu(event,'${t.id}')" title="Move to another quadrant">⇄</button>
+          <div class="move-menu" id="move-menu-${t.id}">${moveItems}</div>
+        </div>
+      </div>
+      <div class="task-action">${esc(t.action || '')}</div>
+      <div class="task-why">${esc(t.why || '')}</div>
+    </div>`;
+}
+
+function toggleDone(id) {
+  const task = currentTasks.find(t => t.id === id);
+  if (!task) return;
+  task.done = !task.done;
+  saveTasksToStorage();
+  saveTaskStateToHistory(id);
+  const card = document.getElementById('card-' + id);
+  if (card) {
+    card.className = 'task-card' + (task.done ? ' done' : '');
+    const btn = card.querySelector('.task-check-btn');
+    btn.className  = 'task-check-btn' + (task.done ? ' checked' : '');
+    btn.textContent = task.done ? '✓' : '';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MOVE TASKS
+// ═══════════════════════════════════════════════════════
+function moveTask(taskId, newQuadrant) {
+  const task = currentTasks.find(t => t.id === taskId);
+  if (!task || task.quadrant === newQuadrant) { closeMoveMenuAll(); return; }
+  const oldQ = task.quadrant;
+  task.quadrant = newQuadrant;
+  saveTasksToStorage();
+  saveTaskStateToHistory(taskId);
+  rerenderQuadrant(oldQ);
+  rerenderQuadrant(newQuadrant);
+  closeMoveMenuAll();
+  showToast('Moved to ' + quadrantLabel(newQuadrant));
+}
+
+function rerenderQuadrant(q) {
+  const items = currentTasks
+    .filter(t => t.quadrant === q)
+    .sort((a, b) => {
+      const sA = a.score ?? (a.urgency * a.importance);
+      const sB = b.score ?? (b.urgency * b.importance);
+      return sB - sA;
+    })
+    .map((t, i) => ({ ...t, rank: i + 1 }));
+  const el = document.getElementById(q.toLowerCase() + '-tasks');
+  el.innerHTML = items.length
+    ? items.map(t => taskCardHtml(t)).join('')
+    : `<div class="empty-q">Nothing here — good sign!</div>`;
+}
+
+function quadrantLabel(q) {
+  return { Q1: 'Do Now', Q2: 'Schedule', Q3: 'Delegate', Q4: 'Eliminate' }[q] || q;
+}
+
+// ── MOVE MENU ──
+function toggleMoveMenu(e, id) {
+  e.stopPropagation();
+  const menu   = document.getElementById('move-menu-' + id);
+  const isOpen = menu.classList.contains('open');
+  closeMoveMenuAll();
+  if (!isOpen) menu.classList.add('open');
+}
+
+function closeMoveMenuAll() {
+  document.querySelectorAll('.move-menu.open').forEach(m => m.classList.remove('open'));
+}
+
+// ── DRAG & DROP ──
+function handleDragStart(e, id) {
+  draggedTaskId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', id);
+  setTimeout(() => {
+    const card = document.getElementById('card-' + id);
+    if (card) card.classList.add('dragging');
+  }, 0);
+}
+
+function handleDragEnd(e) {
+  draggedTaskId = null;
+  document.querySelectorAll('.task-card.dragging').forEach(c => c.classList.remove('dragging'));
+  document.querySelectorAll('.quadrant.drag-over').forEach(z => z.classList.remove('drag-over'));
+}
+
+function setupDropZones() {
+  ['q1','q2','q3','q4'].forEach(q => {
+    const el = document.getElementById(q);   // whole quadrant div, not just task-list
+    let enterCount = 0;
+
+    el.addEventListener('dragenter', e => {
+      if (!draggedTaskId) return;
+      e.preventDefault();
+      enterCount++;
+      el.classList.add('drag-over');
+    });
+
+    el.addEventListener('dragover', e => {
+      if (!draggedTaskId) return;
+      e.preventDefault();                    // must preventDefault on every dragover to allow drop
+      e.dataTransfer.dropEffect = 'move';
+    });
+
+    el.addEventListener('dragleave', () => {
+      enterCount--;
+      if (enterCount <= 0) { enterCount = 0; el.classList.remove('drag-over'); }
+    });
+
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      enterCount = 0;
+      el.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain') || draggedTaskId;
+      if (id) moveTask(id, q.toUpperCase());
+    });
+  });
+}
+
+function resetResults() {
+  document.getElementById('results').className = 'results';
+  document.getElementById('dumpArea').value    = '';
+  document.getElementById('charCount').textContent = '0 characters';
+  currentTasks = [];
+  currentHistoryId = null;
+  hideEditingNotice();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startFresh() {
+  resetResults();
+}
+
+function showEditingNotice(date) {
+  const d = new Date(date);
+  const label = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+    + ' · ' + d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('editingDateLabel').textContent = label;
+  document.getElementById('editingNotice').style.display = 'flex';
+}
+
+function hideEditingNotice() {
+  document.getElementById('editingNotice').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════════════════
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]'); }
+  catch { return []; }
+}
+
+function saveToHistory(text, parsed) {
+  const h = loadHistory();
+  const counts = {
+    Q1: (parsed.tasks || []).filter(t => t.quadrant === 'Q1').length,
+    Q2: (parsed.tasks || []).filter(t => t.quadrant === 'Q2').length,
+    Q3: (parsed.tasks || []).filter(t => t.quadrant === 'Q3').length,
+    Q4: (parsed.tasks || []).filter(t => t.quadrant === 'Q4').length,
+  };
+
+  if (currentHistoryId) {
+    const idx = h.findIndex(x => x.id === currentHistoryId);
+    if (idx !== -1) {
+      h[idx] = { ...h[idx], preview: text.slice(0, 80), counts, parsed, text, taskStates: {} };
+      localStorage.setItem(KEY_HISTORY, JSON.stringify(h));
+      return;
+    }
+  }
+
+  const id = Date.now();
+  currentHistoryId = id;
+  h.unshift({ id, date: id, preview: text.slice(0, 80), counts, parsed, text, taskStates: {} });
+  localStorage.setItem(KEY_HISTORY, JSON.stringify(h.slice(0, 10)));
+}
+
+function saveTaskStateToHistory(taskId) {
+  if (!currentHistoryId) return;
+  const h = loadHistory();
+  const item = h.find(x => x.id === currentHistoryId);
+  if (!item) return;
+  const task = currentTasks.find(t => t.id === taskId);
+  if (!task) return;
+  if (!item.taskStates) item.taskStates = {};
+  item.taskStates[taskId] = { done: task.done, quadrant: task.quadrant };
+  localStorage.setItem(KEY_HISTORY, JSON.stringify(h));
+}
+
+function renderHistory() {
+  const h   = loadHistory();
+  const sec = document.getElementById('historySection');
+  const lbl = document.getElementById('historyLabel');
+  const lst = document.getElementById('historyList');
+
+  if (h.length === 0) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  lbl.textContent   = `Past Analyses (${h.length})`;
+
+  lst.innerHTML = h.map(item => {
+    const d = new Date(item.date);
+    const dateLine = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    const timeLine = d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+    const badges = ['Q1','Q2','Q3','Q4'].filter(q => item.counts[q] > 0).map(q =>
+      `<span class="h-badge h-${q.toLowerCase()}">${item.counts[q]}</span>`
+    ).join('');
+    return `
+      <div class="history-item" onclick="restoreHistory(${item.id})">
+        <div style="flex:1; min-width:0;">
+          <div class="history-date-main">${dateLine}</div>
+          <div class="history-meta">${timeLine}</div>
+        </div>
+        <div class="history-badges">${badges}</div>
+      </div>`;
+  }).join('');
+}
+
+function restoreHistory(id) {
+  const h    = loadHistory();
+  const item = h.find(x => x.id === id);
+  if (!item) return;
+  currentHistoryId = id;
+  document.getElementById('dumpArea').value = item.text;
+  document.getElementById('charCount').textContent =
+    `${item.text.length} character${item.text.length !== 1 ? 's' : ''}`;
+  const taskStates = item.taskStates || {};
+  currentTasks = (item.parsed.tasks || []).map(t => {
+    const s = taskStates[t.id];
+    const state = (s && typeof s === 'object') ? s : { done: !!s };
+    return { ...t, done: state.done ?? false, quadrant: state.quadrant ?? t.quadrant };
+  });
+  saveTasksToStorage();
+  renderResults(item.parsed);
+  showEditingNotice(item.date);
+}
+
+function clearHistory() {
+  if (!confirm('Clear all history?')) return;
+  localStorage.removeItem(KEY_HISTORY);
+  renderHistory();
+  showToast('History cleared');
+}
+
+// ═══════════════════════════════════════════════════════
+// TASK PERSISTENCE
+// ═══════════════════════════════════════════════════════
+function saveTasksToStorage() {
+  localStorage.setItem(KEY_TASKS, JSON.stringify(currentTasks));
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function clearDump() {
+  document.getElementById('dumpArea').value = '';
+  document.getElementById('charCount').textContent = '0 characters';
+}
+
+document.getElementById('dumpArea').addEventListener('input', e => {
+  const n = e.target.value.length;
+  document.getElementById('charCount').textContent = `${n} character${n !== 1 ? 's' : ''}`;
+});
+
+document.getElementById('dumpArea').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') analyse();
+});
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let _tt;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+renderHistory();
+setupDropZones();
+document.addEventListener('click', e => {
+  if (!e.target.closest('.move-menu-wrap')) closeMoveMenuAll();
+});
+
+</script>
+</body>
+</html>

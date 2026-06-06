@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Seun Gwak</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff; --black: #0a0a0a; --blue: #1a6bff;
+      --muted: #888888; --border: #e8e8e8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--black);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 860px; margin: 0 auto; padding: 0 24px;
+      height: 60px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      font-size: 20px; font-weight: 600; color: var(--black);
+      text-decoration: none; letter-spacing: -0.02em;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .nav-brand-dot { width: 5px; height: 5px; background: var(--blue); border-radius: 50%; flex-shrink: 0; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a {
+      font-size: 20px; font-weight: 400; color: var(--muted);
+      text-decoration: none; transition: color 0.14s;
+    }
+    .nav-links a:hover { color: var(--black); }
+    main { max-width: 860px; margin: 0 auto; padding: 60px 24px 80px; flex: 1; }
+    h1 {
+      font-family: 'DM Serif Display', serif; font-style: italic;
+      font-size: clamp(2.4rem, 6vw, 4rem); margin-bottom: 16px;
+    }
+    p { font-size: 19px; font-weight: 300; color: var(--muted); line-height: 1.6; }
+    footer { border-top: 1px solid var(--border); padding: 18px 24px; text-align: center; }
+    .footer-text { font-size: 18px; font-weight: 300; color: #c0c0c0; letter-spacing: 0.05em; }
+    @media (max-width: 540px) { .nav-links { gap: 16px; } .nav-links a { font-size: 16px; } }
+    @media (max-width: 380px) { .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">Seun Gwak <span class="nav-brand-dot"></span></a>
+    <div class="nav-links">
+      <a href="EL1.HTML">EL1</a>
+      <a href="BrainDump.html">Brain Dump</a>
+      <a href="Newsite.html">Budget</a>
+      <a href="Property_sale_calculator.html">Property</a>
+      <a href="rba_cash_rate_history_3.html">RBA Rate</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <h1>About Me</h1>
+  <p>Hello! I'm learning how to build websites.</p>
+</main>
+
+<footer>
+  <p class="footer-text">Seun Gwak &nbsp;·&nbsp; 곽승관 &nbsp;·&nbsp; Private &nbsp;·&nbsp; 2026</p>
+</footer>
+
+</body>
+</html>

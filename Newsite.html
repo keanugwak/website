@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Overview — Seun Gwak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F0F4FF;--surface:#FFF;--surface2:#F8FAFF;
+  --border:rgba(15,23,42,.07);--shadow:0 4px 20px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);
+  --ink:#0F172A;--ink2:#334155;--ink3:#64748B;--ink4:#94A3B8;
+  --blue:#2563EB;--blue-s:#EFF6FF;
+  --green:#059669;--green-s:#ECFDF5;
+  --amber:#D97706;--amber-s:#FFFBEB;
+  --red:#DC2626;--red-s:#FEF2F2;
+  --purple:#7C3AED;--purple-s:#F5F3FF;
+  --indigo:#4F46E5;--teal:#0D9488;--orange:#EA580C;
+  --r:14px;--rs:8px;--rl:20px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+.site-nav{position:sticky;top:0;z-index:200;height:56px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;align-items:center}
+.sn-inner{max-width:1240px;margin:0 auto;width:100%;padding:0 48px;display:flex;align-items:center;justify-content:space-between}
+.sn-brand{font-size:17px;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-.02em;display:flex;align-items:center;gap:6px}
+.sn-dot{width:5px;height:5px;background:var(--blue);border-radius:50%;flex-shrink:0}
+.sn-links{display:flex;align-items:center;gap:28px}
+.sn-links a{font-size:15px;font-weight:400;color:var(--ink3);text-decoration:none;transition:color .14s}
+.sn-links a:hover{color:var(--ink)}
+.sn-links a.active{font-weight:600;color:var(--ink)}
+header{background:#fff;border-bottom:1px solid var(--border);padding:30px 48px;position:relative}
+header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal) 0%,var(--blue) 50%,var(--purple) 100%)}
+.header-inner{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin-bottom:8px}
+.eyebrow::before{content:'';width:18px;height:1px;background:var(--teal)}
+h1{font-size:clamp(22px,2.4vw,32px);font-weight:800;line-height:1.1;color:var(--ink);letter-spacing:-.025em}
+h1 em{font-style:normal;color:var(--teal)}
+.header-meta{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3);margin-top:7px;letter-spacing:.02em}
+.hpills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hpill{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 13px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--ink2)}
+.hpill.g{background:var(--green-s);border-color:rgba(5,150,105,.25);color:var(--green)}
+.hpill.r{background:var(--red-s);border-color:rgba(220,38,38,.2);color:var(--red)}
+.balance-card{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:var(--r);padding:16px 22px;text-align:right;flex-shrink:0;min-width:170px}
+.bc-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+.bc-value{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.025em;line-height:1}
+.bc-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);margin-top:5px}
+.budget-nav{position:sticky;top:56px;z-index:100;background:var(--surface);border-bottom:2px solid var(--border)}
+.bn-inner{max-width:1240px;margin:0 auto;display:flex;padding:0 48px;overflow-x:auto}
+.nav-tab{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;color:var(--ink3);padding:13px 22px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .18s;white-space:nowrap;letter-spacing:-.005em}
+.nav-tab:hover{color:var(--ink);background:var(--surface2)}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+#sub-nav{background:var(--surface);border-bottom:1px solid var(--border);display:none;padding:0 48px}
+#sub-nav.visible{display:block}
+.sub-nav-inner{max-width:1240px;margin:0 auto;display:flex;overflow-x:auto}
+.sub-tab{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:13px 18px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.sub-tab:hover{color:var(--ink)}
+.sub-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+main{max-width:1240px;margin:0 auto;padding:40px 48px}
+.tab-section{display:none;animation:fadeUp .28s ease}
+.tab-section.active{display:block}
+.sub-section{display:none}
+.sub-section.active{display:block;animation:fadeUp .28s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-head{margin-bottom:28px}
+.section-head h2{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.section-head p{font-size:13px;color:var(--ink3);margin-top:5px;font-family:'JetBrains Mono',monospace}
+.s-h3{font-size:20px;font-weight:800;letter-spacing:-.015em;margin:32px 0 16px}
+.empty-state{background:var(--surface);border:2px dashed var(--border);border-radius:var(--rl);padding:64px 40px;text-align:center;margin-bottom:28px}
+.empty-state-icon{font-size:44px;margin-bottom:16px}
+.empty-state h3{font-size:20px;font-weight:700;margin-bottom:8px}
+.empty-state p{font-size:14px;color:var(--ink3);line-height:1.7;margin-bottom:24px}
+.empty-state-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .18s}
+.empty-state-btn:hover{background:#1d4ed8}
+.hero-chart{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:30px 32px;margin-bottom:28px;position:relative;overflow:hidden}
+.hero-chart::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3B82F6,#8B5CF6,#0D9488)}
+.hero-chart h3{font-size:18px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+.hc-sub{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3);margin-bottom:22px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.sc-bar{position:absolute;top:0;left:0;right:0;height:3px}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);margin-bottom:10px;margin-top:12px}
+.stat-value{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.stat-sub{font-size:13px;color:var(--ink3);margin-top:6px}
+.sc-blue .sc-bar{background:var(--blue)}.sc-blue .stat-value{color:var(--blue)}
+.sc-green .sc-bar{background:var(--green)}.sc-green .stat-value{color:var(--green)}
+.sc-red .sc-bar{background:var(--red)}.sc-red .stat-value{color:var(--red)}
+.sc-amber .sc-bar{background:var(--amber)}.sc-amber .stat-value{color:var(--amber)}
+.sc-purple .sc-bar{background:var(--purple)}.sc-purple .stat-value{color:var(--purple)}
+.sc-teal .sc-bar{background:var(--teal)}.sc-teal .stat-value{color:var(--teal)}
+.sc-ink .sc-bar{background:var(--ink)}.sc-ink .stat-value{color:var(--ink)}
+#adv-stat-grid{grid-template-columns:repeat(6,1fr)}
+#adv-stat-grid .stat-card{padding:13px 14px}
+#adv-stat-grid .stat-value{font-size:19px}
+#adv-stat-grid .stat-label{font-size:10px;margin-top:8px;margin-bottom:5px}
+#adv-stat-grid .stat-sub{font-size:10px;margin-top:3px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px}
+.chart-box.full{grid-column:1/-1}
+.chart-box h3{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+.cb-sub{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3);margin-bottom:18px}
+.chart-wrap{position:relative;width:100%}
+.data-table{width:100%;border-collapse:collapse;font-size:14px}
+.data-table thead tr{border-bottom:1px solid var(--border)}
+.data-table th{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);padding:10px 14px;text-align:left;font-weight:500}
+.data-table th:last-child{text-align:right}
+.data-table td{padding:11px 14px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--ink2)}
+.data-table td:last-child{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--surface2)}
+.cat-dot{display:inline-block;width:8px;height:8px;border-radius:3px;margin-right:8px;vertical-align:middle}
+.alert{padding:13px 18px;border-radius:var(--rs);margin-bottom:16px;font-size:14px;line-height:1.6;color:var(--ink2)}
+.alert-red{background:var(--red-s);border:1px solid rgba(220,38,38,.15)}.alert-red strong{color:var(--red)}
+.alert-green{background:var(--green-s);border:1px solid rgba(5,150,105,.15)}.alert-green strong{color:var(--green)}
+.alert-blue{background:var(--blue-s);border:1px solid rgba(37,99,235,.15)}.alert-blue strong{color:var(--blue)}
+.alert-amber{background:var(--amber-s);border:1px solid rgba(217,119,6,.15)}.alert-amber strong{color:var(--amber)}
+#adv-alerts .alert{font-size:19px;padding:18px 24px;line-height:1.5}
+.budget-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+.bt-heads{display:grid;grid-template-columns:1fr 100px 90px 110px 120px;padding:9px 20px;background:var(--surface2);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);border-bottom:1px solid var(--border)}
+.bt-heads span:not(:first-child){text-align:right}
+.bt-row{display:grid;grid-template-columns:1fr 100px 90px 110px 120px;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,.04);font-size:14px;align-items:center;transition:background .12s}
+.bt-row:hover{background:var(--surface2)}.bt-row:last-child{border-bottom:none}
+.bt-cell{text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)}
+.bt-name{font-weight:500;color:var(--ink2);display:flex;align-items:center;gap:8px}
+.status-pill{display:inline-flex;align-items:center;justify-content:center;padding:4px 11px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.sp-green{background:var(--green-s);color:var(--green)}
+.sp-red{background:var(--red-s);color:var(--red)}
+.sp-amber{background:var(--amber-s);color:var(--amber)}
+.sp-blue{background:var(--blue-s);color:var(--blue)}
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:28px}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:transform .18s,box-shadow .18s}
+.insight-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.ic-tag{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);margin-bottom:8px}
+.ic-title{font-weight:700;font-size:17px;margin-bottom:8px}
+.ic-body{font-size:14px;color:var(--ink3);line-height:1.65}
+.ic-amount{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;margin-top:14px}
+.grand-total{display:flex;justify-content:space-between;align-items:center;padding:22px 26px;background:linear-gradient(135deg,#0F172A,#1E3A5F);border-radius:var(--r);color:#fff;margin-bottom:14px}
+.gt-label{font-size:15px;font-weight:500;opacity:.75}
+.gt-sub{font-family:'JetBrains Mono',monospace;font-size:12px;opacity:.4;margin-top:3px}
+.gt-value{font-size:34px;font-weight:800;letter-spacing:-.025em;font-family:'JetBrains Mono',monospace}
+.fc-col-heads{display:grid;grid-template-columns:1fr 90px 90px 100px;padding:9px 20px;background:var(--surface2);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);border-bottom:1px solid var(--border);border-radius:var(--r) var(--r) 0 0}
+.fc-col-heads span:not(:first-child){text-align:right}
+.forecast-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.fb-header{display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.fb-header-left{display:flex;align-items:center;gap:10px}
+.fb-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.fb-title{font-weight:600;font-size:15px}
+.fb-total{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px}
+.fb-row{display:grid;grid-template-columns:1fr 90px 90px 100px;padding:11px 20px;border-bottom:1px solid rgba(0,0,0,.04);font-size:14px;align-items:center;transition:background .12s}
+.fb-row:hover{background:var(--surface2)}.fb-row:last-child{border-bottom:none}
+.fb-rv{text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)}
+.fb-rf{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px}
+.credit-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:24px}
+.cb-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--green-s)}
+.cb-header h4{font-size:16px;font-weight:700}
+.cb-total-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:17px;color:var(--green)}
+.cb-col-heads{display:grid;grid-template-columns:72px 1fr 90px 110px;padding:8px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);border-bottom:1px solid var(--border);background:var(--surface2)}
+.cb-col-heads span:not(:first-child){text-align:right}
+.cb-row{display:grid;grid-template-columns:72px 1fr 90px 110px;padding:11px 20px;border-bottom:1px solid rgba(0,0,0,.04);font-size:14px;align-items:center}
+.cb-row:hover{background:var(--surface2)}.cb-row:last-child{border-bottom:none}
+.cb-date{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)}
+.cb-amount{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--green)}
+.cb-type{text-align:right}
+.pill-pay{display:inline-block;padding:3px 10px;border-radius:100px;background:var(--blue-s);color:var(--blue);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600}
+.cb-none{padding:24px 20px;font-size:14px;color:var(--ink4);font-family:'JetBrains Mono',monospace;text-align:center}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--rl);padding:60px 40px;text-align:center;position:relative;cursor:pointer;transition:all .2s;background:var(--surface)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue);background:var(--blue-s)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz-icon{font-size:40px;margin-bottom:16px}
+.uz-title{font-size:18px;font-weight:700;margin-bottom:6px}
+.uz-hint{font-size:14px;color:var(--ink3)}
+.upload-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0}
+.us-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:16px 18px}
+.us-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);margin-bottom:8px}
+.us-value{font-size:20px;font-weight:700;color:var(--ink)}
+.col-mapper{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:20px}
+.col-mapper h4{font-size:15px;font-weight:700;margin-bottom:14px}
+.col-map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.col-map-item label{font-size:12px;font-weight:600;color:var(--ink3);display:block;margin-bottom:6px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.col-map-item select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink);background:var(--surface);cursor:pointer}
+.preview-tbl-wrap{max-height:420px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r)}
+.preview-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.preview-tbl thead{position:sticky;top:0;background:var(--surface2);z-index:1}
+.preview-tbl th{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);padding:10px 14px;text-align:left;font-weight:500;border-bottom:1px solid var(--border)}
+.preview-tbl td{padding:9px 14px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--ink2)}
+.preview-tbl tr.credit-row td{background:rgba(5,150,105,.04)}
+.preview-tbl tr:hover td{background:var(--surface2)}
+.cat-src{display:inline-block;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600}
+.cs-hist{background:var(--green-s);color:var(--green)}.cs-auto{background:var(--blue-s);color:var(--blue)}
+.cs-ai{background:var(--purple-s);color:var(--purple)}.cs-new{background:var(--amber-s);color:var(--amber)}
+.cat-select{border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface);color:var(--ink);cursor:pointer}
+.commit-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:20px}
+.commit-btn:hover{background:#1d4ed8}.commit-btn:disabled{background:var(--ink4);cursor:not-allowed}
+.cancel-btn{margin-top:20px;margin-left:12px;padding:14px 24px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:var(--ink3)}
+.upload-history{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-top:24px}
+.upload-history h4{font-size:15px;font-weight:700;margin-bottom:14px}
+.uh-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;flex-wrap:wrap;gap:6px}
+.uh-item:last-child{border-bottom:none}
+.danger-zone{margin-top:32px;padding:22px 24px;background:var(--red-s);border:1px solid rgba(220,38,38,.18);border-radius:var(--r)}
+.danger-zone-title{font-size:14px;font-weight:700;color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.danger-zone-desc{font-size:13px;color:var(--ink3);line-height:1.65;margin-bottom:16px}
+.danger-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:var(--red);color:#fff;border:none;border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .18s}
+.danger-btn:hover{background:#b91c1c}
+.danger-confirm-msg{font-size:13px;font-weight:700;color:var(--red);margin-bottom:12px}
+.type-row{display:flex;gap:12px;margin-bottom:20px}
+.type-btn{flex:1;padding:14px;border:2px solid var(--border);border-radius:var(--r);background:var(--surface);cursor:pointer;text-align:center;transition:all .18s}
+.type-btn.sel{border-color:var(--blue);background:var(--blue-s)}
+.type-btn .ti{font-size:24px;margin-bottom:6px}
+.type-btn .tl{font-weight:700;font-size:14px;color:var(--ink)}
+.type-btn .td{font-size:12px;color:var(--ink3);margin-top:3px}
+/* ── Reconciliation panel ── */
+.rec-panel{border-radius:var(--r);overflow:hidden;margin:20px 0}
+.rec-header{display:flex;justify-content:space-between;align-items:center;padding:13px 20px;font-weight:700;font-size:15px;cursor:pointer;user-select:none}
+.rec-ok .rec-header{background:var(--green-s);color:var(--green)}
+.rec-warn .rec-header{background:var(--red-s);color:var(--red)}
+.rec-amber .rec-header{background:var(--amber-s);color:var(--amber)}
+.rec-header-badge{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+.rec-row{display:grid;grid-template-columns:1fr 140px 140px 110px;align-items:center;padding:11px 20px;border-bottom:1px solid var(--border);font-size:14px;background:var(--surface)}
+.rec-row:last-child{border-bottom:none}
+.rec-label{font-weight:500;color:var(--ink2)}
+.rec-amt{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3);text-align:right}
+.rec-stated{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--ink);text-align:right}
+.rec-badge{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;text-align:right}
+.rec-match{color:var(--green)}.rec-diff{color:var(--red)}.rec-close{color:var(--amber)}
+.rec-balances{display:flex;justify-content:space-between;padding:11px 20px;background:var(--surface2);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3);border-top:1px solid var(--border)}
+.rec-expand{display:inline-flex;align-items:center;gap:5px;padding:3px 12px 3px 10px;border:1.5px solid currentColor;border-radius:100px;font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:700;background:rgba(255,255,255,.12);cursor:pointer;color:inherit;transition:background .15s;flex-shrink:0;white-space:nowrap;letter-spacing:.02em}
+.rec-expand:hover{background:rgba(255,255,255,.25)}
+.trend-select{padding:6px 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);cursor:pointer;outline:none;transition:border-color .15s}
+.trend-select:focus,.trend-select:hover{border-color:var(--blue)}
+.drag-handle{position:absolute;top:10px;right:10px;font-size:18px;color:var(--ink4);cursor:grab;opacity:0;transition:opacity .15s;line-height:1;user-select:none;z-index:2}
+.chart-box{position:relative}
+.chart-box:hover .drag-handle{opacity:1}
+.chart-box.drag-over{outline:2px dashed var(--blue);outline-offset:2px;background:var(--blue-s)}
+.chart-box.dragging{opacity:.4}
+.stat-card{position:relative}
+.stat-card:hover .drag-handle{opacity:1}
+.stat-card.drag-over{outline:2px dashed var(--blue);outline-offset:2px}
+.stat-card.dragging{opacity:.4}
+.resize-handle{height:12px;cursor:ns-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:6px;border-radius:100px;transition:background .15s}
+.resize-handle::before{content:'';width:36px;height:3px;border-radius:100px;background:var(--border);transition:background .15s,width .15s}
+.resize-handle:hover::before,.resize-handle.rsz-active::before{background:var(--blue);width:52px}
+.resize-handle:hover,.resize-handle.rsz-active{background:var(--blue-s)}
+footer{max-width:1240px;margin:48px auto 0;padding:22px 48px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink4);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center}
+.back-link{color:var(--ink4);text-decoration:none;transition:color .15s}.back-link:hover{color:var(--blue)}
+@media(max-width:768px){
+  header,.budget-nav,#sub-nav{padding-left:20px;padding-right:20px}
+  main{padding:24px 20px}.sn-inner,.bn-inner{padding:0 20px}
+  .chart-grid{grid-template-columns:1fr}
+  h1{font-size:26px}.balance-card{display:none}
+  .bt-heads,.bt-row{grid-template-columns:1fr 90px 90px}
+  .bt-heads span:nth-child(3),.bt-row .bt-cell:nth-child(3){display:none}
+  .col-map-grid{grid-template-columns:1fr}.type-row{flex-direction:column}
+}
+@media(max-width:540px){.sn-links{gap:16px}.sn-links a{font-size:14px}}
+@media(max-width:380px){.sn-links{display:none}}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="sn-inner">
+    <a href="index.html" class="sn-brand">Seun Gwak<span class="sn-dot"></span></a>
+    <div class="sn-links">
+      <a href="EL1.HTML">EL1</a>
+      <a href="BrainDump.html">Brain Dump</a>
+      <a href="Newsite.html" class="active">Budget</a>
+      <a href="Property_sale_calculator.html">Property</a>
+      <a href="rba_cash_rate_history_3.html">RBA Rate</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="eyebrow">Personal Finance Dashboard</div>
+      <h1>Budget <em>Overview</em></h1>
+      <div class="header-meta" id="hdr-meta">Upload a statement to begin</div>
+      <div class="hpills">
+        <div class="hpill g">Take-Home <span id="hdr-takehome">—</span></div>
+        <div class="hpill r">Mortgage <span id="hdr-mortgage">—</span></div>
+        <div class="hpill">Savings <span id="hdr-savings">—</span></div>
+      </div>
+    </div>
+    <div class="balance-card">
+      <div class="bc-label">Latest Balance</div>
+      <div class="bc-value" id="hdr-balance">—</div>
+      <div class="bc-sub" id="hdr-balance-date">No statement uploaded</div>
+    </div>
+  </div>
+</header>
+
+<div class="budget-nav">
+  <div class="bn-inner">
+    <button class="nav-tab active" onclick="showSection('s-advisory',event)">Advisory</button>
+    <button class="nav-tab" onclick="showSection('s-income',event)">Income</button>
+    <button class="nav-tab" onclick="showSection('s-expenses',event)">Expenses</button>
+    <button class="nav-tab" onclick="showSection('s-forecast',event)">Forecast</button>
+    <button class="nav-tab" onclick="showSection('s-upload',event)">+ Upload</button>
+  </div>
+</div>
+
+<div id="sub-nav">
+  <div class="sub-nav-inner" id="sub-nav-inner">
+    <button class="sub-tab active" onclick="showSub('ss-overview',event)">Overview</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ADVISORY -->
+<section id="s-advisory" class="tab-section active">
+  <div class="section-head"><h2>Financial Advisory</h2><p id="adv-sub">Upload statements to generate your personalised analysis</p></div>
+  <div id="adv-empty" class="empty-state">
+    <div class="empty-state-icon">📊</div>
+    <h3>No Data Yet</h3>
+    <p>Upload a bank statement or payroll PDF via the Upload tab to generate your<br>personalised financial health summary and recommendations.</p>
+    <button class="empty-state-btn" onclick="goUpload()">Go to + Upload →</button>
+  </div>
+  <div id="adv-content" style="display:none">
+    <div id="adv-alerts"></div>
+    <div class="stat-grid" id="adv-stat-grid">
+      <div class="stat-card sc-blue" id="asc-takehome" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><div class="sc-bar"></div><div class="stat-label">Monthly Take-Home</div><div class="stat-value" id="adv-takehome">—</div><div class="stat-sub" id="adv-takehome-sub">—</div></div>
+      <div class="stat-card sc-green" id="asc-aftermort" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><div class="sc-bar"></div><div class="stat-label">After Mortgage</div><div class="stat-value" id="adv-after-mort">—</div><div class="stat-sub" id="adv-after-mort-sub">—</div></div>
+      <div class="stat-card sc-red" id="asc-housing" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><div class="sc-bar"></div><div class="stat-label">Housing + Edu %</div><div class="stat-value" id="adv-housing-pct">—</div><div class="stat-sub">of monthly income</div></div>
+      <div class="stat-card sc-ink" id="asc-balance" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><div class="sc-bar"></div><div class="stat-label">Latest Balance</div><div class="stat-value" id="adv-balance">—</div><div class="stat-sub" id="adv-balance-sub">—</div></div>
+      <div class="stat-card sc-amber" id="asc-savings" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><div class="sc-bar"></div><div class="stat-label">Savings Rate</div><div class="stat-value" id="adv-savings-rate">—</div><div class="stat-sub" id="adv-savings-sub">—</div></div>
+      <div class="stat-card sc-teal" id="asc-months" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><div class="sc-bar"></div><div class="stat-label">Months of Data</div><div class="stat-value" id="adv-months-count">—</div><div class="stat-sub">statements</div></div>
+    </div>
+    <div class="chart-grid" id="adv-chart-grid">
+      <div class="chart-box" id="acb-donut" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><h3>Spend by Category</h3><div class="cb-sub">Current budget breakdown</div><div class="chart-wrap"><canvas id="realityDonut" height="260"></canvas></div></div>
+      <div class="chart-box" id="acb-recommended" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><h3>Actual vs Recommended %</h3><div class="cb-sub">vs financial guidelines</div><div class="chart-wrap"><canvas id="recommendedChart" height="260"></canvas></div></div>
+    </div>
+    <div class="s-h3">Budget Analysis</div>
+    <div class="budget-block">
+      <div class="bt-heads"><span>Category</span><span>Avg $/mo</span><span>% Income</span><span>Recommended</span><span>Status</span></div>
+      <div id="adv-budget-rows"></div>
+    </div>
+    <div class="s-h3">Key Insights</div>
+    <div class="insight-grid" id="adv-insights"></div>
+    <div class="chart-grid">
+      <div class="chart-box full"><h3>Target Budget Allocation</h3><div class="cb-sub">Recommended % of monthly income</div><div class="chart-wrap"><canvas id="targetBudgetChart" height="140"></canvas></div></div>
+    </div>
+    <div id="adv-grand-totals"></div>
+  </div>
+</section>
+
+<!-- INCOME -->
+<section id="s-income" class="tab-section">
+  <div class="section-head"><h2>Income Analysis</h2><p id="inc-sub">Upload a payroll or salary CSV to see income history</p></div>
+  <div id="inc-empty" class="empty-state">
+    <div class="empty-state-icon">💰</div>
+    <h3>No Income Data</h3>
+    <p>Upload an ANZ bank statement PDF via the Upload tab to see<br>your salary history, pay rises, and income trend charts.</p>
+    <button class="empty-state-btn" onclick="goUpload('income')">Go to + Upload →</button>
+  </div>
+  <div id="inc-content" style="display:none">
+    <div id="inc-payrise-slot"></div>
+    <div class="stat-grid">
+      <div class="stat-card sc-green"><div class="sc-bar"></div><div class="stat-label">Annual Rate (Est.)</div><div class="stat-value" id="inc-annual-rate">—</div><div class="stat-sub" id="inc-annual-rate-sub">—</div></div>
+      <div class="stat-card sc-blue"><div class="sc-bar"></div><div class="stat-label">Avg Monthly Est.</div><div class="stat-value" id="inc-avg-monthly">—</div></div>
+      <div class="stat-card sc-amber"><div class="sc-bar"></div><div class="stat-label">Total Received</div><div class="stat-value" id="inc-total-received">—</div></div>
+      <div class="stat-card sc-purple"><div class="sc-bar"></div><div class="stat-label">Pay Growth</div><div class="stat-value" id="inc-growth">—</div><div class="stat-sub" id="inc-growth-sub">first to last</div></div>
+    </div>
+    <div class="hero-chart"><h3>Pay History</h3><div class="hc-sub" id="inc-hero-sub">—</div><div class="chart-wrap"><canvas id="fortnightlyChart" height="120"></canvas></div></div>
+    <div class="chart-grid">
+      <div class="chart-box full"><h3>Monthly Income</h3><div class="cb-sub" id="inc-monthly-sub">—</div><div class="chart-wrap"><canvas id="monthlyIncomeChart" height="140"></canvas></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPENSES -->
+<section id="s-expenses" class="tab-section">
+  <div id="ss-overview" class="sub-section active">
+    <div class="section-head"><h2>Expenses Overview</h2><p id="exp-overview-sub">Upload statements to see your spending trends</p></div>
+    <div id="exp-empty" class="empty-state">
+      <div class="empty-state-icon">🧾</div>
+      <h3>No Statements Yet</h3>
+      <p>Upload credit card statements via the Upload tab<br>to see spending trends, category breakdowns, and monthly comparisons.</p>
+      <button class="empty-state-btn" onclick="goUpload()">Go to + Upload →</button>
+    </div>
+    <div id="exp-content" style="display:none">
+      <div class="hero-chart">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+          <h3 style="margin-bottom:0">Monthly Spend Trend</h3>
+          <select class="trend-select" onchange="setTrendFilter(this.value)">
+            <option value="all">All time</option>
+            <option value="3">Last 3 months</option>
+            <option value="6">Last 6 months</option>
+            <option value="12">Last 12 months</option>
+            <option value="24">Last 2 years</option>
+          </select>
+        </div>
+        <div class="chart-wrap"><canvas id="monthlyExpenseChart" height="120"></canvas></div>
+      </div>
+      <div class="chart-grid" id="exp-chart-grid">
+        <div class="chart-box" id="cb-donut" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><h3>Spend by Category</h3><div class="cb-sub" id="donut-sub">—</div><div class="chart-wrap"><canvas id="donutChart" height="260"></canvas></div></div>
+        <div class="chart-box" id="cb-pmts" draggable="true"><div class="drag-handle" title="Drag to reorder">⠿</div><h3>Payments vs Charges</h3><div class="cb-sub">Credits received vs spend</div><div class="chart-wrap"><canvas id="pmtsChart" height="220"></canvas></div></div>
+      </div>
+      <div id="insights-empty" class="empty-state" style="display:none">
+        <div class="empty-state-icon">🔍</div>
+        <h3>Upload Statements First</h3>
+        <p>Insights are generated from your uploaded statements.<br>Upload at least one to see spending patterns.</p>
+      </div>
+      <div id="insights-content" style="display:none">
+        <div id="insights-alerts"></div>
+        <div class="insight-grid" id="insights-grid"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORECAST -->
+<section id="s-forecast" class="tab-section">
+  <div class="section-head"><h2>Rolling Forecast</h2><p id="fc-sub">Upload statements to enable forecasting</p></div>
+  <div id="fc-empty" class="empty-state">
+    <div class="empty-state-icon">📈</div>
+    <h3>No Data for Forecast</h3>
+    <p>Upload at least one credit card statement via the Upload tab to generate a rolling forecast.<br>Two months of data enables variable category averaging.</p>
+    <button class="empty-state-btn" onclick="goUpload()">Go to + Upload →</button>
+  </div>
+  <div id="fc-content" style="display:none">
+    <div class="alert alert-blue"><strong>Methodology:</strong> Only categories that appeared in at least 2 of the last 3 months are included. Each forecast value is the average across the months it appeared. Retail, income, and one-off expenses are excluded.</div>
+    <div id="fc-col-heads-dyn" style="display:none"></div>
+    <div id="fc-blocks-container"></div>
+    <div id="fc-grand-total" class="grand-total" style="margin-top:8px"></div>
+    <div class="chart-grid" style="margin-top:28px">
+      <div class="chart-box"><h3>Forecast by Category</h3><div class="cb-sub">Projected next month</div><div class="chart-wrap"><canvas id="fcBreakdownChart" height="260"></canvas></div></div>
+      <div class="chart-box"><h3>Trend + Forecast</h3><div class="cb-sub">Actuals + dashed forecast point</div><div class="chart-wrap"><canvas id="fcTrendChart" height="260"></canvas></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- UPLOAD -->
+<section id="s-upload" class="tab-section">
+  <div class="section-head"><h2>Upload Statement</h2><p>All processing happens in your browser — no data sent to any server</p></div>
+  <div class="type-row">
+    <button class="type-btn sel" id="utype-expense" onclick="selectType('expense')">
+      <div class="ti">🧾</div><div class="tl">Credit Card Statement</div>
+      <div class="td">NAB PDF or bank CSV · populates Expenses &amp; Forecast</div>
+    </button>
+    <button class="type-btn" id="utype-income" onclick="selectType('income')">
+      <div class="ti">💰</div><div class="tl">Salary / Payroll</div>
+      <div class="td">ANZ transaction PDF · populates Income tab &amp; Advisory</div>
+    </button>
+  </div>
+  <div class="upload-zone" id="upload-zone">
+    <input type="file" id="file-input" accept=".pdf,.csv,.txt" onchange="handleFileSelect(this.files[0])">
+    <div class="uz-icon">📄</div>
+    <div class="uz-title" id="uz-title">Upload Credit Card Statement</div>
+    <div class="uz-hint" id="uz-hint">Drag &amp; drop NAB PDF or any bank CSV — or click to browse</div>
+  </div>
+  <div class="alert alert-blue" style="margin-top:16px"><strong>Supported:</strong> NAB PDF (auto-parsed) · Any bank CSV · Transactions auto-categorised via merchant history, keyword rules, and Gemini AI.</div>
+  <div id="col-mapper" class="col-mapper" style="display:none;margin-top:20px">
+    <h4>Map CSV Columns</h4>
+    <div class="col-map-grid">
+      <div class="col-map-item"><label>Date Column</label><select id="map-date"></select></div>
+      <div class="col-map-item"><label>Amount Column</label><select id="map-amount"></select></div>
+      <div class="col-map-item"><label>Description Column</label><select id="map-desc"></select></div>
+    </div>
+    <button class="commit-btn" onclick="applyColumnMap()" style="padding:10px 24px;font-size:14px;margin-top:14px">Apply Mapping</button>
+  </div>
+  <div id="upload-stats" style="display:none">
+    <div class="upload-stats">
+      <div class="us-card"><div class="us-label">Total Charges</div><div class="us-value" id="us-charges">—</div></div>
+      <div class="us-card"><div class="us-label">Credits Received</div><div class="us-value" id="us-credits">—</div></div>
+      <div class="us-card"><div class="us-label">Largest Charge</div><div class="us-value" id="us-largest">—</div></div>
+      <div class="us-card"><div class="us-label">Top Category</div><div class="us-value" id="us-top-cat">—</div></div>
+    </div>
+  </div>
+  <div id="preview-container" style="display:none;margin-top:8px">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:12px">Transaction Preview</h3>
+    <div class="preview-tbl-wrap">
+      <table class="preview-tbl">
+        <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Type</th><th>Category</th><th>Source</th></tr></thead>
+        <tbody id="preview-tbody"></tbody>
+      </table>
+    </div>
+    <button class="commit-btn" id="commit-btn" onclick="commitUpload()">Commit &amp; Add to Report</button>
+    <button class="cancel-btn" onclick="resetUpload()">Cancel</button>
+  </div>
+  <!-- ── Income / salary preview ── -->
+  <div id="income-upload-stats" style="display:none">
+    <div class="upload-stats">
+      <div class="us-card"><div class="us-label">Pay Records</div><div class="us-value" id="ius-count">—</div></div>
+      <div class="us-card"><div class="us-label">Total Amount</div><div class="us-value" id="ius-total">—</div></div>
+      <div class="us-card"><div class="us-label">Largest Pay</div><div class="us-value" id="ius-largest">—</div></div>
+      <div class="us-card"><div class="us-label">Date Range</div><div class="us-value" id="ius-range" style="font-size:14px">—</div></div>
+    </div>
+  </div>
+  <div id="income-preview-container" style="display:none;margin-top:8px">
+    <h3 style="font-size:17px;font-weight:700;margin-bottom:12px">Salary Records — Preview</h3>
+    <div class="preview-tbl-wrap">
+      <table class="preview-tbl">
+        <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Type</th></tr></thead>
+        <tbody id="income-preview-tbody"></tbody>
+      </table>
+    </div>
+    <button class="commit-btn" id="income-commit-btn" onclick="commitIncomeUpload()">Commit Income Data</button>
+    <button class="cancel-btn" onclick="resetUpload()">Cancel</button>
+  </div>
+
+  <div id="upload-history" style="display:none" class="upload-history">
+    <h4>Upload History</h4>
+    <div id="upload-history-list"></div>
+  </div>
+
+  <div class="danger-zone">
+    <div class="danger-zone-title">⚠ Danger Zone</div>
+    <p class="danger-zone-desc">Remove all uploaded statements, income records, and historical data. The page will reset to its initial empty state. <strong>This cannot be undone.</strong></p>
+    <div id="clear-default-view">
+      <button class="danger-btn" onclick="showClearConfirm()">Clear All Data &amp; Start Fresh</button>
+    </div>
+    <div id="clear-confirm-view" style="display:none">
+      <p class="danger-confirm-msg">All statements, income records, and history will be permanently deleted. Are you sure?</p>
+      <button class="danger-btn" onclick="confirmClearAllData()">Yes, Delete Everything</button>
+      <button class="cancel-btn" style="margin-top:0;margin-left:10px" onclick="hideClearConfirm()">Cancel</button>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <span>Personal Finance Dashboard — Seun Gwak</span>
+  <a href="index.html" class="back-link">← Back to home</a>
+</footer>
+
+<script>
+// ─── CONSTANTS ────────────────────────────────────────
+const GEMINI_KEY = 'AIzaSyExample';
+const ALL_CATS = ['education','groceries','dining','fitness','transport','utilities','subscriptions','health','retail','fees','mortgage','income','other'];
+const CAT_COLORS = {education:'#6366F1',groceries:'#3B82F6',dining:'#F97316',fitness:'#0D9488',transport:'#F59E0B',retail:'#8B5CF6',utilities:'#10B981',subscriptions:'#EF4444',fees:'#6B7280',health:'#EC4899',income:'#059669',mortgage:'#DC2626',other:'#94A3B8'};
+const CAT_REC = {mortgage:28,education:10,groceries:10,dining:5,fitness:3,transport:5,utilities:2,subscriptions:3,health:3};
+// CAT_KW mirrors Budget.html — Australian-specific keywords, ordered by specificity
+const CAT_KW = {
+  mortgage: ['mortgage','home loan','nab home loan','loan repay'],
+  education: ['heathdale','adventurers','playhq','quickcliq','rsgk','childcare','lca school','atar','tutor','kindy','school fee','tafe','university','college','coursera','udemy','learning','study'],
+  groceries: ['woolworths','coles','aldi','iga','better choice','big daddy','hoppers fresh','harris farm','costco','drakes','fresh food','supermarket','food market'],
+  dining:    ['mcdonald','hungry jack','kfc','grilld','sushi','crumb','kebab','buza chicken','subway','nandos','domino','pizza','bakers delight','heart bake','chik chik','landing play','bouar deau','sons of manor','cafe','coffee house','restaurant','liquorland','doordash','ubereats','deliveroo','menulog','noodle','bar and grill'],
+  fitness:   ['anytime fitness','dbs*anytime','western leisure','wyndham basketball','f45','crossfit','yoga','pilates','aquatic','leisure centre','gym','zoos victoria'],
+  transport: ['myki','linkt','easypark','wilson parking','secure parking','first* parking','uber trip','taxipay','shell ','7-eleven','ampol','caltex','bp ','opal','translink','13cabs','didi','ola','parking','toll','petrol'],
+  utilities: ['globird','tpg internet','tpg ','kogan mobile','origin energy','agl ','red energy','jemena','sumo power','aussie broadband','broadband','electricity','gas bill','optus','telstra','vodafone','sydney water','icon water','council rates'],
+  subscriptions: ['apple.com','apple com/bill','claude.ai','claude ','netflix','spotify','disney plus','amazon prime','stan ','binge','foxtel','youtube premium','microsoft 365','adobe ','kayo','skroaming','openai','chatgpt','icloud','canva','notion','github'],
+  health:    ['chemist warehouse','cwh ','manor lakes pharmacy','priceline','terry white','pharmacy','medical centre','dentist','hospital','nib ','bupa','medibank','hcf','pathology','physio','clinic'],
+  retail:    ['vicroads','fines vic','fines victoria','globehunters','good guys','tk maxx','one by one','tocca','lotte travel','relay hong','oztook','kmart','target','big w','jb hi-fi','harvey norman','myer','david jones','bunnings','ikea','barber','salon','hair','amazon','ebay','uniqlo','zara','cotton on'],
+  fees:      ['interest on purchase','monthly card fee','credit fee','late payment fee','annual card fee','dishonour','overdrawn','bpay fee','foreign transaction'],
+};
+
+// ─── STATE (all empty until upload) ──────────────────
+let HISTORICAL_MONTHS = [];
+let FN_PAYS = [];
+let MORTGAGE_PAYS = [];
+let NAB_BALANCE = {labels:[],data:[]};
+// Pre-seeded from Budget.html MERCHANT_SEEDS — Australian-specific merchant knowledge base
+let merchantCache = new Map([
+  // ── Education (Australian schools/childcare)
+  ['heathdale','education'],['heathdale christian','education'],
+  ['adventurers education','education'],['adventurers edu','education'],
+  ['playhq','education'],['quickcliq','education'],
+  ['rsgk sports','education'],['big childcare','education'],['lca ','education'],
+  // ── Groceries
+  ['woolworths','groceries'],['coles','groceries'],['aldi','groceries'],
+  ['iga','groceries'],['better choice','groceries'],['big daddy','groceries'],
+  ['hoppers fresh','groceries'],['harris farm','groceries'],['costco','groceries'],
+  // ── Dining (Australian specific + major chains)
+  ['sushi nori','dining'],['jo sushi','dining'],['buza chicken','dining'],
+  ['crumb','dining'],['grilld','dining'],['chik chik pop','dining'],
+  ['heart bake','dining'],['kebab','dining'],['mcdonalds','dining'],
+  ['hungry jacks','dining'],['kfc','dining'],['bakers delight','dining'],
+  ['landing playcentre','dining'],['sons of manor','dining'],['bouar deau','dining'],
+  ['liquorland','dining'],['dominos pizza','dining'],['domino pizza','dining'],
+  ['subway','dining'],['nandos','dining'],['doordash','dining'],
+  ['ubereats','dining'],['deliveroo','dining'],['menulog','dining'],
+  // ── Fitness (Australian gyms + local)
+  ['anytime fitness','fitness'],['dbs anytime','fitness'],['dbs*anytime','fitness'],
+  ['western leisure','fitness'],['wyndham basketball','fitness'],
+  ['f45 training','fitness'],['f45','fitness'],['zoos victoria','fitness'],
+  // ── Transport (Australian-specific: Myki, LINKT, parking)
+  ['myki','transport'],['linkt','transport'],['easypark','transport'],
+  ['wilson parking','transport'],['secure parking','transport'],
+  ['first parking','transport'],['uber','transport'],['taxipay','transport'],
+  ['shell reddy','transport'],['gm taxi','transport'],['13cabs','transport'],
+  // ── Utilities (Australian energy/telco providers)
+  ['globird','utilities'],['tpg internet','utilities'],['tpg ','utilities'],
+  ['kogan mobile','utilities'],['agl ','utilities'],['origin energy','utilities'],
+  ['red energy','utilities'],['jemena','utilities'],['sumo power','utilities'],
+  ['aussie broadband','utilities'],['optus','utilities'],['telstra','utilities'],
+  ['vodafone','utilities'],['sydney water','utilities'],['icon water','utilities'],
+  // ── Subscriptions
+  ['apple com','subscriptions'],['apple.com','subscriptions'],
+  ['claude.ai','subscriptions'],['claude ai','subscriptions'],
+  ['netflix','subscriptions'],['spotify','subscriptions'],
+  ['disney plus','subscriptions'],['amazon prime','subscriptions'],
+  ['stan ','subscriptions'],['binge','subscriptions'],['kayo','subscriptions'],
+  ['youtube premium','subscriptions'],['microsoft 365','subscriptions'],
+  ['adobe ','subscriptions'],['openai','subscriptions'],['chatgpt','subscriptions'],
+  ['icloud','subscriptions'],['skroaming','subscriptions'],['canva','subscriptions'],
+  // ── Health
+  ['chemist warehouse','health'],['cwh ','health'],
+  ['manor lakes pharmacy','health'],['priceline','health'],
+  ['terry white','health'],['medibank','health'],['bupa','health'],['hcf','health'],
+  // ── Retail / one-off (things that rarely recur)
+  ['kmart','retail'],['target','retail'],['big w','retail'],
+  ['tk maxx','retail'],['one by one','retail'],['tocca','retail'],
+  ['lotte travel','retail'],['vicroads','retail'],['good guys','retail'],
+  ['globehunters','retail'],['oztook','retail'],['relay hong','retail'],
+  ['bunnings','retail'],['ikea','retail'],['harvey norman','retail'],
+  ['jb hi-fi','retail'],['jb hifi','retail'],['myer','retail'],
+  ['david jones','retail'],['barber zone','retail'],['amazon','retail'],
+  ['ebay','retail'],['fines vic','retail'],['fines victoria','retail'],
+  ['the good guys','retail'],
+  // ── Fees
+  ['interest on purchase','fees'],['monthly card fee','fees'],
+  ['credit card fee','fees'],['late payment','fees'],['annual card fee','fees'],
+  ['nab fee','fees'],['dishonour fee','fees'],
+]);
+try{ const s=localStorage.getItem('nabBudget_mc'); if(s) JSON.parse(s).forEach(([k,v])=>merchantCache.set(k,v)); }catch(e){}
+
+let currentTxns=[], currentSummary=null, uploadType='expense', parsedHeaders=[], parsedRows=[];
+let expTrendFilter='all';
+let pendingPays=[];
+let pendingMortgage=[];
+let recPanelId=0;
+const uploadHistory=[], charts={};
+
+// ─── HELPERS ─────────────────────────────────────────
+const TT={backgroundColor:'#0F172A',titleColor:'#fff',bodyColor:'rgba(255,255,255,.75)',borderColor:'rgba(255,255,255,.06)',borderWidth:1,cornerRadius:10,titleFont:{family:'Plus Jakarta Sans',weight:'700'},bodyFont:{family:'JetBrains Mono',size:13},padding:12};
+function fmtAUD(n){return '$'+(Math.round(n||0)).toLocaleString('en-AU');}
+function fmtPct(n){return Math.round(n||0)+'%';}
+function el(id){return document.getElementById(id);}
+function setText(id,val){const e=el(id);if(e)e.textContent=val;}
+function show(id){const e=el(id);if(e)e.style.display='block';}
+function hide(id){const e=el(id);if(e)e.style.display='none';}
+function mkChart(id,cfg){if(!el(id))return null;if(charts[id])charts[id].destroy();charts[id]=new Chart(el(id),cfg);return charts[id];}
+
+// ─── NAVIGATION ──────────────────────────────────────
+function showSection(id,e){
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  el(id).classList.add('active');
+  if(e&&e.target)e.target.classList.add('active');
+  el('sub-nav').classList.toggle('visible',id==='s-expenses');
+}
+function showSub(id,e){
+  document.querySelectorAll('.sub-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
+  el(id).classList.add('active');
+  if(e&&e.target)e.target.classList.add('active');
+}
+function goUpload(type){
+  selectType(type||'expense');
+  showSection('s-upload',null);
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===4));
+}
+function selectType(type){
+  uploadType=type;
+  el('utype-expense').classList.toggle('sel',type==='expense');
+  el('utype-income').classList.toggle('sel',type==='income');
+  el('uz-title').textContent=type==='income'?'Upload ANZ Bank Statement (Salary/Income)':'Upload Credit Card Statement';
+  el('uz-hint').textContent=type==='income'?'ANZ transaction report PDF only — salary & payroll deposits extracted':'Drag & drop NAB PDF or any bank CSV — or click to browse';
+  el('file-input').accept=type==='income'?'.pdf':'.pdf,.csv,.txt';
+}
+
+// ─── MERCHANT NORMALISER (mirrors Budget.html normMerchant exactly) ──────────
+function normMerchant(s){
+  return (s||'').toLowerCase()
+    .replace(/\*/g,' ')
+    .replace(/[^a-z0-9 ]/g,' ')
+    .replace(/\b(pty|ltd|the|and|of|au|com|www|online|store|australia|vic|nsw|qld|wa|sa)\b/g,' ')
+    .replace(/\s+/g,' ').trim()
+    .split(' ').filter(w=>w.length>2).slice(0,3).join(' ');
+}
+
+// ─── MERCHANT DISPLAY CLEANER ─────────────────────────────────────────────
+// Converts raw NAB description "SUSHI&NORI WATERGARDENS MARIBYRNONG VIC" → "Sushi & Nori"
+function cleanMerchantDisplay(desc){
+  let s=(desc||'').trim();
+  // Remove payment-processor prefixes: DBS*, SQ *, INT*, etc.
+  s=s.replace(/^[A-Z]{2,4}\s*\*\s*/,'');
+  // Remove .com.au / .com.au/xxx
+  s=s.replace(/\.(com\.au|com|net\.au|net|org)(\/\S*)?/gi,'');
+  // Remove trailing Australian state abbreviation (standalone word at end)
+  s=s.replace(/\s+\b(VIC|NSW|QLD|WA|SA|ACT|TAS|NT)\s*$/i,'');
+  // Remove trailing all-caps location words (suburb names like "WERRIBEE", "MARIBYRNONG")
+  s=s.replace(/(\s+[A-Z]{3,})+\s*$/,'');
+  // Remove store numbers: "WOOLWORTHS 4071" → "WOOLWORTHS"
+  s=s.replace(/\s+\b\d{3,5}\b/,'');
+  // Remove PTY LTD / PTY / LTD
+  s=s.replace(/\b(PTY\s+LTD|PTY|LTD|P\/L)\b/gi,'');
+  // Fix & spacing
+  s=s.replace(/&/g,' & ').replace(/\s+/g,' ').trim();
+  // Title case — preserve & and short conjunctions in the middle
+  const LOWER=new Set(['&','at','of','the','and','in','for']);
+  s=s.split(' ').map((w,i)=>{
+    if(!w)return '';
+    if(i>0&&LOWER.has(w.toLowerCase()))return w.toLowerCase();
+    return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();
+  }).join(' ');
+  // Cap at 28 chars
+  return s.length>28?s.substring(0,26)+'…':s;
+}
+
+// ─── CATEGORIZATION — cache-only (Gemini handles all unknowns) ────────────
+// Tier 1: exact normalised key in merchantCache
+// Tier 2: longest substring of any cache key in full description
+// Unknowns (src:'new') always go to Gemini — no CAT_KW fallback so AI decides
+function categorize(desc){
+  if(!desc)return{cat:'other',src:'new'};
+  const d=desc.toLowerCase().replace(/\*/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const norm=normMerchant(desc);
+  if(merchantCache.has(norm))return{cat:merchantCache.get(norm),src:'hist'};
+  const entries=[...merchantCache.entries()].sort((a,b)=>b[0].length-a[0].length);
+  for(const[key,cat]of entries){if(d.includes(key.trim()))return{cat,src:'hist'};}
+  return{cat:'other',src:'new'};
+}
+
+// ─── GEMINI — always fires for unknowns, Australian merchant context ────────
+async function categorizeWithGemini(descs){
+  if(!descs.length)return{};
+  if(!GEMINI_KEY||GEMINI_KEY==='AIzaSyExample'){
+    console.warn('Add your Gemini API key to GEMINI_KEY to enable AI categorisation');
+    // Fall back to CAT_KW rules when no key is set
+    const result={};
+    descs.forEach(desc=>{
+      const d=desc.toLowerCase().replace(/\*/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+      for(const[cat,kws]of Object.entries(CAT_KW)){
+        if(kws.some(kw=>d.includes(kw))){result[desc]=cat;break;}
+      }
+    });
+    return result;
+  }
+  const prompt=`You are an expert at categorising Australian NAB credit card transactions. You MUST assign every transaction to one specific category — NEVER return "other".
+
+AVAILABLE CATEGORIES: ${ALL_CATS.filter(c=>!['income','other'].includes(c)).join(', ')}
+
+CATEGORY RULES:
+- retail = one-off/irregular purchases: travel bookings (Globehunters, Flight Centre), VicRoads rego, Fines Victoria, appliances (Good Guys, Harvey Norman, JB Hi-Fi), furniture (IKEA, Bunnings), clothing stores (Myer, David Jones, TK Maxx, Zara, Cotton On, Uniqlo), hair/beauty salons (Tocca, Barber), electronics (Kogan, Amazon), any one-off purchase that doesn't fit elsewhere
+- education = school fees (Heathdale, St X College), childcare (Adventurers Education, Big Childcare), ATAR tutoring, extracurricular sports registration (PlayHQ, QuickCliq, RSGK), university, TAFE, online learning
+- groceries = supermarkets ONLY: Woolworths, Coles, Aldi, IGA, Better Choice, Big Daddy's, Hoppers Fresh, Costco, Harris Farm
+- dining = ALL food/drink establishments: restaurants, cafes, fast food (McDonald's, KFC, Grill'd, Subway), takeaway, food delivery (DoorDash, Uber Eats, Deliveroo, Menulog), bakeries (Bakers Delight), liquor stores (Liquorland, BWS), any food/drink outlet
+- fitness = gym memberships (Anytime Fitness, Western Leisure Services, F45), aquatic/leisure centres, sports clubs, basketball associations, zoos, yoga, pilates, crossfit
+- transport = Melbourne Myki cards, LINKT/EastLink tolls, parking (EasyPark, Wilson Parking, Secure Parking, First Parking), Uber/Didi rides, petrol stations (BP, Shell, 7-Eleven, Ampol, Caltex), taxis
+- utilities = energy providers (GloBird, AGL, Origin Energy, Red Energy), internet (TPG, Aussie Broadband), mobile phone (Optus, Telstra, Vodafone, Kogan Mobile), water utilities
+- subscriptions = RECURRING digital services: Apple.com/bill, Claude.ai, Netflix, Spotify, Disney+, Adobe, Microsoft 365, OpenAI/ChatGPT, iCloud, Canva, GitHub, Kayo, Binge, Stan
+- health = chemists (Chemist Warehouse, Priceline, Terry White, CWH), pharmacies, GP/medical clinics, dentists, pathology, private health insurers (Medibank, Bupa, NIB, HCF)
+- fees = bank charges ONLY: "Interest on Purchases", monthly card fees, late payment fees, foreign transaction fees, dishonour fees
+- mortgage = home loan repayments: NAB home loan, mortgage BPAY payments
+
+IMPORTANT: If uncertain between two categories, pick the most likely one. Never output "other".
+Return ONLY a valid JSON object: {"raw description here": "category", ...}
+Descriptions: ${JSON.stringify(descs)}`;
+  try{
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
+      {method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.1}})});
+    const j=await r.json();
+    const t=j.candidates?.[0]?.content?.parts?.[0]?.text||'{}';
+    const m=t.match(/\{[\s\S]*?\}/);
+    return m?JSON.parse(m[0]):{};
+  }catch(e){console.error('Gemini error:',e);return{};}
+}
+
+// ─── ADVISORY TAB ────────────────────────────────────
+function updateAdvisoryTab(){
+  const hasExp=HISTORICAL_MONTHS.length>0, hasInc=FN_PAYS.length>0, hasMort=MORTGAGE_PAYS.length>0, hasAny=hasExp||hasInc||hasMort;
+  el('adv-empty').style.display=hasAny?'none':'block';
+  el('adv-content').style.display=hasAny?'block':'none';
+  if(!hasAny)return;
+  const n=HISTORICAL_MONTHS.length;
+  const avgCats={};
+  if(n>0) ALL_CATS.forEach(c=>{avgCats[c]=HISTORICAL_MONTHS.reduce((s,m)=>s+(m.cats[c]||0),0)/n;});
+  // Supplement mortgage from ANZ statement records when expense data has none
+  if(!avgCats.mortgage&&hasMort)avgCats.mortgage=avgMonthlyMortgage();
+  const latestPay=FN_PAYS.length?FN_PAYS[FN_PAYS.length-1].amount:0;
+  const monthlyIncome=latestPay*2||(n>0?(avgCats.mortgage||0)/0.35:0);
+  const mortgage=avgCats.mortgage||0, education=avgCats.education||0;
+  const housingPct=monthlyIncome>0?Math.round((mortgage+education)/monthlyIncome*100):0;
+  const afterMort=monthlyIncome-mortgage;
+  const totalSpend=Object.entries(avgCats).filter(([c])=>c!=='income').reduce((s,[,v])=>s+v,0);
+  const savingsRate=monthlyIncome>0?Math.max(0,Math.round((1-totalSpend/monthlyIncome)*100)):0;
+  const latestBal=NAB_BALANCE.data.length?NAB_BALANCE.data[NAB_BALANCE.data.length-1]:null;
+  const latestBalLabel=NAB_BALANCE.labels.length?NAB_BALANCE.labels[NAB_BALANCE.labels.length-1]:'—';
+
+  // Header pills
+  if(monthlyIncome)setText('hdr-takehome',fmtAUD(monthlyIncome)+'/mo');
+  if(mortgage)setText('hdr-mortgage',fmtAUD(mortgage)+'/mo');
+  setText('hdr-savings',savingsRate>0?fmtPct(savingsRate):'—');
+  if(latestBal!==null){setText('hdr-balance',fmtAUD(latestBal));setText('hdr-balance-date','as of '+latestBalLabel);}
+  setText('hdr-meta',n>0?`NAB Credit Card · ${HISTORICAL_MONTHS[0].short}–${HISTORICAL_MONTHS[n-1].short} · ${n} month${n!==1?'s':''} of data`:'Income data only');
+
+  setText('adv-sub',n>0?`${HISTORICAL_MONTHS[0].short}–${HISTORICAL_MONTHS[n-1].short} · ${n} month${n!==1?'s':''} · updated on upload`:'Income data only');
+
+  // Alerts
+  const alerts=[];
+  if(housingPct>50)alerts.push(`<div class="alert alert-red"><strong>CRITICAL:</strong> Housing + Education = ${housingPct}% of income (target: under 38%).</div>`);
+  if(savingsRate<15&&monthlyIncome>0)alerts.push(`<div class="alert alert-amber"><strong>NOTE:</strong> Savings rate ${savingsRate}% — build toward 20%.</div>`);
+  if(n>=2)alerts.push(`<div class="alert alert-green"><strong>POSITIVE:</strong> ${n} months of data — trend analysis active.</div>`);
+  el('adv-alerts').innerHTML=alerts.join('');
+
+  // Stat cards
+  setText('adv-takehome',monthlyIncome?fmtAUD(monthlyIncome):'—');
+  setText('adv-takehome-sub',FN_PAYS.length?'latest pay × 2':'estimated from expense data');
+  setText('adv-after-mort',afterMort>0?fmtAUD(afterMort):'—');
+  setText('adv-after-mort-sub',mortgage?fmtAUD(monthlyIncome)+' − '+fmtAUD(mortgage):'upload income data');
+  setText('adv-housing-pct',housingPct?fmtPct(housingPct):'—');
+  setText('adv-balance',latestBal!==null?fmtAUD(latestBal):'—');
+  setText('adv-balance-sub',latestBal!==null?'as of '+latestBalLabel:'from last statement');
+  setText('adv-savings-rate',savingsRate>0?fmtPct(savingsRate):'—');
+  setText('adv-savings-sub',savingsRate>0?'est. from spend data':'—');
+  setText('adv-months-count',n>0?n:(FN_PAYS.length?'income only':'—'));
+
+  // Charts
+  const catKeys=Object.keys(avgCats).filter(c=>avgCats[c]>0&&c!=='income');
+  if(catKeys.length){
+    mkChart('realityDonut',{type:'doughnut',data:{labels:catKeys.map(c=>c.charAt(0).toUpperCase()+c.slice(1)),datasets:[{data:catKeys.map(c=>avgCats[c]),backgroundColor:catKeys.map(c=>CAT_COLORS[c]||'#94A3B8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{padding:10,font:{size:12}}},tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.label}: ${fmtAUD(ctx.raw)}`}}}}});
+    if(monthlyIncome>0){
+      const rc=['mortgage','education','groceries','dining','fitness','transport','subscriptions'];
+      mkChart('recommendedChart',{type:'bar',data:{labels:rc.map(c=>c.charAt(0).toUpperCase()+c.slice(1)),datasets:[{label:'Actual %',data:rc.map(c=>Math.round((avgCats[c]||0)/monthlyIncome*100)),backgroundColor:'rgba(37,99,235,.7)',borderRadius:4},{label:'Recommended %',data:rc.map(c=>CAT_REC[c]||0),backgroundColor:'rgba(5,150,105,.7)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{position:'bottom'},tooltip:TT},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'%',font:{family:'JetBrains Mono'}}}}}});
+    }
+  }
+  mkChart('targetBudgetChart',{type:'bar',data:{labels:['Housing','Education','Food','Transport','Discretionary','Health','Savings'],datasets:[{label:'Recommended %',data:[28,10,15,5,5,3,20],backgroundColor:['#DC2626','#6366F1','#3B82F6','#F59E0B','#8B5CF6','#EC4899','#059669'],borderRadius:6}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false},tooltip:TT},scales:{x:{beginAtZero:true,ticks:{callback:v=>v+'%',font:{family:'JetBrains Mono'}}}}}});
+
+  // Budget rows
+  const BCATS=['mortgage','education','groceries','dining','fitness','transport','subscriptions','utilities','retail'];
+  el('adv-budget-rows').innerHTML=BCATS.map(cat=>{
+    const amt=avgCats[cat]||0,rec=CAT_REC[cat]||0,pct=monthlyIncome>0?Math.round(amt/monthlyIncome*100):0;
+    const cls=amt>0?(pct>rec*1.2?'sp-red':pct>rec*1.05?'sp-amber':'sp-green'):'sp-blue';
+    const lbl={'sp-green':'On Target','sp-red':'Critical','sp-amber':'Watch','sp-blue':'—'}[cls];
+    return `<div class="bt-row"><span class="bt-name"><span class="cat-dot" style="background:${CAT_COLORS[cat]||'#94A3B8'}"></span>${cat.charAt(0).toUpperCase()+cat.slice(1)}</span><span class="bt-cell">${amt>0?fmtAUD(amt):'—'}</span><span class="bt-cell">${pct>0?fmtPct(pct):'—'}</span><span class="bt-cell">${rec?fmtPct(rec):'N/A'}</span><span class="bt-cell"><span class="status-pill ${cls}">${lbl}</span></span></div>`;
+  }).join('');
+
+  // Insight cards
+  const ins=[];
+  if(mortgage>0&&monthlyIncome>0){const p=Math.round(mortgage/monthlyIncome*100);ins.push({col:p>40?'var(--red)':'var(--amber)',tag:'Housing',title:'Mortgage Cost',body:`Mortgage = ${p}% of monthly income.${p>35?' Aim to reduce below 35%.':''}`,amt:fmtAUD(mortgage)+'/mo'});}
+  if(education>0)ins.push({col:'var(--indigo)',tag:'Education',title:'Education Spend',body:`${fmtAUD(education)}/mo — consistent fixed education investment.`,amt:fmtAUD(education)+'/mo'});
+  if(FN_PAYS.length>=2){const g=((FN_PAYS[FN_PAYS.length-1].amount-FN_PAYS[0].amount)/FN_PAYS[0].amount*100).toFixed(1);ins.push({col:'var(--blue)',tag:'Income',title:'Pay Growth',body:`Income up ${g}% since first pay period recorded.`,amt:`+${g}% growth`});}
+  if(savingsRate>0)ins.push({col:'var(--green)',tag:'Savings',title:'Savings Rate',body:`Current rate: ${savingsRate}%. ${savingsRate<15?'Build toward 20% target.':'Strong — consider investing surplus.'}`,amt:fmtPct(savingsRate)});
+  if(n>=2){const top=Object.entries(avgCats).filter(([c])=>!['mortgage','income'].includes(c)).sort((a,b)=>b[1]-a[1])[0];if(top)ins.push({col:'var(--amber)',tag:'Top Spend',title:top[0].charAt(0).toUpperCase()+top[0].slice(1),body:`Averaging ${fmtAUD(top[1])}/mo — largest discretionary category.`,amt:fmtAUD(top[1])+'/mo avg'});}
+  el('adv-insights').innerHTML=ins.map(i=>`<div class="insight-card" style="border-top:3px solid ${i.col}"><div class="ic-tag">${i.tag}</div><div class="ic-title">${i.title}</div><div class="ic-body">${i.body}</div><div class="ic-amount" style="color:${i.col}">${i.amt}</div></div>`).join('');
+
+  // Grand totals
+  let gt='';
+  if(afterMort>0)gt+=`<div class="grand-total"><div><div class="gt-label">Monthly After Mortgage</div><div class="gt-sub">${fmtAUD(monthlyIncome)} − ${fmtAUD(mortgage)}</div></div><div class="gt-value">${fmtAUD(afterMort)}</div></div>`;
+  if(totalSpend>monthlyIncome&&monthlyIncome>0)gt+=`<div class="grand-total" style="background:linear-gradient(135deg,#7f1d1d,#991b1b)"><div><div class="gt-label">Monthly Overspend</div><div class="gt-sub">spend exceeds income estimate</div></div><div class="gt-value">${fmtAUD(totalSpend-monthlyIncome)}</div></div>`;
+  el('adv-grand-totals').innerHTML=gt;
+}
+
+// ─── INCOME TAB ──────────────────────────────────────
+function updateIncomeTab(){
+  const has=FN_PAYS.length>0;
+  el('inc-empty').style.display=has?'none':'block';
+  el('inc-content').style.display=has?'block':'none';
+  if(!has)return;
+  const pays=FN_PAYS,latest=pays[pays.length-1],first=pays[0];
+  const total=pays.reduce((s,p)=>s+p.amount,0);
+  const avgMonthly=total/pays.length*2;
+  const growth=pays.length>=2?((latest.amount-first.amount)/first.amount*100).toFixed(1):'0';
+
+  // Annual rate: latest fortnightly × 26. Sub shows current rate + movement vs first recorded pay.
+  const MON_ABBR=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fmtMonYr=s=>{const[,m,y]=s.split('/');return`${MON_ABBR[+m-1]} ${y}`;};
+  const annualRate=latest.amount*26;
+  const growthNum=parseFloat(growth);
+  const annualSub=pays.length>=2
+    ?`${fmtAUD(latest.amount)}/fn · ${growthNum>=0?'+':''}${growth}% vs ${fmtMonYr(first.date)}`
+    :`Based on ${fmtAUD(latest.amount)}/fortnight`;
+  // Pay Growth sub: show absolute change as well as percentage
+  const payDiff=latest.amount-first.amount;
+  const growthSub=pays.length>=2
+    ?`${payDiff>=0?'+':''}${fmtAUD(payDiff)}/fn over ${pays.length} periods`
+    :'first to last';
+
+  setText('inc-hero-sub',`${pays.length} pay periods · ${first.date} → ${latest.date}`);
+  setText('inc-annual-rate',fmtAUD(annualRate));
+  setText('inc-annual-rate-sub',annualSub);
+  setText('inc-avg-monthly',fmtAUD(avgMonthly));
+  setText('inc-total-received',fmtAUD(total));
+  setText('inc-growth',`${growthNum>=0?'+':''}${growth}%`);
+  setText('inc-growth-sub',growthSub);
+  setText('inc-sub',`${pays.length} pay periods · ${first.date} to ${latest.date}`);
+
+  // ── Pay rise detection ────────────────────────────
+  const payRises=[];
+  for(let i=1;i<pays.length;i++){
+    if(Math.abs(pays[i].amount-pays[i-1].amount)>=5)
+      payRises.push({date:pays[i].date,from:pays[i-1].amount,to:pays[i].amount});
+  }
+  let payRiseHTML='';
+  if(payRises.length){
+    const r=payRises[payRises.length-1];
+    const diff=r.to-r.from;
+    const pct=((Math.abs(diff)/r.from)*100).toFixed(1);
+    const dir=diff>0?'+':'-';
+    payRiseHTML=`<div class="alert alert-green" style="margin-bottom:20px">
+      <strong>Pay ${diff>0?'rise':'change'} detected:</strong> Pay ${diff>0?'rose':'fell'} from
+      ${fmtAUD(r.from)} to ${fmtAUD(r.to)} per fortnight from ${r.date}
+      (${dir}${fmtAUD(Math.abs(diff))}/fortnight · ${dir}${fmtAUD(Math.abs(diff)*2)}/month · ${dir}${pct}%)
+    </div>`;
+  }
+  el('inc-payrise-slot').innerHTML=payRiseHTML;
+
+  // ── Monthly income chart ──────────────────────────
+  const MON_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthMap={};
+  pays.forEach(p=>{
+    const pts=p.date.split('/');
+    if(pts.length<3)return;
+    const mon=parseInt(pts[1])-1,yr=parseInt(pts[2]);
+    const fullYr=yr<100?2000+yr:yr;
+    const key=`${fullYr}-${String(mon+1).padStart(2,'0')}`;
+    if(!monthMap[key])monthMap[key]={label:`${MON_SHORT[mon]} ${fullYr}`,total:0,count:0};
+    monthMap[key].total+=p.amount;
+    monthMap[key].count++;
+  });
+  const monthRows=Object.entries(monthMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  const mLabels=monthRows.map(([,m])=>m.label);
+  const mData=monthRows.map(([,m])=>m.total);
+  const mCounts=monthRows.map(([,m])=>m.count);
+  setText('inc-monthly-sub',`${monthRows.length} month${monthRows.length!==1?'s':''} · ${fmtAUD(total)} total`);
+  mkChart('monthlyIncomeChart',{type:'line',data:{labels:mLabels,datasets:[{label:'Income',data:mData,borderColor:'#2DA5B8',backgroundColor:'rgba(45,165,184,0.10)',borderWidth:2.5,fill:true,tension:0.35,pointBackgroundColor:'#2DA5B8',pointRadius:5,pointHoverRadius:7,pointBorderColor:'#fff',pointBorderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${fmtAUD(ctx.raw)}`,afterLabel:ctx=>`  ${mCounts[ctx.dataIndex]} pay${mCounts[ctx.dataIndex]!==1?'s':''}` }}},scales:{y:{beginAtZero:false,ticks:{callback:v=>fmtAUD(v),font:{family:'JetBrains Mono',size:13}}},x:{ticks:{font:{family:'Plus Jakarta Sans',size:13}}}}}});
+
+  // ── Pay history line chart ────────────────────────
+  const labels=pays.map(p=>p.date),data=pays.map(p=>p.amount);
+  const ptColors=data.map((_,i)=>i===0?'#3B82F6':(data[i]>data[i-1]?'#059669':data[i]<data[i-1]?'#DC2626':'#3B82F6'));
+  mkChart('fortnightlyChart',{type:'line',data:{labels,datasets:[{label:'Pay',data,borderColor:'#3B82F6',backgroundColor:'rgba(37,99,235,.08)',borderWidth:2.5,fill:true,tension:.3,pointBackgroundColor:ptColors,pointRadius:5,pointBorderColor:'#fff',pointBorderWidth:2}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${fmtAUD(ctx.raw)}`}}},scales:{y:{beginAtZero:false,ticks:{callback:v=>fmtAUD(v),font:{family:'JetBrains Mono',size:11}}}}}});
+}
+
+// ─── MORTGAGE MERGE HELPERS ──────────────────────────
+function mortgageByMonthKey(){
+  const map=new Map();
+  MORTGAGE_PAYS.forEach(p=>{
+    const pts=p.date.split('/');if(pts.length<3)return;
+    const yr=parseInt(pts[2]),fullYr=yr<100?2000+yr:yr;
+    const key=`${fullYr}-${pts[1].padStart(2,'0')}`;
+    map.set(key,(map.get(key)||0)+p.amount);
+  });
+  return map;
+}
+
+// Returns a merged month list for rendering only — never stored.
+// For each HISTORICAL_MONTHS entry that has a matching ANZ mortgage month,
+// a shallow copy is returned with cats.mortgage injected and total updated.
+// Mortgage months with no NAB entry at all become minimal stub entries.
+function buildMergedMonths(){
+  if(!MORTGAGE_PAYS.length)return HISTORICAL_MONTHS;
+  const mortMap=mortgageByMonthKey();
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const FN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const covered=new Set();
+
+  const merged=HISTORICAL_MONTHS.map(mo=>{
+    let key=null;
+    if(mo.charges&&mo.charges.length){
+      const pts=mo.charges[0].date.split('/');
+      if(pts.length>=3){
+        const yr=parseInt(pts[2]),fullYr=yr<100?2000+yr:yr;
+        key=`${fullYr}-${pts[1].padStart(2,'0')}`;
+      }
+    }
+    if(!key||!mortMap.has(key))return{...mo,_sortKey:key||mo.short};
+    covered.add(key);
+    const mortAmt=mortMap.get(key);
+    return{...mo,total:mo.total+mortAmt,cats:{...mo.cats,mortgage:mortAmt},_sortKey:key};
+  });
+
+  // Stub entries for mortgage months that have no NAB credit card statement
+  mortMap.forEach((amt,key)=>{
+    if(covered.has(key))return;
+    const[yr,mon]=key.split('-');
+    const monIdx=parseInt(mon)-1;
+    const short=`${MN[monIdx]} '${yr.slice(2)}`;
+    merged.push({label:FN[monIdx]||short,short,total:amt,credits:0,cats:{mortgage:amt},charges:[],creditTxns:[],summary:null,_sortKey:key});
+  });
+
+  merged.sort((a,b)=>(a._sortKey||'').localeCompare(b._sortKey||''));
+  return merged;
+}
+
+// ─── TREND FILTER ────────────────────────────────────
+function setTrendFilter(val){
+  expTrendFilter=val==='all'?'all':parseInt(val);
+  const all=buildMergedMonths();
+  const slice=expTrendFilter==='all'?all:all.slice(-expTrendFilter);
+  if(!slice.length)return;
+  const labels=slice.map(m=>m.short),totals=slice.map(m=>m.total);
+  mkChart('monthlyExpenseChart',{type:'line',data:{labels,datasets:[{label:'Monthly Spend',data:totals,borderColor:'#DC2626',backgroundColor:'rgba(220,38,38,.08)',borderWidth:2.5,fill:true,tension:.35,pointBackgroundColor:'#DC2626',pointRadius:5,pointBorderColor:'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${fmtAUD(ctx.raw)}`}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtAUD(v),font:{family:'JetBrains Mono',size:11}}}}}});
+}
+
+// ─── EXPENSE CHARTS ──────────────────────────────────
+function updateExpenseCharts(){
+  const months=buildMergedMonths(),has=months.length>0;
+  el('exp-empty').style.display=has?'none':'block';
+  el('exp-content').style.display=has?'block':'none';
+  if(!has)return;
+  const labels=months.map(m=>m.short),totals=months.map(m=>m.total),n=months.length;
+  setText('exp-overview-sub',`${months[0].short}–${months[n-1].short} · ${n} month${n!==1?'s':''}`);
+
+  setText('donut-sub',`Combined ${n}-month breakdown`);
+
+  const tSlice=expTrendFilter==='all'?months:months.slice(-expTrendFilter);
+  mkChart('monthlyExpenseChart',{type:'line',data:{labels:tSlice.map(m=>m.short),datasets:[{label:'Monthly Spend',data:tSlice.map(m=>m.total),borderColor:'#DC2626',backgroundColor:'rgba(220,38,38,.08)',borderWidth:2.5,fill:true,tension:.35,pointBackgroundColor:'#DC2626',pointRadius:5,pointBorderColor:'#fff',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${fmtAUD(ctx.raw)}`}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtAUD(v),font:{family:'JetBrains Mono',size:11}}}}}});
+
+  const combined={};
+  months.forEach(m=>Object.entries(m.cats).forEach(([c,v])=>{combined[c]=(combined[c]||0)+v;}));
+  const ck=Object.keys(combined),cv=Object.values(combined);
+  mkChart('donutChart',{type:'doughnut',data:{labels:ck.map(c=>c.charAt(0).toUpperCase()+c.slice(1)),datasets:[{data:cv,backgroundColor:ck.map(k=>CAT_COLORS[k]||'#94A3B8'),borderWidth:0,hoverOffset:6}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{padding:10,font:{size:12}}},tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.label}: ${fmtAUD(ctx.raw)}`}}}}});
+
+  const pmtCharges=months.map(m=>m.total-(m.cats.mortgage||0));
+  mkChart('pmtsChart',{type:'bar',data:{labels,datasets:[{label:'Charges',data:pmtCharges,backgroundColor:'rgba(220,38,38,.75)',borderRadius:4},{label:'Credits',data:months.map(m=>m.credits),backgroundColor:'rgba(5,150,105,.75)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{position:'bottom'},tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmtAUD(ctx.raw)}`}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtAUD(v),font:{family:'JetBrains Mono',size:11}}}}}});
+
+  updateInsightsTab();
+}
+
+// ─── INSIGHTS TAB ─────────────────────────────────────
+function updateInsightsTab(){
+  const months=HISTORICAL_MONTHS,has=months.length>=1;
+  el('insights-empty').style.display='none';
+  el('insights-content').style.display=has?'block':'none';
+  if(!has)return;
+  const n=months.length;
+  const avgCats={};
+  ALL_CATS.forEach(c=>{avgCats[c]=months.reduce((s,m)=>s+(m.cats[c]||0),0)/n;});
+  el('insights-alerts').innerHTML=n>=3?`<div class="alert alert-green"><strong>Milestone:</strong> ${n} months of statement data — full trend analysis active.</div>`:'';
+  const cards=[];
+  if(n>=2){const diff=((months[n-1].total-months[0].total)/months[0].total*100).toFixed(1);cards.push({col:parseFloat(diff)<0?'var(--green)':'var(--red)',tag:'Trend',title:parseFloat(diff)<0?'Spending Down':'Spending Up',body:`${months[n-1].short} vs ${months[0].short}: ${diff>0?'+':''}${diff}% change.`,amt:`${months[0].short} ${fmtAUD(months[0].total)} → ${months[n-1].short} ${fmtAUD(months[n-1].total)}`});}
+  if(avgCats.education>0){const v=months.map(m=>m.cats.education||0);const isFixed=Math.max(...v)-Math.min(...v)<10;cards.push({col:'var(--indigo)',tag:'Education',title:isFixed?'Education Fixed':'Education Variable',body:`${isFixed?'Consistent':'Variable'} at avg ${fmtAUD(avgCats.education)}/mo.`,amt:fmtAUD(avgCats.education)+'/mo avg'});}
+  if(avgCats.dining>0)cards.push({col:'var(--amber)',tag:'Dining',title:'Dining Trend',body:`Averaging ${fmtAUD(avgCats.dining)}/mo — monitor vs 5% income guideline.`,amt:fmtAUD(avgCats.dining)+'/mo avg'});
+  if(avgCats.groceries>0)cards.push({col:'var(--blue)',tag:'Groceries',title:'Grocery Spend',body:`Averaging ${fmtAUD(avgCats.groceries)}/mo across ${n} statements.`,amt:fmtAUD(avgCats.groceries)+'/mo avg'});
+  if(avgCats.fitness>0){const v=months.map(m=>m.cats.fitness||0);cards.push({col:'var(--teal)',tag:'Fitness',title:'Fitness Spend',body:`${Math.max(...v)-Math.min(...v)<5?'Consistent':'Variable'} at ~${fmtAUD(avgCats.fitness)}/mo.`,amt:fmtAUD(avgCats.fitness)+'/mo'});}
+  if(avgCats.retail>0)cards.push({col:'var(--purple)',tag:'Retail',title:'Retail Spend',body:`Averaging ${fmtAUD(avgCats.retail)}/mo — review for necessity.`,amt:fmtAUD(avgCats.retail)+'/mo avg'});
+  el('insights-grid').innerHTML=cards.map(c=>`<div class="insight-card" style="border-top:3px solid ${c.col}"><div class="ic-tag">${c.tag}</div><div class="ic-title">${c.title}</div><div class="ic-body">${c.body}</div><div class="ic-amount" style="color:${c.col}">${c.amt}</div></div>`).join('');
+}
+
+// ─── FORECAST TAB ────────────────────────────────────
+function rebuildForecastTab(){
+  const months=buildMergedMonths(),has=months.length>0;
+  el('fc-empty').style.display=has?'none':'block';
+  el('fc-content').style.display=has?'block':'none';
+  if(!has)return;
+
+  const n=months.length;
+  const last3=months.slice(-3);
+  const window3=last3.length;
+  const EXCLUDE=new Set(['income','retail','other']);
+  const fcst={},recurrence={};
+
+  // Determine recurring categories from last 3 months of actuals
+  ALL_CATS.filter(c=>!EXCLUDE.has(c)).forEach(cat=>{
+    const appeared=last3.filter(m=>(m.cats[cat]||0)>0);
+    recurrence[cat]=appeared.length;
+    const threshold=window3>=3?2:1;
+    if(appeared.length>=threshold){
+      // Average only across months the category appeared in
+      fcst[cat]=appeared.reduce((s,m)=>s+(m.cats[cat]||0),0)/appeared.length;
+    }
+  });
+
+  // Mortgage: always forecast from MORTGAGE_PAYS if present, even without NAB statement
+  if(!fcst.mortgage&&MORTGAGE_PAYS.length){
+    fcst.mortgage=avgMonthlyMortgage();
+    recurrence.mortgage=window3;
+  }
+
+  // Sort by forecast amount descending
+  const catOrder=Object.keys(fcst).sort((a,b)=>fcst[b]-fcst[a]);
+  const fcTotal=catOrder.reduce((s,c)=>s+fcst[c],0);
+  const nextLbl='Next Month';
+
+  el('fc-blocks-container').innerHTML=catOrder.map(cat=>{
+    const col=CAT_COLORS[cat]||'#94A3B8',amt=fcst[cat],rec=recurrence[cat]||0;
+    const isFull=rec===window3;
+    const badgeBg=isFull?'var(--green-s)':'var(--amber-s)';
+    const badgeCol=isFull?'var(--green)':'var(--amber)';
+    const recBadge=`<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 9px;border-radius:100px;background:${badgeBg};color:${badgeCol}">${rec}/${window3} months</span>`;
+    const note=cat==='mortgage'?'fixed commitment':`${rec}-month avg`;
+    return `<div class="forecast-block">
+      <div class="fb-header">
+        <div class="fb-header-left"><div class="fb-dot" style="background:${col}"></div><div class="fb-title">${cat.charAt(0).toUpperCase()+cat.slice(1)}</div>${recBadge}</div>
+        <div class="fb-total" style="color:${col}">${fmtAUD(amt)}</div>
+      </div>
+      <div class="fb-row" style="grid-template-columns:1fr">
+        <span style="font-size:13px;color:var(--ink3);font-family:'JetBrains Mono',monospace">${note}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  el('fc-grand-total').innerHTML=`<div><div class="gt-label">${nextLbl} Forecast Total</div><div class="gt-sub">recurring categories only · ${catOrder.length} included</div></div><div class="gt-value">${fmtAUD(fcTotal)}</div>`;
+  setText('fc-sub',`Last ${window3} month${window3!==1?'s':''} analysed · recurring only · auto-rebuilds on upload`);
+
+  mkChart('fcBreakdownChart',{type:'bar',data:{labels:catOrder.map(c=>c.charAt(0).toUpperCase()+c.slice(1)),datasets:[{label:'Forecast',data:catOrder.map(c=>fcst[c]),backgroundColor:catOrder.map(c=>CAT_COLORS[c]||'#94A3B8'),borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${fmtAUD(ctx.raw)}`}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtAUD(v),font:{family:'JetBrains Mono',size:11}}}}}});
+  mkChart('fcTrendChart',{type:'line',data:{labels:[...months.map(m=>m.short),nextLbl],datasets:[{label:'Actuals',data:[...months.map(m=>m.total),null],borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,.08)',borderWidth:2.5,fill:true,tension:.35,pointRadius:4},{label:'Forecast',data:[...months.slice(0,-1).map(()=>null),months[n-1].total,fcTotal],borderColor:'#D97706',borderWidth:2.5,borderDash:[8,5],pointRadius:[...months.slice(0,-1).map(()=>0),4,6],pointBackgroundColor:'#D97706',pointBorderColor:'#fff',pointBorderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'bottom'},tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw!=null?fmtAUD(ctx.raw):'—'}`}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>fmtAUD(v),font:{family:'JetBrains Mono',size:11}}}}}});
+}
+
+// ─── UPLOAD HANDLING ──────────────────────────────────
+const zone=el('upload-zone');
+if(zone){
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');if(e.dataTransfer.files[0])handleFileSelect(e.dataTransfer.files[0]);});
+}
+function handleFileSelect(file){
+  if(!file)return;
+  const isPdf=file.name.toLowerCase().endsWith('.pdf');
+  if(uploadType==='income'&&!isPdf){
+    alert('Salary/payroll uploads require a PDF file.\nPlease upload an ANZ transaction report PDF.');
+    el('file-input').value='';
+    return;
+  }
+  zone.style.opacity='.5';
+  if(isPdf) uploadType==='income'?parseANZIncomePDF(file):parsePDF(file);
+  else{const r=new FileReader();r.onload=e=>parseCSV(e.target.result);r.readAsText(file);}
+}
+// ─── ACCOUNT SUMMARY PARSER ──────────────────────────
+// Reads the "Account Summary" table from page 1 of a NAB PDF statement.
+// Only receives page1Lines — account summary is never on later pages.
+// Captures the DR/CR flag beside each figure so sign and type can be validated.
+//
+// Real NAB label format (from live statement):
+//   + Payments & other credits received   $9,898.00 CR
+//   - Purchases, cash advances            $10,153.72 DR
+//   - Interest /& other charges           $301.97 DR
+//   - Opening balance / = Closing balance $X,XXX.XX DR|CR
+//
+// Key differences from naive assumptions:
+//   • "&" is used, never "and"
+//   • "Purchases, cash advances" is ONE combined line — no separate cash advances row
+//   • "Interest /& other charges" uses "/&" separator
+function parseAccountSummary(page1Lines){
+  const text=page1Lines.join('\n');
+
+  // Returns {amount, flag} for the first pattern that matches.
+  // [\s\S]{0,150}? (lazy, crosses newlines) finds the amount even when the PDF
+  // puts label and value on separate extracted lines.
+  const findWithFlag=(...patterns)=>{
+    for(const re of patterns){
+      const m=text.match(re);
+      if(m){
+        const v=parseFloat(m[1].replace(/,/g,''));
+        if(!isNaN(v)) return {amount:v, flag:(m[2]||'').toUpperCase()||null};
+      }
+    }
+    return {amount:null, flag:null};
+  };
+
+  // "Purchases, cash advances" — NAB always uses one combined line.
+  // cashAdvances is intentionally left null so the reconciliation never double-counts.
+  const purchases = findWithFlag(
+    /purchases?[,\s]+cash\s+advances?[\s\S]{0,120}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i,
+    /\bpurchases?\b[\s\S]{0,120}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i,
+  );
+
+  // "Payments & other credits received" — uses "&", has "received" at end
+  const creditsRec = findWithFlag(
+    /payments?\s*&\s*other\s+credits[\s\S]{0,150}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i,
+    /payments?\s+(?:and|&)\s+credits[\s\S]{0,150}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i,
+  );
+
+  // "Interest /& other charges" — uses "/&" separator
+  const interest = findWithFlag(
+    /interest\s*[\/\\]?&?\s*other\s+charges?[\s\S]{0,120}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i,
+    /interest\s+charged?[\s\S]{0,120}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i,
+  );
+
+  const openingBal = findWithFlag(/opening\s+balance[\s\S]{0,120}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i);
+  const closingBal = findWithFlag(
+    /closing\s+balance[\s\S]{0,120}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i,
+    /balance\s+payable[\s\S]{0,120}?([\d,]+\.\d{2})\s*(DR|CR)?\b/i,
+  );
+
+  return {
+    purchases:            purchases.amount,
+    purchasesFlag:        purchases.flag,          // expected: DR
+    creditsReceived:      creditsRec.amount,
+    creditsReceivedFlag:  creditsRec.flag,          // expected: CR
+    interest:             interest.amount,
+    interestFlag:         interest.flag,
+    cashAdvances:         null,                    // always null — included in purchases line
+    openingBalance:       openingBal.amount,
+    openingBalanceFlag:   openingBal.flag,
+    closingBalance:       closingBal.amount,
+    closingBalanceFlag:   closingBal.flag,
+  };
+}
+
+// ─── RECONCILIATION RENDERER ─────────────────────────
+// Columns: Line Item | Page 1 Summary (baseline) | Transaction Total (calculated) | Result
+// Three checks:
+//   Credits   : sum of all CR records      must equal  creditsReceived  (page 1)
+//   Purchases : sum of non-CR non-fee txns must equal  purchases        (page 1)
+//   Interest  : sum of fee-category txns   must equal  interest         (page 1)
+// Tolerance: $1.00
+function buildReconciliationHTML(charges, credits, summary){
+  if(!summary)return '';
+  const TOL=1.00;
+  const crCount=credits.length;
+
+  // ── Totals calculated from transaction details ────────────────────────────
+  const txnCredits   = credits.reduce((s,t)=>s+t.amount,0);
+  const txnInterest  = charges.filter(t=>t.category==='fees').reduce((s,t)=>s+t.amount,0);
+  const txnPurchases = charges.filter(t=>t.category!=='fees').reduce((s,t)=>s+t.amount,0);
+
+  // ── Baselines from page 1 account summary ────────────────────────────────
+  const sumCredits   = summary.creditsReceived   ?? null;
+  const sumPurchases = summary.purchases         ?? null;   // includes cash advances (one line)
+  const sumInterest  = summary.interest          ?? null;
+
+  const flagBadge=flag=>flag
+    ?`<span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:4px;background:${flag==='CR'?'var(--green-s)':'var(--amber-s)'};color:${flag==='CR'?'var(--green)':'var(--amber)'}">${flag}</span>`
+    :'';
+
+  const rows=[];
+
+  // Column header row
+  rows.push(`<div class="rec-row" style="background:var(--surface2)">
+    <span class="rec-label"  style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4)">Line Item</span>
+    <span class="rec-amt"    style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4)">Page 1 Summary</span>
+    <span class="rec-stated" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4)">Transaction Total</span>
+    <span class="rec-badge"  style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4)">Result</span>
+  </div>`);
+
+  // Build one comparison row: page1Value is the baseline, txnValue is what was calculated
+  const addRow=(label, page1Value, page1Flag, txnValue, txnNote)=>{
+    const note=txnNote?` <span style="font-size:11px;color:var(--ink4);font-family:'JetBrains Mono',monospace">(${txnNote})</span>`:'';
+    if(page1Value===null||page1Value===undefined){
+      rows.push(`<div class="rec-row">
+        <span class="rec-label">${label}</span>
+        <span class="rec-amt" style="color:var(--ink4);font-style:italic">Not in summary</span>
+        <span class="rec-stated">${fmtAUD(txnValue)}${note}</span>
+        <span class="rec-badge rec-close">— N/A</span>
+      </div>`);
+      return;
+    }
+    const diff=Math.abs(txnValue-page1Value);
+    const isMatch=diff<=TOL, isClose=!isMatch&&diff<=5;
+    const badgeCls=isMatch?'rec-match':isClose?'rec-close':'rec-diff';
+    const badgeTxt=isMatch?'✓ Match':isClose?`≈ Off ${fmtAUD(diff)}`:`✗ Off ${fmtAUD(diff)}`;
+    rows.push(`<div class="rec-row">
+      <span class="rec-label">${label}</span>
+      <span class="rec-amt">${fmtAUD(page1Value)}${flagBadge(page1Flag)}</span>
+      <span class="rec-stated">${fmtAUD(txnValue)}${note}</span>
+      <span class="rec-badge ${badgeCls}">${badgeTxt}</span>
+    </div>`);
+  };
+
+  // ── Check 1: Payments & other credits received ────────────────────────────
+  addRow(
+    'Payments &amp; Other Credits',
+    sumCredits, summary.creditsReceivedFlag,
+    txnCredits, `${crCount} CR record${crCount!==1?'s':''}`
+  );
+  // Flag warning if the summary value wasn't marked CR
+  const creditsFlagOk=sumCredits===null||summary.creditsReceivedFlag==='CR';
+  if(sumCredits!==null&&!creditsFlagOk){
+    rows.push(`<div class="rec-row" style="background:var(--red-s)">
+      <span class="rec-label" style="color:var(--red)">⚠ Credits not flagged CR on page 1</span>
+      <span class="rec-amt"   style="color:var(--red)">Expected CR</span>
+      <span class="rec-stated"style="color:var(--red)">Got: ${summary.creditsReceivedFlag||'none'}</span>
+      <span class="rec-badge rec-diff">Check</span>
+    </div>`);
+  }
+
+  // ── Check 2: Purchases, cash advances ────────────────────────────────────
+  addRow(
+    'Purchases &amp; Cash Advances',
+    sumPurchases, summary.purchasesFlag||'DR',
+    txnPurchases
+  );
+
+  // ── Check 3: Interest & other charges ────────────────────────────────────
+  addRow(
+    'Interest &amp; Other Charges',
+    sumInterest, summary.interestFlag||'DR',
+    txnInterest
+  );
+
+  if(!rows.length)return '';
+
+  const allOk=creditsFlagOk&&[
+    {e:txnCredits,   s:sumCredits},
+    {e:txnPurchases, s:sumPurchases},
+    {e:txnInterest,  s:sumInterest},
+  ].filter(r=>r.s!==null).every(r=>Math.abs(r.e-r.s)<=TOL);
+
+  const summaryMissing=sumCredits===null&&sumPurchases===null&&sumInterest===null;
+  const panelCls=allOk?'rec-ok':summaryMissing?'rec-amber':'rec-warn';
+  const headerTxt=allOk
+    ?'✓ All figures match — reconciliation passed'
+    :summaryMissing
+    ?'⚠ Page 1 summary not parsed — verify manually'
+    :'⚠ Discrepancies found — review rows below';
+
+  const balLine=(v,flag)=>v!==null?`${fmtAUD(v)}${flagBadge(flag)}`:'—';
+  const balanceLine=(summary.openingBalance!==null||summary.closingBalance!==null)
+    ?`<div class="rec-balances">
+        <span>Opening balance (page 1): ${balLine(summary.openingBalance,summary.openingBalanceFlag)}</span>
+        <span>Closing balance (page 1): ${balLine(summary.closingBalance,summary.closingBalanceFlag)}</span>
+      </div>`
+    :'';
+
+  const rid=++recPanelId;
+  return `<div class="rec-panel ${panelCls}">
+    <div class="rec-header" onclick="toggleRec(${rid})" style="gap:14px">
+      <span style="flex:1;min-width:0">Reconciliation — Page 1 Account Summary vs Transaction Details</span>
+      <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+        <span class="rec-header-badge">${headerTxt}</span>
+        <button class="rec-expand" id="rec-toggle-${rid}" onclick="event.stopPropagation();toggleRec(${rid})">
+          <span id="rec-icon-${rid}">▶</span><span id="rec-lbl-${rid}">Show</span>
+        </button>
+      </div>
+    </div>
+    <div id="rec-body-${rid}" style="display:none">
+      ${rows.join('')}
+      ${balanceLine}
+    </div>
+  </div>`;
+}
+
+function toggleRec(id){
+  const body=el('rec-body-'+id);
+  const icon=el('rec-icon-'+id);
+  const lbl=el('rec-lbl-'+id);
+  if(!body)return;
+  const show=body.style.display==='none';
+  body.style.display=show?'':'none';
+  if(icon)icon.textContent=show?'▼':'▶';
+  if(lbl)lbl.textContent=show?'Hide':'Show';
+}
+
+// ─── NAB PDF PARSER ──────────────────────────────────
+// Detects credits by: (a) CR suffix, (b) description keywords (PAYMENT, TRANSFER, REFUND)
+// Reference number format is flexible (V####, D####, or any ref)
+async function parsePDF(file){
+  if(typeof pdfjsLib==='undefined'){alert('PDF.js not loaded.');resetUpload();return;}
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  try{
+    const pdf=await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
+
+    // ── Pass 1: collect reconstructed text lines, tracking page boundaries ───────
+    // page1Lines feeds the account summary parser (summary is always on page 1).
+    // allLines feeds the transaction extractor (transactions span all pages).
+    const allLines=[];
+    const page1Lines=[];
+    for(let pg=1;pg<=pdf.numPages;pg++){
+      const tc=await(await pdf.getPage(pg)).getTextContent();
+      const byY={};
+      tc.items.forEach(item=>{
+        if(!item.str.trim())return;
+        // Skip rotated text (vertical page/account identifiers printed on NAB statement
+        // margins).  For horizontal text transform[1] ≈ 0; for 90° rotated text
+        // transform[1] ≈ ±fontSize.  A character from the rotated identifier can land
+        // in the same Y-bucket as a transaction row and corrupt the line, causing the
+        // transaction regex to fail (extra character appears after the CR flag).
+        if(Math.abs(item.transform[1])>1)return;
+        // 5pt bucket — items on the same visual row but extracted with slightly
+        // different Y coordinates (common in NAB PDFs) are grouped together.
+        // 5pt is safe: standard line spacing is 12-14pt so adjacent rows never merge.
+        const y=Math.round(item.transform[5]/5)*5;
+        if(!byY[y])byY[y]=[];
+        byY[y].push({x:item.transform[4],t:item.str});
+      });
+      // Sort rows top-to-bottom (PDF Y is bottom-up → descending sort)
+      Object.entries(byY)
+        .sort((a,b)=>b[0]-a[0])
+        .forEach(([,items])=>{
+          const row=items.sort((a,b)=>a.x-b.x).map(i=>i.t).join(' ').trim();
+          if(row){
+            allLines.push(row);
+            if(pg===1)page1Lines.push(row);
+          }
+        });
+    }
+
+    // ── Pass 2: extract Account Summary from page 1 only ──────────────────────
+    currentSummary=parseAccountSummary(page1Lines);
+
+    // ── Pass 2.5: re-attach lines split by bold/regular font baseline shift ───
+    // NAB PDFs print bold text (CR transactions) at a slightly different Y than
+    // the regular-weight dates/card-number on the same visual row.  With any
+    // fixed Y-bucket size, this produces two fragments instead of one line:
+    //
+    //   Case A – orphaned CR flag only:
+    //     Line i-1 : "15/01/26 15/01/26 V4424 INTERNET PAYMENT ... 1,300.00"
+    //     Line i   : "CR"
+    //
+    //   Case B – orphaned amount (+CR):
+    //     Line i-1 : "15/01/26 15/01/26 V4424 INTERNET PAYMENT ..."
+    //     Line i   : "1,300.00 CR"
+    //
+    //   Case C – entire bold content split from regular header:
+    //     Line i-1 : "15/01/26 15/01/26 V4424"          ← regular text only
+    //     Line i   : "INTERNET PAYMENT ... 1,300.00 CR"  ← bold text only
+    //
+    // All three are re-attached here before the transaction regex runs.
+    const txnDateRe    = /^\d{2}\/\d{2}\/\d{2}/;
+    // Matches a line that is ONLY two dates + optional card-number (no description)
+    const headerOnlyRe = /^\d{2}\/\d{2}\/\d{2}\s+\d{2}\/\d{2}\/\d{2}(?:\s+[A-Z]{1,3}\d+)?\s*$/;
+
+    for(let i=allLines.length-1;i>0;i--){
+      const line    = allLines[i].trim();
+      const prevLine= allLines[i-1];
+
+      const isCROnly         = /^CR$/i.test(line);
+      const isAmountLine     = /^\$?[\d,]+\.\d{2}\s*(?:CR)?\s*$/i.test(line);   // Cases A & B
+      const prevIsHeaderOnly = headerOnlyRe.test(prevLine.trim());               // Case C
+      const lineEndsWithAmt  = /[\d,]+\.\d{2}\s*(?:CR)?\s*$/.test(line);
+
+      if((isCROnly||isAmountLine) && txnDateRe.test(prevLine)){
+        // Cases A & B: orphaned flag or amount — previous line is a transaction row
+        allLines[i-1]=prevLine.trimEnd()+' '+line;
+        allLines.splice(i,1);
+      } else if(prevIsHeaderOnly && lineEndsWithAmt && !txnDateRe.test(line)){
+        // Case C: bold description+amount split from regular dates+card-number
+        allLines[i-1]=prevLine.trimEnd()+' '+line;
+        allLines.splice(i,1);
+      }
+    }
+
+    // ── Pass 3: extract transactions ───────────────────────────────────────────
+    // NAB format: DD/MM/YY  DD/MM/YY  [ref]  [description]  [amount]  [CR]
+    // Reference group is optional ((?:...)\s+)? — a missing or non-standard
+    // reference must not cause the entire transaction line to be dropped.
+    // Two leading dates are the reliable anchor; amount + optional CR close it.
+    const txnRe=/(\d{2}\/\d{2}\/\d{2})\s+\d{2}\/\d{2}\/\d{2}\s+(?:[A-Z]{1,3}\d+\s+)?(.+?)\s+([\d,]+\.\d{2})\s*(CR)?\s*$/i;
+    const CREDIT_KW=/\b(internet\s*payment|direct\s*credit|bank\s*transfer|bpay\s*credit|refund|reversal|payment\s*received|payment\s*-\s*thank\s*you)\b/i;
+    const txns=[];
+    allLines.forEach(row=>{
+      const m=row.match(txnRe);
+      if(!m)return;
+      const desc=m[2].trim();
+      const amt=parseFloat(m[3].replace(/,/g,''));
+      if(!amt||isNaN(amt))return;
+      // isCredit: CR suffix is definitive — keywords are the fallback only
+      const isCredit=!!m[4]||CREDIT_KW.test(desc);
+      txns.push({date:m[1],desc,amount:amt,isCredit,category:'pending',catSource:'new'});
+    });
+
+    if(!txns.length){
+      alert('No transactions found. Is this a NAB PDF credit card statement?');
+      resetUpload();return;
+    }
+    processTxns(txns);
+  }catch(e){alert('PDF error: '+e.message);resetUpload();}
+}
+
+// ─── ANZ PDF PARSER — INCOME/SALARY ─────────────────
+// Supports two ANZ formats:
+//   Format A — Transaction Report: Date|Transaction Details|Withdrawals|Deposits
+//              Month+year headers ("MAY 2026"), amounts with $ prefix, single-line entries
+//   Format B — ANZ ONE Statement:  Date|Transaction description|Debits($)|Credits($)|Balance($)
+//              Year-only headers ("2025"), amounts without $, multi-line entries
+// Extracted PAY/SALARY records are shown in a preview before committing.
+async function parseANZIncomePDF(file){
+  if(typeof pdfjsLib==='undefined'){alert('PDF.js not loaded.');resetUpload();return;}
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  try{
+    const pdf=await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
+    const allRows=[];
+    for(let pg=1;pg<=pdf.numPages;pg++){
+      const tc=await(await pdf.getPage(pg)).getTextContent();
+      const byY={};
+      tc.items.forEach(item=>{
+        if(!item.str.trim())return;
+        const y=Math.round(item.transform[5]/5)*5;
+        if(!byY[y])byY[y]=[];
+        byY[y].push({x:item.transform[4],t:item.str.trim()});
+      });
+      Object.entries(byY).sort((a,b)=>b[0]-a[0]).forEach(([,items])=>{
+        allRows.push(items.sort((a,b)=>a.x-b.x));
+      });
+    }
+
+    // Detect format and extract statement period before parsing
+    const allText=allRows.flat().map(i=>i.t).join(' ');
+    const isStatement=/Credits\s*\(\$\)|Debits\s*\(\$\)|BALANCE BROUGHT FORWARD/i.test(allText);
+
+    // Extract statement period from page 1 header: "04 SEPTEMBER 2025 TO 04 MARCH 2026"
+    const FULL_MON=/JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER/i;
+    const stmtRe=new RegExp(`(\\d{1,2})\\s+(${FULL_MON.source})\\s+(\\d{4})\\s+TO\\s+(\\d{1,2})\\s+(${FULL_MON.source})\\s+(\\d{4})`,'i');
+    const sm=allText.match(stmtRe);
+    const cap=s=>s.charAt(0).toUpperCase()+s.slice(1).toLowerCase();
+    const statementPeriod=sm?`${sm[1]} ${cap(sm[2])} ${sm[3]} – ${sm[4]} ${cap(sm[5])} ${sm[6]}`:null;
+    // startYear seeds the year tracker so we never default to the current calendar year
+    const startYear=sm?parseInt(sm[3]):null;
+
+    // Statement format returns {salaries,mortgages} in one pass; Transaction Report returns array.
+    const extracted=isStatement
+      ? extractFromANZStatement(allRows,startYear)
+      : {salaries:extractFromANZTransactionReport(allRows),mortgages:extractMortgageFromANZTransactionReport(allRows)};
+    const deposits=extracted.salaries;
+    pendingMortgage=(extracted.mortgages||[]).map(d=>({date:d.dateStr,desc:d.desc,amount:d.amount}));
+
+    if(!deposits.length){
+      alert('No PAY/SALARY records found in this PDF.\nPlease upload an ANZ bank statement or transaction report containing ATO Payroll salary entries.');
+      resetUpload();return;
+    }
+
+    deposits.sort((a,b)=>new Date(a.year,a.monNum-1,a.day)-new Date(b.year,b.monNum-1,b.day));
+    buildIncomePreview(deposits.map(d=>({date:d.dateStr,desc:d.desc,amount:d.amount})),statementPeriod);
+  }catch(e){alert('PDF error: '+e.message);resetUpload();}
+}
+
+// ── Direct mortgage scan for ANZ ONE Statement ───────
+// Scans allRows for rows containing "GWAK SEUNGGWAN" (the mortgage payee), skips
+// "PAYMENT FROM SEUNGGWAN GWAK" credit rows, then walks backward to find the
+// transaction date row with amounts. This is more reliable than the emitTxn state
+// machine because it doesn't depend on description accumulation timing.
+function directMortgageScan(allRows,startYear){
+  const MON_MAP={JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12};
+  const dateRe=/^(\d{1,2})\s*(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)$/i;
+  const amtRe=/^\d[\d,]*\.\d{2}$/;
+  const results=[];
+  let year=startYear||new Date().getFullYear();
+  let prevMon=null;
+
+  for(let i=0;i<allRows.length;i++){
+    const row=allRows[i];
+    const rowTxt=row.map(it=>it.t).join(' ');
+    // Only process rows that mention GWAK (the mortgage payee)
+    if(!/gwak/i.test(rowTxt))continue;
+    // Skip payments FROM Gwak (credits/refunds) — only want payments TO GWAK SEUNGGWAN
+    if(/seunggwan\s+gwak|from\s+seunggwan/i.test(rowTxt))continue;
+
+    // Walk backward from this row to find the transaction date row with amounts.
+    // The date+debit row should be 1–4 rows above in allRows (higher Y = earlier index).
+    for(let j=i;j>=Math.max(0,i-5);j--){
+      const r=allRows[j];
+      const txt=r.map(it=>it.t).join(' ');
+      // Skip structural rows that are not transaction data
+      if(/^(EFFECTIVE\s+DATE|TOTALS|ANZ ONE|Account number|Please retain|Transaction details|Balance Brought|Opening|Closing)/i.test(txt))continue;
+      // Try to extract a date (DD + MON) from this row
+      let day=null,mon=null;
+      for(const it of r){
+        const dm=it.t.match(dateRe);
+        if(dm){day=parseInt(dm[1]);mon=dm[2].toUpperCase();break;}
+        if(/^\d{1,2}$/.test(it.t)&&day===null)day=parseInt(it.t);
+        if(MON_MAP[it.t.toUpperCase()]&&mon===null&&!/^\d/.test(it.t))mon=it.t.toUpperCase();
+      }
+      if(day===null||mon===null)continue;
+      // Date found — now find the amounts on this row
+      const amts=r.filter(it=>amtRe.test(it.t));
+      if(!amts.length)continue; // no amounts on this row, keep looking backward
+      // Valid transaction row found: track year via month rollover then record
+      const monNum=MON_MAP[mon];
+      if(prevMon!==null&&monNum<prevMon)year++;
+      prevMon=monNum;
+      // Leftmost amount = Debits column (ANZ layout: Debits | Credits | Balance)
+      const debitItem=amts.reduce((l,a)=>a.x<l.x?a:l);
+      const amt=parseFloat(debitItem.t.replace(/,/g,''));
+      if(!isNaN(amt)&&amt>0){
+        const dateStr=`${String(day).padStart(2,'0')}/${String(monNum).padStart(2,'0')}/${year}`;
+        results.push({dateStr,desc:'PAYMENT TO GWAK SEUNGGWAN',amount:amt,monNum,year,day});
+      }
+      break;
+    }
+  }
+  return results;
+}
+
+// ── Mortgage extraction — Format A (ANZ Transaction Report) ─
+// Mortgage debits appear in the Withdrawals column (left of Deposits).
+function extractMortgageFromANZTransactionReport(allRows){
+  const MON_MAP={JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12};
+  const dateRe=/^(\d{1,2})\s*(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)$/i;
+  const amtRe=/^\$?[\d,]+\.\d{2}$/;
+  const mortRe=/payment\s+to\s+gwak\s+seunggwan/i;
+  let withdrawalsXMax=null;
+  for(const row of allRows){
+    const texts=row.map(i=>i.t);
+    if(texts.some(t=>/^Withdrawals?$/i.test(t))&&texts.some(t=>/^Deposits?$/i.test(t))){
+      const d=row.find(i=>/^Deposits?$/i.test(i.t));
+      if(d){withdrawalsXMax=d.x-5;break;}
+    }
+  }
+  let currentYear=new Date().getFullYear();
+  const results=[];
+  allRows.forEach(row=>{
+    const lt=row.map(i=>i.t).join(' ').trim();
+    const mh=lt.match(/^(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+(\d{4})$/i);
+    if(mh){currentYear=parseInt(mh[2]);return;}
+    if(/^(Total|Date|Transaction|Account|Balance|Branch)/i.test(lt))return;
+    let dm=row[0]?.t.match(dateRe);
+    if(!dm&&row.length>=2)dm=(row[0].t+' '+row[1].t).match(dateRe);
+    if(!dm)return;
+    const day=parseInt(dm[1]),mon=dm[2].toUpperCase(),monNum=MON_MAP[mon];
+    const dateStr=`${String(day).padStart(2,'0')}/${String(monNum).padStart(2,'0')}/${currentYear}`;
+    const descItems=row.filter(i=>!amtRe.test(i.t)&&!dateRe.test(i.t)&&!/^\d{1,2}$/.test(i.t)&&MON_MAP[i.t.toUpperCase()]==null);
+    const desc=descItems.map(i=>i.t).join(' ').trim();
+    if(!mortRe.test(desc))return;
+    // Withdrawal amounts are in the Withdrawals column (x < withdrawalsXMax or Deposits column)
+    row.filter(i=>amtRe.test(i.t)&&(withdrawalsXMax===null||i.x<withdrawalsXMax)).forEach(amtItem=>{
+      const amt=parseFloat(amtItem.t.replace(/[$,]/g,''));
+      if(!isNaN(amt)&&amt>0)results.push({dateStr,desc,amount:amt,monNum,year:currentYear,day});
+    });
+  });
+  return results;
+}
+
+// ── Average monthly mortgage from ANZ-extracted records ─
+function avgMonthlyMortgage(){
+  if(!MORTGAGE_PAYS.length)return 0;
+  const byMonth={};
+  MORTGAGE_PAYS.forEach(p=>{
+    const pts=p.date.split('/');if(pts.length<3)return;
+    const key=pts[2]+'-'+pts[1];
+    byMonth[key]=(byMonth[key]||0)+p.amount;
+  });
+  const vals=Object.values(byMonth);
+  return vals.reduce((s,v)=>s+v,0)/vals.length;
+}
+
+// ── Format A: ANZ Transaction Report ─────────────────
+// Columns: Date | Transaction Details | Withdrawals | Deposits
+// Year from "MAY 2026"-style headers. Amounts have $ prefix. Single-line entries.
+function extractFromANZTransactionReport(allRows){
+  const MON_MAP={JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12};
+  const dateRe=/^(\d{1,2})\s*(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)$/i;
+  const amtRe=/^\$?[\d,]+\.\d{2}$/;
+  const payRe=/pay[\/\s]salary|payroll|ato\s*payroll/i;
+
+  // Find Deposits column X from header row
+  let depositsXMin=null;
+  for(const row of allRows){
+    const texts=row.map(i=>i.t);
+    if(texts.some(t=>/^Withdrawals?$/i.test(t))&&texts.some(t=>/^Deposits?$/i.test(t))){
+      const d=row.find(i=>/^Deposits?$/i.test(i.t));
+      if(d){depositsXMin=d.x-5;break;}
+    }
+  }
+  // Fallback: gap-cluster amount X positions — deposit column has the larger X
+  if(depositsXMin===null){
+    const xs=[];
+    allRows.forEach(r=>r.forEach(i=>{if(amtRe.test(i.t))xs.push(i.x);}));
+    xs.sort((a,b)=>a-b);
+    if(xs.length>=2){
+      let mg=0,gi=1;
+      for(let i=1;i<xs.length;i++)if(xs[i]-xs[i-1]>mg){mg=xs[i]-xs[i-1];gi=i;}
+      depositsXMin=(xs[gi-1]+xs[gi])/2;
+    }
+  }
+
+  let currentYear=new Date().getFullYear();
+  const results=[];
+  allRows.forEach(row=>{
+    const lt=row.map(i=>i.t).join(' ').trim();
+    const mh=lt.match(/^(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+(\d{4})$/i);
+    if(mh){currentYear=parseInt(mh[2]);return;}
+    if(/^(Total|Date|Transaction|Account|Balance|Branch)/i.test(lt))return;
+
+    let dm=row[0]?.t.match(dateRe);
+    if(!dm&&row.length>=2)dm=(row[0].t+' '+row[1].t).match(dateRe);
+    if(!dm)return;
+
+    const day=parseInt(dm[1]),mon=dm[2].toUpperCase(),monNum=MON_MAP[mon];
+    const dateStr=`${String(day).padStart(2,'0')}/${String(monNum).padStart(2,'0')}/${currentYear}`;
+    const descItems=row.filter(i=>!amtRe.test(i.t)&&!dateRe.test(i.t)&&!/^\d{1,2}$/.test(i.t)&&MON_MAP[i.t.toUpperCase()]==null);
+    const desc=descItems.map(i=>i.t).join(' ').trim();
+    if(!payRe.test(desc))return;
+
+    row.filter(i=>amtRe.test(i.t)&&(depositsXMin===null||i.x>=depositsXMin)).forEach(amtItem=>{
+      const amt=parseFloat(amtItem.t.replace(/[$,]/g,''));
+      if(!isNaN(amt)&&amt>0)results.push({dateStr,desc,amount:amt,monNum,year:currentYear,day});
+    });
+  });
+  return results;
+}
+
+// ── Format B: ANZ ONE Statement ───────────────────────
+// Columns: Date | Transaction description | Debits($) | Credits($) | Balance($)
+// Year tracked via month-rollover (Dec→Jan bumps year) seeded from statement period.
+// No $ on amounts. Multi-line entries handled by a state machine.
+// Returns { salaries, mortgages } — mortgage detection runs in the same pass as salary.
+function extractFromANZStatement(allRows,startYear){
+  const MON_MAP={JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12};
+  const dateRe=/^(\d{1,2})\s*(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)$/i;
+  // ANZ Statement amounts have no $ prefix
+  const amtRe=/^\d[\d,]*\.\d{2}$/;
+  const payRe=/pay[\/\s]salary|payroll|ato\s*payroll/i;
+
+  // Find Credits($), Debits($), Balance($) column X positions from header row
+  let creditsX=null,balanceX=null,debitsX=null,dateColX=null;
+  for(const row of allRows){
+    if(row.some(i=>/^Credits/i.test(i.t))&&row.some(i=>/^Debits/i.test(i.t))){
+      creditsX=row.find(i=>/^Credits/i.test(i.t))?.x??null;
+      debitsX=row.find(i=>/^Debits/i.test(i.t))?.x??null;
+      balanceX=row.find(i=>/^Balance/i.test(i.t))?.x??null;
+    }
+    if(row.some(i=>/^Date$/i.test(i.t))&&!dateColX)
+      dateColX=row.find(i=>/^Date$/i.test(i.t))?.x??null;
+    if(creditsX&&balanceX&&dateColX)break;
+  }
+
+  // Seed from statement period so we never default to the current calendar year.
+  // Month-rollover detection (Dec→Jan) handles the year transition mid-statement.
+  let currentYear=startYear||new Date().getFullYear();
+  let prevMonNum=null;
+  const results=[];
+  let curDate=null,curDesc=[],curAmts=[];
+
+  const emitTxn=()=>{
+    if(!curDate||!curAmts.length){curDesc=[];curAmts=[];return;}
+    const fullDesc=curDesc.join(' ').trim();
+
+    if(payRe.test(fullDesc)){
+      // Credit amounts: x in Credits column range (>= creditsX), NOT in Balance column
+      const creditAmts=curAmts.filter(a=>{
+        if(balanceX!==null&&a.x>=balanceX-5)return false; // balance column — skip
+        if(creditsX!==null)return a.x>=creditsX-20;
+        return true;
+      });
+      if(creditAmts.length){
+        const amt=Math.max(...creditAmts.map(a=>parseFloat(a.t.replace(/,/g,''))));
+        if(!isNaN(amt)&&amt>0)
+          results.push({dateStr:curDate.dateStr,desc:fullDesc,amount:amt,...curDate});
+      }
+    }
+
+    curDesc=[];curAmts=[];
+  };
+
+  allRows.forEach(row=>{
+    const lt=row.map(i=>i.t).join(' ').trim();
+
+    // Skip non-data rows
+    if(/^(Date|Transaction description|Debits|Credits|Balance|TOTALS|ANZ ONE|Account number|Please retain|IMPORTANT|Helpful|Opening|Closing|Linked|Total deposits|Total withdrawals)/i.test(lt))return;
+    if(/BALANCE BROUGHT FORWARD/i.test(lt)){emitTxn();curDate=null;return;}
+    if(/TOTALS AT END/i.test(lt)){emitTxn();curDate=null;return;}
+
+    // Detect transaction start: first item(s) form DD MON, and X is in date column
+    const firstItem=row[0];
+    if(!firstItem)return;
+    const inDateCol=dateColX===null||firstItem.x<=dateColX+40;
+    let dm=null;
+    if(inDateCol){
+      dm=firstItem.t.match(dateRe);
+      if(!dm&&row.length>=2)dm=(row[0].t+' '+row[1].t).match(dateRe);
+    }
+
+    if(dm){
+      emitTxn(); // flush previous transaction
+      const day=parseInt(dm[1]),mon=dm[2].toUpperCase(),monNum=MON_MAP[mon];
+      // Month rollover: if month decreased (e.g. Dec→Jan) the calendar year turned over
+      if(prevMonNum!==null&&monNum<prevMonNum)currentYear++;
+      prevMonNum=monNum;
+      curDate={dateStr:`${String(day).padStart(2,'0')}/${String(monNum).padStart(2,'0')}/${currentYear}`,monNum,year:currentYear,day};
+      // Collect desc and amounts from the date row itself
+      curDesc=row.filter(i=>!amtRe.test(i.t)&&!dateRe.test(i.t)&&!/^\d{1,2}$/.test(i.t)&&MON_MAP[i.t.toUpperCase()]==null).map(i=>i.t).filter(Boolean);
+      curAmts=row.filter(i=>amtRe.test(i.t)).map(i=>({x:i.x,t:i.t}));
+    } else if(curDate){
+      // Continuation row: accumulate additional desc lines and any amounts
+      // Skip EFFECTIVE DATE lines from description (they add noise)
+      const descItems=row.filter(i=>!amtRe.test(i.t)&&!/^EFFECTIVE\s+DATE/i.test(i.t)&&!/^Page\s+\d/i.test(i.t)).map(i=>i.t).filter(Boolean);
+      curDesc.push(...descItems);
+      curAmts.push(...row.filter(i=>amtRe.test(i.t)).map(i=>({x:i.x,t:i.t})));
+    }
+  });
+  emitTxn(); // flush last transaction
+
+  // Mortgage detection uses a direct backward scan — more reliable than the
+  // state machine because it doesn't depend on emitTxn timing or description accumulation.
+  const mortgages=directMortgageScan(allRows,startYear);
+  return {salaries:results,mortgages};
+}
+
+// ── Income preview (shown before commit) ─────────────
+function buildIncomePreview(pays,statementPeriod){
+  pendingPays=pays;
+
+  // Compare against already-committed records — same date + same amount = duplicate
+  const existingKeys=new Set(FN_PAYS.map(p=>p.date+'|'+p.amount.toFixed(2)));
+  const isDupe=p=>existingKeys.has(p.date+'|'+p.amount.toFixed(2));
+  const newPays=pays.filter(p=>!isDupe(p));
+  const dupeCount=pays.length-newPays.length;
+
+  const total=newPays.reduce((s,p)=>s+p.amount,0);
+  const largest=newPays.length?Math.max(...newPays.map(p=>p.amount)):0;
+  const dateRange=statementPeriod||(pays.length?`${pays[0].date} → ${pays[pays.length-1].date}`:'—');
+
+  setText('ius-count',dupeCount>0?`${newPays.length} new · ${dupeCount} duplicate`:`${pays.length}`);
+  setText('ius-total',fmtAUD(total));
+  setText('ius-largest',fmtAUD(largest));
+  setText('ius-range',dateRange);
+  el('income-upload-stats').style.display='block';
+
+  el('income-preview-tbody').innerHTML=pays.map(p=>{
+    const dupe=isDupe(p);
+    return`<tr class="credit-row" style="${dupe?'opacity:0.4':''}">
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3)">${p.date}</td>
+      <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.desc}">${p.desc}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${dupe?'var(--ink4)':'var(--green)'}">${dupe?'':'+'}${fmtAUD(p.amount)}</td>
+      <td>${dupe?'<span class="pill-pay" style="background:var(--surface);color:var(--ink4);border:1px solid var(--border)">Already imported</span>':'<span class="pill-pay">Pay / Salary</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  const btn=el('income-commit-btn');
+  if(newPays.length===0){
+    btn.disabled=true;btn.textContent='Nothing new to commit';
+  }else{
+    btn.disabled=false;btn.textContent=`Commit ${newPays.length} New Record${newPays.length!==1?'s':''}`;
+  }
+  el('income-preview-container').style.display='block';
+
+  // Mortgage note — shown when mortgage debits were found in the same ANZ statement
+  let mortNote=el('ius-mort-note');
+  if(!mortNote){
+    mortNote=document.createElement('div');
+    mortNote.id='ius-mort-note';
+    mortNote.style.cssText='margin-top:10px;padding:10px 16px;border-radius:var(--rs);font-size:13px;font-family:"JetBrains Mono",monospace;display:none';
+    el('income-preview-container').before(mortNote);
+  }
+  if(pendingMortgage.length){
+    const mt=pendingMortgage.reduce((s,p)=>s+p.amount,0);
+    const existMortKeys=new Set(MORTGAGE_PAYS.map(p=>p.date+'|'+p.amount.toFixed(2)));
+    const newMortCount=pendingMortgage.filter(p=>!existMortKeys.has(p.date+'|'+p.amount.toFixed(2))).length;
+    const dupeNote=newMortCount<pendingMortgage.length?` · ${pendingMortgage.length-newMortCount} already imported`:'';
+    mortNote.style.cssText+='background:var(--amber-s);color:var(--amber);display:block';
+    mortNote.textContent=`Also found ${pendingMortgage.length} mortgage payment${pendingMortgage.length!==1?'s':''} totalling ${fmtAUD(mt)}${dupeNote} — will update expense analysis on commit`;
+  }else{
+    mortNote.style.display='none';
+  }
+
+  if(zone)zone.style.opacity='1';
+}
+
+// ── Commit income data ────────────────────────────────
+function commitIncomeUpload(){
+  if(!pendingPays.length)return;
+  const btn=el('income-commit-btn');
+  btn.disabled=true;btn.textContent='Committing…';
+
+  // Merge into existing records, skipping duplicates (same date + same amount)
+  const existingKeys=new Set(FN_PAYS.map(p=>p.date+'|'+p.amount.toFixed(2)));
+  const newPays=pendingPays.filter(p=>!existingKeys.has(p.date+'|'+p.amount.toFixed(2)));
+  if(!newPays.length){resetUpload();return;}
+  const parseD=s=>{const[d,m,y]=s.split('/');return new Date(+y,+m-1,+d);};
+  FN_PAYS=[...FN_PAYS,...newPays].sort((a,b)=>parseD(a.date)-parseD(b.date));
+
+  // Merge mortgage payments extracted from the same ANZ statement
+  if(pendingMortgage.length){
+    const existMortKeys=new Set(MORTGAGE_PAYS.map(p=>p.date+'|'+p.amount.toFixed(2)));
+    const newMort=pendingMortgage.filter(p=>!existMortKeys.has(p.date+'|'+p.amount.toFixed(2)));
+    if(newMort.length)MORTGAGE_PAYS=[...MORTGAGE_PAYS,...newMort].sort((a,b)=>parseD(a.date)-parseD(b.date));
+  }
+
+  updateIncomeTab();
+  updateAdvisoryTab();
+  updateExpenseCharts();
+  rebuildForecastTab();
+  saveState();
+  logUpload('ANZ Salary Statement',newPays.length+' new pay record'+(newPays.length!==1?'s':''),newPays.reduce((s,p)=>s+p.amount,0));
+  resetUpload();
+  showSection('s-income',null);
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===1));
+}
+
+// ─── CSV PARSER ──────────────────────────────────────
+// Handles NAB CSV format (negative = credit) and separate debit/credit column formats
+function parseCSV(text){
+  const lines=text.trim().split('\n');if(lines.length<2){alert('CSV is empty.');return;}
+  const sep=lines[0].includes('\t')?'\t':',';
+  parsedHeaders=lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,''));
+  parsedRows=lines.slice(1).map(l=>l.split(sep).map(c=>c.trim().replace(/^"|"$/g,'')));
+  showColMapper();
+}
+
+function showColMapper(){
+  el('col-mapper').style.display='block';
+  ['map-date','map-amount','map-desc'].forEach(id=>{el(id).innerHTML=parsedHeaders.map((h,i)=>`<option value="${i}">${h}</option>`).join('');});
+  parsedHeaders.forEach((h,i)=>{
+    const hl=h.toLowerCase();
+    if(/date|time/i.test(hl))el('map-date').value=i;
+    if(/amount|debit|value|sum/i.test(hl))el('map-amount').value=i;
+    if(/desc|narr|merchant|detail|particular|reference|ref/i.test(hl))el('map-desc').value=i;
+  });
+}
+
+function applyColumnMap(){
+  const di=+el('map-date').value,ai=+el('map-amount').value,ni=+el('map-desc').value;
+  const CREDIT_DESC=/\b(payment|internet payment|direct credit|bank transfer|bpay credit|refund|reversal)\b/i;
+  const rows=parsedRows.filter(r=>r.length>Math.max(di,ai,ni)).map(r=>{
+    const rawAmt=r[ai].replace(/[^\d.\-]/g,'');
+    const numAmt=parseFloat(rawAmt);
+    const absAmt=Math.abs(numAmt||0);
+    // Credit if: negative amount (payment to card), or 'CR' suffix, or credit keyword in description
+    const isCredit=numAmt<0||r[ai].toUpperCase().trimEnd().endsWith('CR')||CREDIT_DESC.test(r[ni]||'');
+    return{date:r[di],desc:r[ni]||'',amount:absAmt,isCredit,category:'pending',catSource:'new'};
+  }).filter(t=>t.amount>0);
+  el('col-mapper').style.display='none';
+  if(uploadType==='income'){
+    FN_PAYS=rows.map(t=>({date:t.date,desc:t.desc,amount:t.amount})).sort((a,b)=>a.date.localeCompare(b.date));
+    updateIncomeTab();updateAdvisoryTab();
+    logUpload('Payroll CSV',FN_PAYS.length+' pay periods',FN_PAYS.reduce((s,p)=>s+p.amount,0));
+    resetUpload();
+  }else processTxns(rows);
+}
+async function processTxns(txns){
+  // Step 1: credit transactions get 'income' immediately; charges go through cache
+  txns.forEach(t=>{
+    if(t.isCredit){t.category='income';t.catSource='auto';return;}
+    const r=categorize(t.desc);
+    t.category=r.cat;
+    t.catSource=r.src;
+  });
+
+  // Step 2: send ALL unknowns (category==='other') to Gemini AI
+  const unk=[...new Set(txns.filter(t=>!t.isCredit&&t.category==='other').map(t=>t.desc))];
+  if(unk.length){
+    const aiMap=await categorizeWithGemini(unk);
+    txns.forEach(t=>{
+      if(!t.isCredit&&t.category==='other'&&aiMap[t.desc]&&aiMap[t.desc]!=='other'){
+        t.category=aiMap[t.desc];
+        t.catSource='ai';
+      }
+    });
+  }
+
+  // Step 3: no 'other' allowed — CAT_KW rules as absolute last resort, then default to retail
+  txns.filter(t=>!t.isCredit&&t.category==='other').forEach(t=>{
+    const d=t.desc.toLowerCase().replace(/\*/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+    let resolved=false;
+    for(const[cat,kws]of Object.entries(CAT_KW)){
+      if(kws.some(kw=>d.includes(kw))){t.category=cat;t.catSource='auto';resolved=true;break;}
+    }
+    // Unknown one-off purchase → retail (most conservative safe default)
+    if(!resolved){t.category='retail';t.catSource='auto';}
+  });
+
+  currentTxns=txns;
+  buildPreview(txns);
+}
+function buildPreview(txns){
+  const charges=txns.filter(t=>!t.isCredit),credits=txns.filter(t=>t.isCredit);
+  const total=charges.reduce((s,t)=>s+t.amount,0),credTotal=credits.reduce((s,t)=>s+t.amount,0);
+  const largest=charges.length?Math.max(...charges.map(t=>t.amount)):0;
+  const catCounts={};charges.forEach(t=>{catCounts[t.category]=(catCounts[t.category]||0)+t.amount;});
+  const topCat=Object.entries(catCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  setText('us-charges',fmtAUD(total));
+  setText('us-credits',fmtAUD(credTotal));
+  setText('us-largest',fmtAUD(largest));
+  setText('us-top-cat',topCat?topCat[0]:'—');
+  el('upload-stats').style.display='block';
+
+  // ── Reconciliation panel (only for PDFs — currentSummary is null for CSVs)
+  const recHTML=buildReconciliationHTML(charges,credits,currentSummary);
+  let recEl=el('upload-reconciliation');
+  if(!recEl){
+    recEl=document.createElement('div');
+    recEl.id='upload-reconciliation';
+    el('upload-stats').after(recEl);
+  }
+  recEl.innerHTML=recHTML;
+
+  const badge=src=>({'hist':'<span class="cat-src cs-hist">hist</span>','auto':'<span class="cat-src cs-auto">auto</span>','ai':'<span class="cat-src cs-ai">AI ✦</span>','new':'<span class="cat-src cs-new">new?</span>'}[src]||'');
+  const catOpts=ALL_CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
+  el('preview-tbody').innerHTML=txns.map((t,i)=>`
+    <tr class="${t.isCredit?'credit-row':''}">
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3)">${t.date}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.desc}">${t.desc}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${t.isCredit?'var(--green)':'var(--ink)'}">${t.isCredit?'+':''}${fmtAUD(t.amount)}</td>
+      <td>${t.isCredit?'<span class="pill-pay">Credit</span>':'Charge'}</td>
+      <td>${t.isCredit?'<span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--ink4)">income</span>':`<select class="cat-select" onchange="currentTxns[${i}].category=this.value;currentTxns[${i}].catSource='manual'">${catOpts.replace(`value="${t.category}"`,`value="${t.category}" selected`)}</select>`}</td>
+      <td>${t.isCredit?'':badge(t.catSource)}</td>
+    </tr>`).join('');
+  el('preview-container').style.display='block';
+  zone.style.opacity='1';
+}
+
+// ─── COMMIT ───────────────────────────────────────────
+function commitUpload(){
+  if(!currentTxns.length)return;
+  const btn=el('commit-btn');btn.disabled=true;btn.textContent='Committing…';
+  // Learn from this upload — store normalised key AND first distinctive word
+  // Skip 'other' and 'income' — only learn confirmed categories
+  const SKIP_CATS=new Set(['other','income']);
+  currentTxns.filter(t=>!t.isCredit&&!SKIP_CATS.has(t.category)&&t.catSource!=='new').forEach(t=>{
+    const norm=normMerchant(t.desc);
+    merchantCache.set(norm,t.category);
+    // Also store first word as a shorter key for fuzzy future matching
+    const firstWord=norm.split(' ')[0];
+    if(firstWord&&firstWord.length>=5&&!merchantCache.has(firstWord)){
+      merchantCache.set(firstWord,t.category);
+    }
+  });
+  try{localStorage.setItem('nabBudget_mc',JSON.stringify([...merchantCache]));}catch(e){}
+  const charges=currentTxns.filter(t=>!t.isCredit),credits=currentTxns.filter(t=>t.isCredit);
+  const total=charges.reduce((s,t)=>s+t.amount,0),credTotal=credits.reduce((s,t)=>s+t.amount,0);
+  const cats={};charges.forEach(t=>{cats[t.category]=(cats[t.category]||0)+t.amount;});
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const FN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let sh='Upload',shBase='Upload',shYr='';
+  if(currentTxns[0]){
+    const p=currentTxns[0].date.split('/');
+    if(p.length>=3){const mi=parseInt(p[1])-1;if(mi>=0&&mi<12){shBase=MN[mi];shYr=p[2];sh=`${shBase}/${shYr}`;}}
+    else if(p.length>=2){const mi=parseInt(p[1])-1;if(mi>=0&&mi<12)shBase=sh=MN[mi];}
+  }
+  const taken=HISTORICAL_MONTHS.map(m=>m.short);
+  if(taken.includes(sh)){let s=2;while(taken.includes(sh+s))s++;sh=sh+s;}
+  const label=(FN[MN.indexOf(shBase)]||shBase)+(shYr?` 20${shYr}`:'');
+  // Use statement closing balance if available — more accurate than calculated
+  const statedClosingBal=currentSummary?.closingBalance??null;
+  HISTORICAL_MONTHS.push({label,short:sh,total,credits:credTotal,cats,summary:currentSummary,charges,creditTxns:credits});
+  NAB_BALANCE.labels.push(sh);
+  const lastBal=NAB_BALANCE.data.length?NAB_BALANCE.data[NAB_BALANCE.data.length-1]:0;
+  NAB_BALANCE.data.push(statedClosingBal!==null?statedClosingBal:Math.max(0,lastBal+credTotal-total));
+  const subId=injectMonthSubSection(HISTORICAL_MONTHS[HISTORICAL_MONTHS.length-1]);
+  saveState();
+  updateExpenseCharts();rebuildForecastTab();updateAdvisoryTab();
+  logUpload(label+' Statement',charges.length+' charges',total);
+  resetUpload();btn.disabled=false;btn.textContent='Commit & Add to Report';
+  showSection('s-expenses',null);
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===2));
+  setTimeout(()=>{showSub(subId,null);document.querySelectorAll('.sub-tab').forEach(t=>t.classList.toggle('active',t.textContent===sh));},120);
+}
+
+// ── DOM injection for one expense month (used by commitUpload + restoreState) ──
+function injectMonthSubSection(mo){
+  const{label,short,total,cats,summary}=mo;
+  const credTotal=mo.credits,charges=mo.charges||[],credits=mo.creditTxns||[];
+  const subId=`ss-dyn-${HISTORICAL_MONTHS.length}`;
+  const tabBtn=document.createElement('button');tabBtn.className='sub-tab';tabBtn.textContent=short;tabBtn.onclick=e=>showSub(subId,e);
+  // Insert tab in chronological order (oldest → latest) before the Insights tab
+  const _MN2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const parseTabDate=s=>{const[m,y]=s.split('/');const mi=_MN2.indexOf(m);return isNaN(parseInt(y))||mi<0?9999:parseInt(y)*100+mi;};
+  const newVal=parseTabDate(short);
+  const dynTabs=[...el('sub-nav-inner').querySelectorAll('.sub-tab')].filter(t=>t.textContent.includes('/'));
+  const insertBefore=dynTabs.find(t=>parseTabDate(t.textContent)>newVal)||null;
+  if(insertBefore)el('sub-nav-inner').insertBefore(tabBtn,insertBefore);
+  else el('sub-nav-inner').appendChild(tabBtn);
+  const sortedCats=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const merchantsByCat={},merchantCountByCat={};
+  charges.forEach(t=>{
+    const cat=t.category,raw=t.desc.replace(/\s+/g,' ').trim();
+    if(!merchantsByCat[cat])merchantsByCat[cat]={};
+    if(!merchantCountByCat[cat])merchantCountByCat[cat]={};
+    merchantsByCat[cat][raw]=(merchantsByCat[cat][raw]||0)+t.amount;
+    merchantCountByCat[cat][raw]=(merchantCountByCat[cat][raw]||0)+1;
+  });
+  const topMerchants=cat=>{const m=merchantsByCat[cat]||{},cnt=merchantCountByCat[cat]||{};return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([raw])=>{const name=cleanMerchantDisplay(raw);const n=cnt[raw]||1;return n>1?`${name} ×${n}`:name;}).join(', ')||'—';};
+  const largeOnes=charges.filter(t=>t.amount>=100).sort((a,b)=>b.amount-a.amount).slice(0,5);
+  const largeAlert=largeOnes.length?`<div class="alert alert-red"><strong>Large one-off charges this month:</strong> ${largeOnes.map(t=>`${cleanMerchantDisplay(t.desc)} ${fmtAUD(t.amount)}`).join(' · ')}</div>`:'';
+  const MO_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const allTxnDates=[...charges,...credits].map(t=>{const pts=t.date.split('/');if(pts.length<3)return NaN;const[d,m,y]=pts;return new Date(`20${y.replace('20','')}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`).getTime();}).filter(ts=>!isNaN(ts)).sort((a,b)=>a-b);
+  let dateRange=label;
+  if(allTxnDates.length){const fmtD=ts=>{const d=new Date(ts);return`${d.getDate()} ${MO_S[d.getMonth()]} ${d.getFullYear()}`;};dateRange=`${fmtD(allTxnDates[0])} – ${fmtD(allTxnDates[allTxnDates.length-1])}`;}
+  const CAT_SC={education:'sc-purple',groceries:'sc-blue',dining:'sc-amber',fitness:'sc-teal',transport:'sc-amber',utilities:'sc-teal',subscriptions:'sc-red',health:'sc-indigo',retail:'sc-red',fees:'sc-amber',mortgage:'sc-red',other:'sc-ink'};
+  const catDisplayName=cat=>cat==='retail'?'One-off / retail':cat.charAt(0).toUpperCase()+cat.slice(1);
+  const tileSub=cat=>{const m=merchantsByCat[cat]||{},cnt=merchantCountByCat[cat]||{};const names=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([raw])=>{const full=cleanMerchantDisplay(raw);const words=full.split(' ');let s=words[0];if(s.length<10&&words[1]&&(s+' '+words[1]).length<=14)s+=` ${words[1]}`;const n=cnt[raw]||1;return n>1?`${s} ×${n}`:s;});return names.join(' + ')||'—';};
+  const topStatCards=sortedCats.slice(0,4).map(([cat,amt])=>`<div class="stat-card ${CAT_SC[cat]||'sc-ink'}"><div class="sc-bar"></div><div class="stat-label">${catDisplayName(cat)}</div><div class="stat-value">${fmtAUD(amt)}</div><div class="stat-sub">${tileSub(cat)}</div></div>`).join('');
+  const credStatCard=`<div class="stat-card sc-green"><div class="sc-bar"></div><div class="stat-label">Credits received</div><div class="stat-value">${fmtAUD(credTotal)}</div><div class="stat-sub">${credits.length} payment${credits.length!==1?'s':''} this period</div></div>`;
+  const catTableRows=sortedCats.map(([c,v])=>`<tr><td><span class="cat-dot" style="background:${CAT_COLORS[c]||'#94A3B8'}"></span>${catDisplayName(c)}</td><td style="color:var(--ink3);font-size:13px">${topMerchants(c)}</td><td>${fmtAUD(v)}</td></tr>`).join('');
+  const creditRows=credits.map(t=>{const isRefund=/refund|reversal|merchant credit/i.test(t.desc);const pill=isRefund?'<span class="pill-ref">Refund</span>':'<span class="pill-pay">Payment</span>';const cleanDesc=cleanMerchantDisplay(t.desc.replace(/\s*-\s*thank you\s*/i,'').replace(/\s*-\s*linked account transfer\s*/i,''));return`<div class="cb-row"><span class="cb-date">${t.date}</span><span style="color:var(--ink2)">${cleanDesc}</span><span class="cb-type">${pill}</span><span class="cb-amount">+${fmtAUD(t.amount)}</span></div>`;}).join('');
+  const creditBlock=credits.length?`<div class="credit-block"><div class="cb-header"><h4>Payments &amp; credits received</h4><div style="text-align:right"><div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px">Total credited</div><span class="cb-total-val">+${fmtAUD(credTotal)}</span></div></div><div class="cb-col-heads"><span>Date</span><span style="text-align:left">Description</span><span>Type</span><span>Amount</span></div>${creditRows}<div style="display:flex;justify-content:space-between;padding:12px 20px;background:var(--surface2);border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)"><span>${credits.length} transaction${credits.length!==1?'s':''}</span><span>Total: +${fmtAUD(credTotal)}</span></div></div>`:`<div class="credit-block"><div class="cb-header"><h4>Payments &amp; credits received</h4><span class="cb-total-val">$0.00</span></div><div class="cb-none">No credits received this period</div></div>`;
+  const recHTML=buildReconciliationHTML(charges,credits,summary);
+  const sec=document.createElement('div');sec.id=subId;sec.className='sub-section';
+  sec.innerHTML=`
+    <div class="section-head">
+      <h2>${label} statement</h2>
+      <p>${dateRange} · Total spend ${fmtAUD(total)}${summary?.closingBalance?` · Closing balance ${fmtAUD(summary.closingBalance)}`:''}</p>
+    </div>
+    ${recHTML}
+    <div class="hero-chart">
+      <h3>Spending by category — ${label}</h3>
+      <p class="hc-sub">Sorted largest to smallest · excludes payments received</p>
+      <div class="chart-wrap" style="height:280px"><canvas id="chart-${subId}"></canvas></div>
+    </div>
+    ${largeAlert}
+    <div class="stat-grid">${topStatCards}${credStatCard}</div>
+    <div class="exp-cat-tbl" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px">
+      <table class="data-table">
+        <thead><tr><th>Category</th><th>Key merchants</th><th>Amount</th></tr></thead>
+        <tbody>${catTableRows}</tbody>
+      </table>
+    </div>
+    ${creditBlock}
+  `;
+  el('s-expenses').appendChild(sec);
+  setTimeout(()=>{
+    if(!sortedCats.length)return;
+    mkChart(`chart-${subId}`,{type:'bar',data:{labels:sortedCats.map(([c])=>c.charAt(0).toUpperCase()+c.slice(1)),datasets:[{data:sortedCats.map(([,v])=>v),backgroundColor:sortedCats.map(([c])=>CAT_COLORS[c]||'#94A3B8'),borderRadius:6,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' $'+(c.parsed.x>=1000?(c.parsed.x/1000).toFixed(1)+'k':c.parsed.x.toFixed(0))}}},scales:{x:{ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v),font:{family:'JetBrains Mono',size:11}},grid:{color:'rgba(100,116,139,0.08)'}},y:{grid:{display:false}}}}});
+    initResizable();
+  },100);
+  return subId;
+}
+
+// ── Drag-to-resize ───────────────────────────────────
+let resizeState=null;
+
+// Chart containers: handle inside as last flex child; chart-wrap fills remaining space.
+function makeResizable(el,{chartId,minH=150,key}={}){
+  if(el.dataset.rsz)return;
+  el.dataset.rsz='1';
+  el.style.display='flex';
+  el.style.flexDirection='column';
+  el.style.overflow='hidden';
+  el.style.paddingBottom='0';
+  const cw=el.querySelector('.chart-wrap');
+  if(cw){cw.style.flex='1';cw.style.minHeight='60px';cw.style.overflow='hidden';}
+  // Allow chart to respond to container height changes
+  if(chartId&&charts[chartId]){
+    charts[chartId].options.maintainAspectRatio=false;
+  }
+  // Restore saved height
+  if(key){const s=localStorage.getItem('rsz_'+key);if(s){el.style.height=s+'px';if(chartId&&charts[chartId])setTimeout(()=>charts[chartId].resize(),50);}}
+  const h=_mkHandle();
+  el.appendChild(h);
+  h.addEventListener('mousedown',e=>{
+    e.preventDefault();
+    resizeState={el,startY:e.clientY,startH:el.offsetHeight,minH,chartId,key,h};
+    h.classList.add('rsz-active');
+    document.body.style.cursor='ns-resize';
+    document.body.style.userSelect='none';
+  });
+}
+
+// Table/scroll containers: wrap all children in a scrollable div, handle at bottom.
+function makeScrollResizable(el,{minH=100,key}={}){
+  if(el.dataset.rsz)return;
+  el.dataset.rsz='1';
+  const wrap=document.createElement('div');
+  wrap.style.cssText='flex:1;overflow-y:auto;min-height:0';
+  while(el.firstChild)wrap.appendChild(el.firstChild);
+  el.style.display='flex';
+  el.style.flexDirection='column';
+  el.style.overflow='hidden';
+  el.appendChild(wrap);
+  if(key){const s=localStorage.getItem('rsz_'+key);if(s)el.style.height=s+'px';}
+  const h=_mkHandle();
+  el.appendChild(h);
+  h.addEventListener('mousedown',e=>{
+    e.preventDefault();
+    resizeState={el,startY:e.clientY,startH:el.offsetHeight,minH,key,h};
+    h.classList.add('rsz-active');
+    document.body.style.cursor='ns-resize';
+    document.body.style.userSelect='none';
+  });
+}
+
+function _mkHandle(){
+  const h=document.createElement('div');
+  h.className='resize-handle';
+  return h;
+}
+
+function initResizable(){
+  // All chart boxes and hero charts — idempotent via data-rsz guard
+  document.querySelectorAll('.chart-box,.hero-chart').forEach(box=>{
+    const canvas=box.querySelector('canvas');
+    makeResizable(box,{chartId:canvas?.id,minH:box.classList.contains('hero-chart')?160:140,key:canvas?.id||null});
+  });
+  // Expense month category tables and credit blocks
+  document.querySelectorAll('.exp-cat-tbl,.credit-block').forEach(el=>makeScrollResizable(el,{minH:100}));
+}
+
+// ── Persist state to localStorage ────────────────────
+function saveState(){
+  try{
+    localStorage.setItem('nabBudget_state',JSON.stringify({v:1,FN_PAYS,months:HISTORICAL_MONTHS,balance:NAB_BALANCE,history:uploadHistory,mortgage:MORTGAGE_PAYS}));
+  }catch(e){}
+}
+
+// ── Restore last known state on page load ─────────────
+function restoreState(){
+  try{
+    const raw=localStorage.getItem('nabBudget_state');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(!s||s.v!==1)return;
+    FN_PAYS=s.FN_PAYS||[];
+    MORTGAGE_PAYS=s.mortgage||[];
+    NAB_BALANCE=s.balance||{labels:[],data:[]};
+    (s.history||[]).forEach(h=>uploadHistory.push(h));
+    if(uploadHistory.length){
+      el('upload-history').style.display='block';
+      el('upload-history-list').innerHTML=uploadHistory.map(h=>`<div class="uh-item"><span><strong>${h.label}</strong> · ${h.detail}</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)">${fmtAUD(h.amount)} · ${h.date}</span></div>`).join('');
+    }
+    const _MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const _FN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    (s.months||[]).forEach(mo=>{
+      // Migrate old short format ('Jan') to new format ('Jan/26')
+      if(mo.short&&!mo.short.includes('/')&&mo.charges&&mo.charges.length){
+        const p=mo.charges[0].date.split('/');
+        if(p.length>=3){const mi=parseInt(p[1])-1;if(mi>=0&&mi<12){mo.short=`${_MN[mi]}/${p[2]}`;mo.label=`${_FN[mi]} 20${p[2]}`;}}
+      }
+      HISTORICAL_MONTHS.push(mo);
+      injectMonthSubSection(mo);
+    });
+  }catch(e){console.warn('State restore failed:',e);}
+}
+
+function logUpload(label,detail,amount){
+  uploadHistory.push({label,detail,amount,date:new Date().toLocaleDateString('en-AU')});
+  el('upload-history').style.display='block';
+  el('upload-history-list').innerHTML=uploadHistory.map(h=>`<div class="uh-item"><span><strong>${h.label}</strong> · ${h.detail}</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)">${fmtAUD(h.amount)} · ${h.date}</span></div>`).join('');
+}
+// ─── CLEAR ALL DATA ──────────────────────────────────
+function showClearConfirm(){
+  el('clear-default-view').style.display='none';
+  el('clear-confirm-view').style.display='block';
+}
+function hideClearConfirm(){
+  el('clear-confirm-view').style.display='none';
+  el('clear-default-view').style.display='block';
+}
+function confirmClearAllData(){
+  try{
+    localStorage.removeItem('nabBudget_state');
+    localStorage.removeItem('nabBudget_mc');
+    Object.keys(localStorage).filter(k=>k.startsWith('rsz_')).forEach(k=>localStorage.removeItem(k));
+  }catch(e){}
+  location.reload();
+}
+
+function resetUpload(){
+  currentTxns=[];
+  currentSummary=null;
+  pendingPays=[];
+  pendingMortgage=[];
+  ['preview-container','upload-stats','col-mapper','income-upload-stats','income-preview-container'].forEach(id=>{const e=el(id);if(e)e.style.display='none';});
+  const rec=el('upload-reconciliation');if(rec)rec.innerHTML='';
+  const ipb=el('income-preview-tbody');if(ipb)ipb.innerHTML='';
+  const pb=el('preview-tbody');if(pb)pb.innerHTML='';
+  const fi=el('file-input');if(fi)fi.value='';
+  if(zone)zone.style.opacity='1';
+}
+
+// ─── DRAG-TO-REORDER ─────────────────────────────────
+const CHART_ORDER_KEY='nabBudget_chartOrder';
+let dragSrc=null;
+
+function initDragReorder(gridId,itemSel='.chart-box[draggable]'){
+  const grid=el(gridId);
+  if(!grid)return;
+
+  // Restore saved order
+  try{
+    const saved=JSON.parse(localStorage.getItem(CHART_ORDER_KEY+gridId)||'[]');
+    if(saved.length){
+      saved.forEach(id=>{const node=el(id);if(node)grid.appendChild(node);});
+    }
+  }catch(e){}
+
+  grid.querySelectorAll(itemSel).forEach(box=>{
+    box.addEventListener('dragstart',e=>{
+      dragSrc=box;
+      box.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',box.id);
+    });
+    box.addEventListener('dragend',()=>{
+      box.classList.remove('dragging');
+      grid.querySelectorAll(itemSel).forEach(b=>b.classList.remove('drag-over'));
+      const order=[...grid.querySelectorAll(itemSel)].map(b=>b.id).filter(Boolean);
+      try{localStorage.setItem(CHART_ORDER_KEY+gridId,JSON.stringify(order));}catch(e){}
+    });
+    box.addEventListener('dragover',e=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect='move';
+      if(box===dragSrc)return;
+      grid.querySelectorAll(itemSel).forEach(b=>b.classList.remove('drag-over'));
+      box.classList.add('drag-over');
+    });
+    box.addEventListener('dragleave',()=>box.classList.remove('drag-over'));
+    box.addEventListener('drop',e=>{
+      e.preventDefault();
+      box.classList.remove('drag-over');
+      if(!dragSrc||dragSrc===box)return;
+      // Insert before or after depending on cursor position relative to target centre
+      const rect=box.getBoundingClientRect();
+      const midX=rect.left+rect.width/2;
+      if(e.clientX<midX) grid.insertBefore(dragSrc,box);
+      else grid.insertBefore(dragSrc,box.nextSibling);
+    });
+  });
+}
+
+// ─── INIT ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  Chart.defaults.font.family='Plus Jakarta Sans';
+  restoreState();
+  updateAdvisoryTab();
+  updateIncomeTab();
+  updateExpenseCharts();
+  rebuildForecastTab();
+  initResizable();
+  initDragReorder('exp-chart-grid');
+  initDragReorder('adv-stat-grid','.stat-card[draggable]');
+  initDragReorder('adv-chart-grid');
+
+  document.addEventListener('mousemove',e=>{
+    if(!resizeState)return;
+    const{el,startY,startH,minH,chartId}=resizeState;
+    const newH=Math.max(minH,startH+(e.clientY-startY));
+    el.style.height=newH+'px';
+    if(chartId&&charts[chartId])charts[chartId].resize();
+  });
+
+  document.addEventListener('mouseup',()=>{
+    if(!resizeState)return;
+    if(resizeState.key)try{localStorage.setItem('rsz_'+resizeState.key,resizeState.el.offsetHeight);}catch(e){}
+    resizeState.h.classList.remove('rsz-active');
+    resizeState=null;
+    document.body.style.cursor='';
+    document.body.style.userSelect='';
+  });
+});
+</script>
+</body>
+</html>

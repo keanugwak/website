@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RBA Cash Rate — 30 Year History</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0d1117; --surface:#161b22; --border:#21262d;
+    --hike:#f85149; --cut:#3fb950; --hold:#8b949e;
+    --accent:#e6a817; --text:#e6edf3; --muted:#8b949e;
+    --card:#1c2128; --purchase:#58a6ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:28px 20px;}
+
+  .header{text-align:center;margin-bottom:24px;}
+  .header h1{font-family:'DM Serif Display',serif;font-size:clamp(20px,4vw,38px);letter-spacing:-0.5px;line-height:1.15;}
+  .header h1 span{color:var(--accent);font-style:italic;}
+  .header p{color:var(--muted);font-size:11px;margin-top:6px;font-family:'DM Mono',monospace;letter-spacing:.5px;}
+
+  .purchase-banner{background:linear-gradient(135deg,rgba(88,166,255,.1),rgba(88,166,255,.02));border:1px solid rgba(88,166,255,.3);border-radius:12px;padding:16px 22px;margin-bottom:24px;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+  .purchase-banner .icon{font-size:26px;}
+  .purchase-banner h3{font-family:'DM Serif Display',serif;font-size:17px;color:var(--purchase);}
+  .purchase-banner p{font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;line-height:1.7;}
+  .purchase-banner strong{color:var(--text);}
+
+  .stat-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:24px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-align:center;min-width:120px;}
+  .stat-card .lbl{font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .stat-card .val{font-family:'DM Serif Display',serif;font-size:24px;}
+  .stat-card .sub{font-size:10px;color:var(--muted);margin-top:3px;}
+
+  .chart-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:24px;}
+  .chart-title{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+  .chart-wrap{width:100%;overflow-x:auto;}
+  #mainChart{display:block;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .legend-dot{width:9px;height:9px;border-radius:50%;}
+  .legend-dash{width:14px;height:2px;background:var(--purchase);}
+  .legend-dashed{width:14px;height:0;border-top:2px dashed var(--accent);}
+
+  .era-note{background:rgba(139,148,158,0.06);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:24px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);line-height:1.7;}
+  .era-note strong{color:var(--text);}
+
+  /* ── Filter bar ── */
+  .filter-bar{display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
+  .filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .filter-label{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;min-width:80px;}
+  .era-btn{font-size:10px;font-family:'DM Mono',monospace;padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .era-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .era-btn.active{background:rgba(230,168,23,.15);border-color:var(--accent);color:var(--accent);}
+  .type-toggle{display:flex;align-items:center;gap:6px;font-size:11px;font-family:'DM Mono',monospace;padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;user-select:none;}
+  .type-toggle .tdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .type-toggle.active-hike{background:rgba(248,81,73,.15);border-color:var(--hike);color:var(--hike);}
+  .type-toggle.active-cut{background:rgba(63,185,80,.15);border-color:var(--cut);color:var(--cut);}
+  .type-toggle.active-hold{background:rgba(139,148,158,.15);border-color:var(--hold);color:var(--hold);}
+  .type-toggle.active-purchase{background:rgba(88,166,255,.15);border-color:var(--purchase);color:var(--purchase);}
+  .type-toggle.dimmed{opacity:.3;filter:grayscale(1);}
+  .range-wrap{display:flex;align-items:center;gap:10px;flex:1;min-width:260px;}
+  .range-val{font-size:11px;font-family:'DM Mono',monospace;color:var(--text);min-width:38px;text-align:center;}
+  input[type=range]{-webkit-appearance:none;height:4px;border-radius:4px;background:var(--border);outline:none;cursor:pointer;flex:1;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #0d1117;cursor:grab;}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #0d1117;cursor:grab;}
+  .filter-summary{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;}
+  .filter-summary span{color:var(--text);}
+  .reset-btn{font-size:10px;font-family:'DM Mono',monospace;padding:3px 10px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;}
+  .reset-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+  .next-meeting{background:linear-gradient(135deg,rgba(230,168,23,.08),rgba(230,168,23,.02));border:1px solid rgba(230,168,23,.25);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .next-icon{font-size:24px;}
+  .next-text h3{font-family:'DM Serif Display',serif;font-size:16px;color:var(--accent);}
+  .next-text p{font-size:11px;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace;}
+
+  .table-section{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;}
+  .year-block{border-bottom:1px solid var(--border);}
+  .year-block:last-child{border-bottom:none;}
+  .year-header{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;cursor:pointer;background:var(--surface);user-select:none;transition:background .2s;flex-wrap:wrap;gap:8px;}
+  .year-header:hover{background:#1e242c;}
+  .year-label{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);}
+  .year-summary{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .year-badge{font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:20px;}
+  .badge-hike{background:rgba(248,81,73,.15);color:var(--hike);}
+  .badge-cut{background:rgba(63,185,80,.15);color:var(--cut);}
+  .badge-hold{background:rgba(139,148,158,.1);color:var(--muted);}
+  .badge-mixed{background:rgba(230,168,23,.12);color:var(--accent);}
+  .badge-purchase{background:rgba(88,166,255,.12);color:var(--purchase);}
+  .badge-era{background:rgba(139,148,158,.06);color:var(--muted);border:1px solid var(--border);}
+  .chevron{color:var(--muted);font-size:12px;transition:transform .3s;}
+  .year-block.open .chevron{transform:rotate(180deg);}
+  .meetings-table{width:100%;border-collapse:collapse;display:none;}
+  .year-block.open .meetings-table{display:table;}
+  .meetings-table th{background:rgba(255,255,255,.03);font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:8px 20px;text-align:left;border-bottom:1px solid var(--border);}
+  .meetings-table td{padding:10px 20px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+  .meetings-table tr:last-child td{border-bottom:none;}
+  .meetings-table tr:hover td{background:rgba(255,255,255,.02);}
+  .row-purchase td{background:rgba(88,166,255,.07)!important;}
+  .pill{display:inline-flex;align-items:center;font-size:10px;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:20px;font-weight:500;}
+  .pill-hike{background:rgba(248,81,73,.15);color:var(--hike);}
+  .pill-cut{background:rgba(63,185,80,.15);color:var(--cut);}
+  .pill-hold{background:rgba(139,148,158,.1);color:var(--hold);}
+  .pill-upcoming{background:rgba(230,168,23,.12);color:var(--accent);}
+  .pill-purchase{background:rgba(88,166,255,.12);color:var(--purchase);}
+  .rate-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;}
+  .chg{font-family:'DM Mono',monospace;font-size:11px;}
+  .chg-up{color:var(--hike);} .chg-dn{color:var(--cut);} .chg-nil{color:var(--muted);}
+  .note-col{color:var(--muted);font-size:11px;}
+  .footer-note{text-align:center;font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);padding:12px;border-top:1px solid var(--border);background:var(--surface);}
+  .era-divider{background:var(--surface);padding:8px 20px;font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+
+/* ── SITE NAV ── */
+.site-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #e8e8e8;}
+.site-nav-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.site-nav-brand{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:600;color:#0a0a0a;text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px;}
+.site-nav-dot{width:5px;height:5px;background:#1a6bff;border-radius:50%;flex-shrink:0;display:inline-block;}
+.site-nav-links{display:flex;align-items:center;gap:20px;}
+.site-nav-links a{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:400;color:#555;text-decoration:none;transition:color .14s;}
+.site-nav-links a:hover{color:#0a0a0a;}
+.site-nav-links a.active{color:#0a0a0a;font-weight:600;}
+@media(max-width:540px){.site-nav-links{gap:12px;}.site-nav-links a{font-size:13px;}}
+@media(max-width:380px){.site-nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- SITE NAV -->
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="site-nav-brand">Seun Gwak <span class="site-nav-dot"></span></a>
+    <div class="site-nav-links">
+      <a href="EL1.HTML">EL1</a>
+      <a href="BrainDump.html">Brain Dump</a>
+      <a href="Newsite.html">Budget</a>
+      <a href="Property_sale_calculator.html">Property</a>
+      <a href="rba_cash_rate_history_3.html" class="active">RBA Rate</a>
+    </div>
+  </div>
+</nav>
+
+<div class="header">
+  <h1>RBA Cash Rate<br><span>30-Year History 1995–2026</span></h1>
+  <p>Reserve Bank of Australia · Every Monetary Policy Decision</p>
+</div>
+
+<div class="purchase-banner">
+  <div class="icon">🏡</div>
+  <div>
+    <h3>54 Lancewood Road, Wyndham Vale 3024</h3>
+    <p>
+      <strong>Purchased:</strong> 1 November 2021 &nbsp;·&nbsp; <strong>Rate at purchase:</strong> 0.10% (historic low)
+      &nbsp;·&nbsp; <strong>Current rate:</strong> 4.35%<br>
+      <strong>Net change since purchase:</strong> +4.25% across 14 hikes &nbsp;·&nbsp; <strong>Ownership:</strong> ~4.5 years
+    </p>
+  </div>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card"><div class="lbl">30-Yr High</div><div class="val" style="color:var(--hike)">7.50%</div><div class="sub">Dec 1994</div></div>
+  <div class="stat-card"><div class="lbl">30-Yr Low</div><div class="val" style="color:var(--cut)">0.10%</div><div class="sub">Nov 2020</div></div>
+  <div class="stat-card"><div class="lbl">GFC Peak</div><div class="val" style="color:var(--hike)">7.25%</div><div class="sub">Mar 2008</div></div>
+  <div class="stat-card"><div class="lbl">Rate at Purchase</div><div class="val" style="color:var(--purchase)">0.10%</div><div class="sub">1 Nov 2021</div></div>
+  <div class="stat-card"><div class="lbl">Current Rate</div><div class="val" style="color:var(--accent)">4.35%</div><div class="sub">Since 5 May 2026</div></div>
+  <div class="stat-card"><div class="lbl">Change Since Buy</div><div class="val" style="color:var(--hike)">+4.25%</div><div class="sub">14 hikes net</div></div>
+</div>
+
+<div class="chart-section">
+  <div class="chart-title">RBA Cash Rate — 30 Years of Every Decision (hover dots for detail)</div>
+
+  <!-- ── FILTER BAR ── -->
+  <div class="filter-bar">
+    <!-- Era presets -->
+    <div class="filter-row">
+      <span class="filter-label">Quick View</span>
+      <button class="era-btn active" data-start="1995" data-end="2026" onclick="setEra(this,1995,2026)">All 30 Years</button>
+      <button class="era-btn" data-start="1995" data-end="2002" onclick="setEra(this,1995,2002)">📉 Post-Recession</button>
+      <button class="era-btn" data-start="2002" data-end="2008" onclick="setEra(this,2002,2008)">📈 Boom Years</button>
+      <button class="era-btn" data-start="2008" data-end="2013" onclick="setEra(this,2008,2013)">🔥 GFC</button>
+      <button class="era-btn" data-start="2013" data-end="2019" onclick="setEra(this,2013,2019)">😴 Long Plateau</button>
+      <button class="era-btn" data-start="2019" data-end="2026" onclick="setEra(this,2019,2026)">🚀 COVID → Now</button>
+      <button class="era-btn" data-start="2021" data-end="2026" onclick="setEra(this,2021,2026)">🏡 Since Purchase</button>
+    </div>
+
+    <!-- Year range sliders -->
+    <div class="filter-row">
+      <span class="filter-label">Year Range</span>
+      <div class="range-wrap">
+        <span class="range-val" id="startVal">1995</span>
+        <input type="range" id="startSlider" min="1995" max="2026" value="1995" step="1" oninput="onRangeChange()">
+        <span style="color:var(--muted);font-size:11px;font-family:'DM Mono',monospace">→</span>
+        <input type="range" id="endSlider" min="1995" max="2026" value="2026" step="1" oninput="onRangeChange()">
+        <span class="range-val" id="endVal">2026</span>
+      </div>
+    </div>
+
+    <!-- Decision type toggles -->
+    <div class="filter-row">
+      <span class="filter-label">Show</span>
+      <button class="type-toggle active-hike" id="tog-H" onclick="toggleType('H')">
+        <span class="tdot" style="background:var(--hike)"></span>Hikes
+      </button>
+      <button class="type-toggle active-cut" id="tog-C" onclick="toggleType('C')">
+        <span class="tdot" style="background:var(--cut)"></span>Cuts
+      </button>
+      <button class="type-toggle active-hold" id="tog-N" onclick="toggleType('N')">
+        <span class="tdot" style="background:var(--hold)"></span>Holds
+      </button>
+      <button class="type-toggle active-purchase" id="tog-P" onclick="toggleType('P')">
+        <span class="tdot" style="background:var(--purchase)"></span>Purchase
+      </button>
+    </div>
+
+    <!-- Summary + reset -->
+    <div class="filter-summary">
+      <span id="filterSummary">Showing all 32 years · all decision types</span>
+      <button class="reset-btn" onclick="resetFilters()">↺ Reset</button>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="mainChart" height="260"></canvas>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--hike)"></div>Hike</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cut)"></div>Cut</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--hold)"></div>Hold</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Key Level</div>
+    <div class="legend-item"><div class="legend-dash"></div>Your Purchase (1 Nov 2021)</div>
+    <div class="legend-item"><div class="legend-dashed"></div>Upcoming</div>
+    <div class="legend-item" style="color:var(--muted);font-size:10px;">★ Pre-2007: only changes recorded (no hold dots)</div>
+  </div>
+</div>
+
+<div class="era-note">
+  <strong>📋 Data note:</strong> Prior to December 2007, the RBA only issued media releases when the cash rate <em>changed</em> — holds were not publicly announced. Therefore, years 1995–2007 show only hike/cut decisions. From 2008 onwards, all meetings (including holds) are recorded. The RBA moved from 11 meetings/year to 8 meetings/year in 2024.
+</div>
+
+<div class="next-meeting">
+  <div class="next-icon">⏳</div>
+  <div class="next-text">
+    <h3>Next Decision: 7 July 2026 at 2:30pm AEST</h3>
+    <p>5 May 2026: Hiked +0.25% to 4.35% (3rd consecutive hike) · Economists watching for a potential pause in July</p>
+  </div>
+</div>
+
+<div class="table-section" id="tableSection"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// COMPLETE 30-YEAR DATASET
+// type: H=hike, C=cut, N=hold, P=purchase, U=upcoming
+// Pre-2007: only changes (H/C) — no hold dots
+// ═══════════════════════════════════════════════════════════════
+const decisions = [
+  // ── 1995 ── (rate started at 7.50% from Dec 1994 hike)
+  {date:'31 Jan 1995',  rate:7.50, type:'N', note:'Hold at 7.50% (post-hike plateau)'},
+  {date:'3 Mar 1995',   rate:7.50, type:'N', note:'Hold'},
+  {date:'7 Apr 1995',   rate:7.50, type:'N', note:'Hold'},
+  {date:'5 May 1995',   rate:7.50, type:'N', note:'Hold'},
+  {date:'2 Jun 1995',   rate:7.50, type:'N', note:'Hold'},
+  {date:'7 Jul 1995',   rate:7.50, type:'N', note:'Hold'},
+  {date:'4 Aug 1995',   rate:7.50, type:'N', note:'Hold'},
+  {date:'1 Sep 1995',   rate:7.50, type:'N', note:'Hold — inflation easing'},
+  {date:'6 Oct 1995',   rate:7.50, type:'N', note:'Hold'},
+  {date:'3 Nov 1995',   rate:7.50, type:'N', note:'Hold'},
+  {date:'5 Dec 1995',   rate:7.50, type:'N', note:'Hold — year ends at 7.50%'},
+
+  // ── 1996 ── 3 cuts from 7.50% → 6.00%
+  {date:'7 Feb 1996',   rate:7.50, type:'N', note:'Hold'},
+  {date:'1 Mar 1996',   rate:7.50, type:'N', note:'Hold'},
+  {date:'5 Apr 1996',   rate:7.50, type:'N', note:'Hold'},
+  {date:'3 May 1996',   rate:7.50, type:'N', note:'Hold'},
+  {date:'7 Jun 1996',   rate:7.50, type:'N', note:'Hold'},
+  {date:'31 Jul 1996',  rate:7.00, type:'C', note:'Cut — low inflation, slow growth'},
+  {date:'2 Aug 1996',   rate:7.00, type:'N', note:'Hold'},
+  {date:'6 Sep 1996',   rate:7.00, type:'N', note:'Hold'},
+  {date:'4 Oct 1996',   rate:7.00, type:'N', note:'Hold'},
+  {date:'6 Nov 1996',   rate:6.50, type:'C', note:'Cut — inflation within target'},
+  {date:'11 Dec 1996',  rate:6.00, type:'C', note:'Cut — year ends 6.00%'},
+
+  // ── 1997 ── 2 cuts to 5.00%
+  {date:'5 Feb 1997',   rate:6.00, type:'N', note:'Hold'},
+  {date:'7 Mar 1997',   rate:6.00, type:'N', note:'Hold'},
+  {date:'4 Apr 1997',   rate:6.00, type:'N', note:'Hold'},
+  {date:'23 May 1997',  rate:5.50, type:'C', note:'Cut — low inflation, pre-emptive'},
+  {date:'6 Jun 1997',   rate:5.50, type:'N', note:'Hold'},
+  {date:'30 Jul 1997',  rate:5.00, type:'C', note:'Cut — Asia financial crisis risk'},
+  {date:'1 Aug 1997',   rate:5.00, type:'N', note:'Hold'},
+  {date:'5 Sep 1997',   rate:5.00, type:'N', note:'Hold'},
+  {date:'3 Oct 1997',   rate:5.00, type:'N', note:'Hold'},
+  {date:'7 Nov 1997',   rate:5.00, type:'N', note:'Hold'},
+  {date:'5 Dec 1997',   rate:5.00, type:'N', note:'Hold'},
+
+  // ── 1998 ── 1 cut to 4.75%
+  {date:'6 Feb 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'6 Mar 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'3 Apr 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'1 May 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'5 Jun 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'3 Jul 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'7 Aug 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'4 Sep 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'2 Oct 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'6 Nov 1998',   rate:5.00, type:'N', note:'Hold'},
+  {date:'2 Dec 1998',   rate:4.75, type:'C', note:'Cut — Asia crisis, low inflation'},
+
+  // ── 1999 ── 1 hike to 5.00%
+  {date:'5 Feb 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'5 Mar 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'2 Apr 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'7 May 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'4 Jun 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'2 Jul 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'6 Aug 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'3 Sep 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'1 Oct 1999',   rate:4.75, type:'N', note:'Hold'},
+  {date:'3 Nov 1999',   rate:5.00, type:'H', note:'Hike — growth strengthening, Y2K'},
+  {date:'3 Dec 1999',   rate:5.00, type:'N', note:'Hold'},
+
+  // ── 2000 ── 3 hikes to 6.25%
+  {date:'2 Feb 2000',   rate:5.50, type:'H', note:'Hike — booming economy, GST ahead'},
+  {date:'3 Mar 2000',   rate:5.50, type:'N', note:'Hold'},
+  {date:'5 Apr 2000',   rate:5.75, type:'H', note:'Hike — pre-emptive on inflation'},
+  {date:'3 May 2000',   rate:6.00, type:'H', note:'Hike — Olympics year demand'},
+  {date:'2 Jun 2000',   rate:6.00, type:'N', note:'Hold'},
+  {date:'7 Jul 2000',   rate:6.00, type:'N', note:'Hold'},
+  {date:'2 Aug 2000',   rate:6.25, type:'H', note:'Hike — inflation above target'},
+  {date:'1 Sep 2000',   rate:6.25, type:'N', note:'Hold'},
+  {date:'4 Oct 2000',   rate:6.25, type:'N', note:'Hold'},
+  {date:'1 Nov 2000',   rate:6.25, type:'N', note:'Hold'},
+  {date:'6 Dec 2000',   rate:6.25, type:'N', note:'Hold'},
+
+  // ── 2001 ── 5 cuts to 4.25% (dot-com bust, 9/11)
+  {date:'7 Feb 2001',   rate:5.75, type:'C', note:'Cut — dot-com bust slowdown'},
+  {date:'7 Mar 2001',   rate:5.50, type:'C', note:'Cut — global slowdown'},
+  {date:'4 Apr 2001',   rate:5.00, type:'C', note:'Cut — US recession fears'},
+  {date:'2 May 2001',   rate:5.00, type:'N', note:'Hold'},
+  {date:'6 Jun 2001',   rate:5.00, type:'N', note:'Hold'},
+  {date:'4 Jul 2001',   rate:5.00, type:'N', note:'Hold'},
+  {date:'1 Aug 2001',   rate:5.00, type:'N', note:'Hold'},
+  {date:'5 Sep 2001',   rate:4.75, type:'C', note:'Cut — pre 9/11 (5 Sep)'},
+  {date:'3 Oct 2001',   rate:4.50, type:'C', note:'Cut — post 9/11 shock'},
+  {date:'7 Nov 2001',   rate:4.50, type:'N', note:'Hold'},
+  {date:'5 Dec 2001',   rate:4.25, type:'C', note:'Cut — year ends 4.25%'},
+
+  // ── 2002 ── 2 hikes to 4.75%
+  {date:'6 Feb 2002',   rate:4.25, type:'N', note:'Hold'},
+  {date:'6 Mar 2002',   rate:4.25, type:'N', note:'Hold'},
+  {date:'3 Apr 2002',   rate:4.25, type:'N', note:'Hold'},
+  {date:'8 May 2002',   rate:4.50, type:'H', note:'Hike — recovery underway'},
+  {date:'5 Jun 2002',   rate:4.75, type:'H', note:'Hike — strong housing market'},
+  {date:'3 Jul 2002',   rate:4.75, type:'N', note:'Hold'},
+  {date:'7 Aug 2002',   rate:4.75, type:'N', note:'Hold'},
+  {date:'4 Sep 2002',   rate:4.75, type:'N', note:'Hold'},
+  {date:'2 Oct 2002',   rate:4.75, type:'N', note:'Hold'},
+  {date:'6 Nov 2002',   rate:4.75, type:'N', note:'Hold'},
+  {date:'4 Dec 2002',   rate:4.75, type:'N', note:'Hold'},
+
+  // ── 2003 ── 1 cut then 1 hike (net flat at 5.00%)
+  {date:'5 Feb 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'5 Mar 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'2 Apr 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'7 May 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'4 Jun 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'2 Jul 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'6 Aug 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'3 Sep 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'1 Oct 2003',   rate:4.75, type:'N', note:'Hold'},
+  {date:'5 Nov 2003',   rate:5.00, type:'H', note:'Hike — commodity boom, housing'},
+  {date:'3 Dec 2003',   rate:5.25, type:'H', note:'Hike — year ends 5.25%'},
+
+  // ── 2004 ── all holds
+  {date:'4 Feb 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'3 Mar 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'7 Apr 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'5 May 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'2 Jun 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'7 Jul 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'4 Aug 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'1 Sep 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'6 Oct 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'3 Nov 2004',   rate:5.25, type:'N', note:'Hold'},
+  {date:'1 Dec 2004',   rate:5.25, type:'N', note:'Hold'},
+
+  // ── 2005 ── 1 hike to 5.50%
+  {date:'2 Feb 2005',   rate:5.25, type:'N', note:'Hold'},
+  {date:'2 Mar 2005',   rate:5.50, type:'H', note:'Hike — inflation pressures'},
+  {date:'6 Apr 2005',   rate:5.50, type:'N', note:'Hold'},
+  {date:'4 May 2005',   rate:5.50, type:'N', note:'Hold'},
+  {date:'1 Jun 2005',   rate:5.50, type:'N', note:'Hold'},
+  {date:'6 Jul 2005',   rate:5.50, type:'N', note:'Hold'},
+  {date:'3 Aug 2005',   rate:5.50, type:'N', note:'Hold'},
+  {date:'7 Sep 2005',   rate:5.50, type:'N', note:'Hold'},
+  {date:'5 Oct 2005',   rate:5.50, type:'N', note:'Hold'},
+  {date:'2 Nov 2005',   rate:5.50, type:'N', note:'Hold'},
+  {date:'7 Dec 2005',   rate:5.50, type:'N', note:'Hold'},
+
+  // ── 2006 ── 3 hikes to 6.25%
+  {date:'1 Feb 2006',   rate:5.50, type:'N', note:'Hold'},
+  {date:'1 Mar 2006',   rate:5.50, type:'N', note:'Hold'},
+  {date:'5 Apr 2006',   rate:5.50, type:'N', note:'Hold'},
+  {date:'3 May 2006',   rate:5.75, type:'H', note:'Hike — mining boom driving demand'},
+  {date:'7 Jun 2006',   rate:5.75, type:'N', note:'Hold'},
+  {date:'5 Jul 2006',   rate:5.75, type:'N', note:'Hold'},
+  {date:'2 Aug 2006',   rate:6.00, type:'H', note:'Hike — strong employment'},
+  {date:'6 Sep 2006',   rate:6.00, type:'N', note:'Hold'},
+  {date:'4 Oct 2006',   rate:6.00, type:'N', note:'Hold'},
+  {date:'8 Nov 2006',   rate:6.25, type:'H', note:'Hike — year ends 6.25%'},
+  {date:'6 Dec 2006',   rate:6.25, type:'N', note:'Hold'},
+
+  // ── 2007 ── 3 hikes to 6.75% (pre-GFC peak building)
+  {date:'7 Feb 2007',   rate:6.25, type:'N', note:'Hold'},
+  {date:'7 Mar 2007',   rate:6.25, type:'N', note:'Hold'},
+  {date:'4 Apr 2007',   rate:6.25, type:'N', note:'Hold'},
+  {date:'2 May 2007',   rate:6.25, type:'N', note:'Hold'},
+  {date:'6 Jun 2007',   rate:6.25, type:'N', note:'Hold'},
+  {date:'4 Jul 2007',   rate:6.25, type:'N', note:'Hold'},
+  {date:'1 Aug 2007',   rate:6.50, type:'H', note:'Hike — US subprime emerging, AUS OK'},
+  {date:'5 Sep 2007',   rate:6.50, type:'N', note:'Hold'},
+  {date:'3 Oct 2007',   rate:6.50, type:'N', note:'Hold'},
+  {date:'7 Nov 2007',   rate:6.75, type:'H', note:'Hike — strong domestic demand'},
+  {date:'5 Dec 2007',   rate:6.75, type:'N', note:'Hold — RBA begins releasing all decisions'},
+
+  // ── 2008 ── 2 hikes then 4 emergency cuts to 4.25%
+  {date:'5 Feb 2008',   rate:7.00, type:'H', note:'Hike — inflation concern at 3.0%'},
+  {date:'4 Mar 2008',   rate:7.00, type:'N', note:'Hold'},
+  {date:'1 Apr 2008',   rate:7.00, type:'N', note:'Hold'},
+  {date:'6 May 2008',   rate:7.00, type:'N', note:'Hold'},
+  {date:'3 Jun 2008',   rate:7.00, type:'N', note:'Hold'},
+  {date:'1 Jul 2008',   rate:7.00, type:'N', note:'Hold'},
+  {date:'5 Aug 2008',   rate:7.25, type:'H', note:'Hike — last hike before GFC'},
+  {date:'2 Sep 2008',   rate:7.00, type:'C', note:'Cut — Lehman Brothers collapse looming'},
+  {date:'7 Oct 2008',   rate:6.00, type:'C', note:'Emergency cut −1.00% — GFC peak'},
+  {date:'4 Nov 2008',   rate:5.25, type:'C', note:'Emergency cut −0.75%'},
+  {date:'2 Dec 2008',   rate:4.25, type:'C', note:'Cut −1.00% — year ends 4.25%'},
+
+  // ── 2009 ── 3 cuts then 3 hikes (GFC recovery)
+  {date:'3 Feb 2009',   rate:3.25, type:'C', note:'Cut — GFC deepens globally'},
+  {date:'3 Mar 2009',   rate:3.25, type:'N', note:'Hold'},
+  {date:'7 Apr 2009',   rate:3.00, type:'C', note:'Cut — global recession confirmed'},
+  {date:'5 May 2009',   rate:3.00, type:'N', note:'Hold'},
+  {date:'2 Jun 2009',   rate:3.00, type:'N', note:'Hold'},
+  {date:'7 Jul 2009',   rate:3.00, type:'N', note:'Hold — signs of stabilisation'},
+  {date:'4 Aug 2009',   rate:3.00, type:'N', note:'Hold'},
+  {date:'1 Sep 2009',   rate:3.00, type:'N', note:'Hold'},
+  {date:'6 Oct 2009',   rate:3.25, type:'H', note:'Hike — first major central bank to hike post-GFC'},
+  {date:'3 Nov 2009',   rate:3.50, type:'H', note:'Hike — recovery confirmed'},
+  {date:'1 Dec 2009',   rate:3.75, type:'H', note:'Hike — year ends 3.75%'},
+
+  // ── 2010 ── 5 hikes to 4.75%
+  {date:'2 Feb 2010',   rate:3.75, type:'N', note:'Hold'},
+  {date:'2 Mar 2010',   rate:4.00, type:'H', note:'Hike — economy strong'},
+  {date:'6 Apr 2010',   rate:4.25, type:'H', note:'Hike — above trend growth'},
+  {date:'4 May 2010',   rate:4.50, type:'H', note:'Hike — mining investment booming'},
+  {date:'1 Jun 2010',   rate:4.50, type:'N', note:'Hold — Europe debt crisis emerges'},
+  {date:'6 Jul 2010',   rate:4.50, type:'N', note:'Hold'},
+  {date:'3 Aug 2010',   rate:4.50, type:'N', note:'Hold'},
+  {date:'7 Sep 2010',   rate:4.50, type:'N', note:'Hold'},
+  {date:'5 Oct 2010',   rate:4.50, type:'N', note:'Hold'},
+  {date:'2 Nov 2010',   rate:4.75, type:'H', note:'Hike — year ends 4.75%'},
+  {date:'7 Dec 2010',   rate:4.75, type:'N', note:'Hold'},
+
+  // ── 2011 ── 2 cuts to 4.25%
+  {date:'1 Feb 2011',   rate:4.75, type:'N', note:'Hold'},
+  {date:'1 Mar 2011',   rate:4.75, type:'N', note:'Hold'},
+  {date:'5 Apr 2011',   rate:4.75, type:'N', note:'Hold'},
+  {date:'3 May 2011',   rate:4.75, type:'N', note:'Hold'},
+  {date:'7 Jun 2011',   rate:4.75, type:'N', note:'Hold'},
+  {date:'5 Jul 2011',   rate:4.75, type:'N', note:'Hold'},
+  {date:'2 Aug 2011',   rate:4.75, type:'N', note:'Hold — Europe debt crisis worsening'},
+  {date:'6 Sep 2011',   rate:4.75, type:'N', note:'Hold'},
+  {date:'4 Oct 2011',   rate:4.75, type:'N', note:'Hold'},
+  {date:'1 Nov 2011',   rate:4.50, type:'C', note:'Cut — Europe/global risks elevated'},
+  {date:'6 Dec 2011',   rate:4.25, type:'C', note:'Cut — year ends 4.25%'},
+
+  // ── 2012 ── 4 cuts to 3.00%
+  {date:'7 Feb 2012',   rate:4.25, type:'N', note:'Hold'},
+  {date:'6 Mar 2012',   rate:4.25, type:'N', note:'Hold'},
+  {date:'3 Apr 2012',   rate:4.25, type:'N', note:'Hold'},
+  {date:'1 May 2012',   rate:3.75, type:'C', note:'Cut — below-trend growth'},
+  {date:'5 Jun 2012',   rate:3.50, type:'C', note:'Cut — Europe risk, AUD high'},
+  {date:'3 Jul 2012',   rate:3.50, type:'N', note:'Hold'},
+  {date:'7 Aug 2012',   rate:3.50, type:'N', note:'Hold'},
+  {date:'4 Sep 2012',   rate:3.50, type:'N', note:'Hold'},
+  {date:'2 Oct 2012',   rate:3.25, type:'C', note:'Cut — mining investment peaking'},
+  {date:'6 Nov 2012',   rate:3.25, type:'N', note:'Hold'},
+  {date:'4 Dec 2012',   rate:3.00, type:'C', note:'Cut — year ends 3.00%'},
+
+  // ── 2013 ── 2 cuts to 2.50%
+  {date:'5 Feb 2013',   rate:3.00, type:'N', note:'Hold'},
+  {date:'5 Mar 2013',   rate:3.00, type:'N', note:'Hold'},
+  {date:'2 Apr 2013',   rate:3.00, type:'N', note:'Hold'},
+  {date:'7 May 2013',   rate:2.75, type:'C', note:'Cut — below-target inflation'},
+  {date:'4 Jun 2013',   rate:2.75, type:'N', note:'Hold'},
+  {date:'2 Jul 2013',   rate:2.75, type:'N', note:'Hold'},
+  {date:'6 Aug 2013',   rate:2.50, type:'C', note:'Cut — mining investment falling'},
+  {date:'3 Sep 2013',   rate:2.50, type:'N', note:'Hold'},
+  {date:'1 Oct 2013',   rate:2.50, type:'N', note:'Hold'},
+  {date:'5 Nov 2013',   rate:2.50, type:'N', note:'Hold'},
+  {date:'3 Dec 2013',   rate:2.50, type:'N', note:'Hold'},
+
+  // ── 2014 ── all holds
+  {date:'4 Feb 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'4 Mar 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'1 Apr 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'6 May 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'3 Jun 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'1 Jul 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'5 Aug 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'2 Sep 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'7 Oct 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'4 Nov 2014',   rate:2.50, type:'N', note:'Hold'},
+  {date:'2 Dec 2014',   rate:2.50, type:'N', note:'Hold'},
+
+  // ── 2015 ── 2 cuts to 2.00%
+  {date:'3 Feb 2015',   rate:2.25, type:'C', note:'Cut — below-target inflation'},
+  {date:'3 Mar 2015',   rate:2.25, type:'N', note:'Hold'},
+  {date:'7 Apr 2015',   rate:2.25, type:'N', note:'Hold'},
+  {date:'5 May 2015',   rate:2.00, type:'C', note:'Cut — AUD still high, weak CPI'},
+  {date:'2 Jun 2015',   rate:2.00, type:'N', note:'Hold'},
+  {date:'7 Jul 2015',   rate:2.00, type:'N', note:'Hold'},
+  {date:'4 Aug 2015',   rate:2.00, type:'N', note:'Hold'},
+  {date:'1 Sep 2015',   rate:2.00, type:'N', note:'Hold'},
+  {date:'6 Oct 2015',   rate:2.00, type:'N', note:'Hold'},
+  {date:'3 Nov 2015',   rate:2.00, type:'N', note:'Hold'},
+  {date:'1 Dec 2015',   rate:2.00, type:'N', note:'Hold'},
+
+  // ── 2016 ── 2 cuts to 1.50%
+  {date:'2 Feb 2016',   rate:2.00, type:'N', note:'Hold'},
+  {date:'1 Mar 2016',   rate:2.00, type:'N', note:'Hold'},
+  {date:'5 Apr 2016',   rate:2.00, type:'N', note:'Hold'},
+  {date:'3 May 2016',   rate:1.75, type:'C', note:'Cut — low inflation, China concerns'},
+  {date:'7 Jun 2016',   rate:1.75, type:'N', note:'Hold'},
+  {date:'5 Jul 2016',   rate:1.75, type:'N', note:'Hold'},
+  {date:'2 Aug 2016',   rate:1.50, type:'C', note:'Cut — inflation at record low 1.0%'},
+  {date:'6 Sep 2016',   rate:1.50, type:'N', note:'Hold'},
+  {date:'4 Oct 2016',   rate:1.50, type:'N', note:'Hold'},
+  {date:'1 Nov 2016',   rate:1.50, type:'N', note:'Hold'},
+  {date:'6 Dec 2016',   rate:1.50, type:'N', note:'Hold'},
+
+  // ── 2017 ── all holds
+  {date:'7 Feb 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'7 Mar 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'4 Apr 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'2 May 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'6 Jun 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'4 Jul 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'1 Aug 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'5 Sep 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'3 Oct 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'7 Nov 2017',   rate:1.50, type:'N', note:'Hold'},
+  {date:'5 Dec 2017',   rate:1.50, type:'N', note:'Hold'},
+
+  // ── 2018 ── all holds
+  {date:'6 Feb 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'6 Mar 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'3 Apr 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'1 May 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'5 Jun 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'3 Jul 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'7 Aug 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'4 Sep 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'2 Oct 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'6 Nov 2018',   rate:1.50, type:'N', note:'Hold'},
+  {date:'4 Dec 2018',   rate:1.50, type:'N', note:'Hold'},
+
+  // ── 2019 ── 3 cuts to 0.75%
+  {date:'5 Feb 2019',   rate:1.50, type:'N', note:'Hold'},
+  {date:'5 Mar 2019',   rate:1.50, type:'N', note:'Hold'},
+  {date:'2 Apr 2019',   rate:1.50, type:'N', note:'Hold'},
+  {date:'7 May 2019',   rate:1.50, type:'N', note:'Hold'},
+  {date:'4 Jun 2019',   rate:1.25, type:'C', note:'Cut — weak labour market'},
+  {date:'2 Jul 2019',   rate:1.00, type:'C', note:'Cut — support full employment'},
+  {date:'6 Aug 2019',   rate:1.00, type:'N', note:'Hold'},
+  {date:'3 Sep 2019',   rate:1.00, type:'N', note:'Hold'},
+  {date:'1 Oct 2019',   rate:0.75, type:'C', note:'Cut — below-trend growth'},
+  {date:'5 Nov 2019',   rate:0.75, type:'N', note:'Hold'},
+  {date:'3 Dec 2019',   rate:0.75, type:'N', note:'Hold'},
+
+  // ── 2020 ── 3 emergency cuts to 0.10%
+  {date:'4 Feb 2020',   rate:0.75, type:'N', note:'Hold — COVID emerging in China'},
+  {date:'3 Mar 2020',   rate:0.50, type:'C', note:'Emergency cut — COVID-19 pandemic'},
+  {date:'19 Mar 2020',  rate:0.25, type:'C', note:'Emergency cut (special meeting)'},
+  {date:'7 Apr 2020',   rate:0.25, type:'N', note:'Hold'},
+  {date:'5 May 2020',   rate:0.25, type:'N', note:'Hold'},
+  {date:'2 Jun 2020',   rate:0.25, type:'N', note:'Hold'},
+  {date:'7 Jul 2020',   rate:0.25, type:'N', note:'Hold'},
+  {date:'4 Aug 2020',   rate:0.25, type:'N', note:'Hold'},
+  {date:'1 Sep 2020',   rate:0.25, type:'N', note:'Hold'},
+  {date:'6 Oct 2020',   rate:0.25, type:'N', note:'Hold'},
+  {date:'3 Nov 2020',   rate:0.10, type:'C', note:'Cut to 0.10% — historic low, QE begins'},
+  {date:'1 Dec 2020',   rate:0.10, type:'N', note:'Hold'},
+
+  // ── 2021 ── all holds, purchase in Nov
+  {date:'2 Feb 2021',   rate:0.10, type:'N', note:'Hold'},
+  {date:'2 Mar 2021',   rate:0.10, type:'N', note:'Hold'},
+  {date:'6 Apr 2021',   rate:0.10, type:'N', note:'Hold'},
+  {date:'4 May 2021',   rate:0.10, type:'N', note:'Hold'},
+  {date:'1 Jun 2021',   rate:0.10, type:'N', note:'Hold'},
+  {date:'6 Jul 2021',   rate:0.10, type:'N', note:'Hold'},
+  {date:'3 Aug 2021',   rate:0.10, type:'N', note:'Hold — Delta variant outbreak'},
+  {date:'7 Sep 2021',   rate:0.10, type:'N', note:'Hold'},
+  {date:'5 Oct 2021',   rate:0.10, type:'N', note:'Hold'},
+  {date:'1 Nov 2021',   rate:0.10, type:'P', note:'🏡 YOUR PROPERTY PURCHASE'},
+  {date:'2 Nov 2021',   rate:0.10, type:'N', note:'Hold — discontinues yield target'},
+  {date:'7 Dec 2021',   rate:0.10, type:'N', note:'Hold'},
+
+  // ── 2022 ── 7 hikes to 3.10%
+  {date:'1 Feb 2022',   rate:0.10, type:'N', note:'Hold — last hold before hiking cycle'},
+  {date:'1 Mar 2022',   rate:0.10, type:'N', note:'Hold — Ukraine war, inflation rising'},
+  {date:'5 Apr 2022',   rate:0.10, type:'N', note:'Hold — election approaching'},
+  {date:'3 May 2022',   rate:0.35, type:'H', note:'⚡ First hike since Nov 2010'},
+  {date:'7 Jun 2022',   rate:0.85, type:'H', note:'Hike +0.50% — inflation 5.1%'},
+  {date:'5 Jul 2022',   rate:1.35, type:'H', note:'Hike +0.50%'},
+  {date:'2 Aug 2022',   rate:1.85, type:'H', note:'Hike +0.50% — inflation 6.1%'},
+  {date:'6 Sep 2022',   rate:2.35, type:'H', note:'Hike +0.50%'},
+  {date:'4 Oct 2022',   rate:2.60, type:'H', note:'Hike +0.25% — pace steps down'},
+  {date:'1 Nov 2022',   rate:2.85, type:'H', note:'Hike +0.25% — your 1yr anniversary'},
+  {date:'6 Dec 2022',   rate:3.10, type:'H', note:'Hike +0.25%'},
+
+  // ── 2023 ── 5 hikes to peak 4.35%
+  {date:'7 Feb 2023',   rate:3.35, type:'H', note:'Hike — inflation 7.4%'},
+  {date:'7 Mar 2023',   rate:3.60, type:'H', note:'Hike'},
+  {date:'4 Apr 2023',   rate:3.60, type:'N', note:'Hold — first pause'},
+  {date:'2 May 2023',   rate:3.85, type:'H', note:'Hike — resumed hiking'},
+  {date:'6 Jun 2023',   rate:4.10, type:'H', note:'Hike — services inflation'},
+  {date:'4 Jul 2023',   rate:4.10, type:'N', note:'Hold'},
+  {date:'1 Aug 2023',   rate:4.10, type:'N', note:'Hold'},
+  {date:'5 Sep 2023',   rate:4.10, type:'N', note:'Hold'},
+  {date:'3 Oct 2023',   rate:4.10, type:'N', note:'Hold'},
+  {date:'7 Nov 2023',   rate:4.35, type:'H', note:'⚡ Final hike — CYCLE PEAK'},
+  {date:'5 Dec 2023',   rate:4.35, type:'N', note:'Hold — year ends at peak'},
+
+  // ── 2024 ── 8 holds
+  {date:'6 Feb 2024',   rate:4.35, type:'N', note:'Hold — new 8-meeting format'},
+  {date:'19 Mar 2024',  rate:4.35, type:'N', note:'Hold'},
+  {date:'7 May 2024',   rate:4.35, type:'N', note:'Hold'},
+  {date:'18 Jun 2024',  rate:4.35, type:'N', note:'Hold'},
+  {date:'6 Aug 2024',   rate:4.35, type:'N', note:'Hold'},
+  {date:'24 Sep 2024',  rate:4.35, type:'N', note:'Hold — global peers cutting'},
+  {date:'5 Nov 2024',   rate:4.35, type:'N', note:'Hold'},
+  {date:'10 Dec 2024',  rate:4.35, type:'N', note:'Hold'},
+
+  // ── 2025 ── 3 cuts to 3.60%
+  {date:'18 Feb 2025',  rate:4.10, type:'C', note:'🎉 First cut in 4 years'},
+  {date:'1 Apr 2025',   rate:4.10, type:'N', note:'Hold'},
+  {date:'20 May 2025',  rate:3.85, type:'C', note:'Cut — inflation easing'},
+  {date:'8 Jul 2025',   rate:3.85, type:'N', note:'Hold'},
+  {date:'12 Aug 2025',  rate:3.60, type:'C', note:'Cut — third cut'},
+  {date:'30 Sep 2025',  rate:3.60, type:'N', note:'Hold'},
+  {date:'4 Nov 2025',   rate:3.60, type:'N', note:'Hold'},
+  {date:'9 Dec 2025',   rate:3.60, type:'N', note:'Hold'},
+
+  // ── 2026 ── 2 hikes + upcoming
+  {date:'3 Feb 2026',   rate:3.85, type:'H', note:'Hike — inflation rebounded'},
+  {date:'17 Mar 2026',  rate:4.10, type:'H', note:'Hike — 2nd consecutive, unanimous'},
+  {date:'5 May 2026',   rate:4.35, type:'H', note:'Hike — 3rd consecutive, CPI confirmed above target'},
+  {date:'7 Jul 2026',   rate:null, type:'U', note:'Scheduled'},
+  {date:'11 Aug 2026',  rate:null, type:'U', note:'Scheduled — SMP'},
+  {date:'29 Sep 2026',  rate:null, type:'U', note:'Scheduled'},
+  {date:'3 Nov 2026',   rate:null, type:'U', note:'Scheduled — SMP'},
+  {date:'8 Dec 2026',   rate:null, type:'U', note:'Scheduled'},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════════════════════════
+const canvas = document.getElementById('mainChart');
+const PAD = {l:52, r:20, t:32, b:36};
+let tooltip = null;
+
+// ── Filter state ──
+const filterState = {
+  startYear: 1995,
+  endYear:   2026,
+  types:     new Set(['H','C','N','P','U']),
+};
+
+function setEra(btn, s, e) {
+  document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterState.startYear = s;
+  filterState.endYear   = e;
+  document.getElementById('startSlider').value = s;
+  document.getElementById('endSlider').value   = e;
+  document.getElementById('startVal').textContent = s;
+  document.getElementById('endVal').textContent   = e;
+  updateSummary(); drawChart();
+}
+
+function onRangeChange() {
+  let s = parseInt(document.getElementById('startSlider').value);
+  let e = parseInt(document.getElementById('endSlider').value);
+  if (s > e - 1) { s = e - 1; document.getElementById('startSlider').value = s; }
+  filterState.startYear = s;
+  filterState.endYear   = e;
+  document.getElementById('startVal').textContent = s;
+  document.getElementById('endVal').textContent   = e;
+  // clear era preset active
+  document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+  updateSummary(); drawChart();
+}
+
+function toggleType(t) {
+  const btn = document.getElementById('tog-' + t);
+  if (filterState.types.has(t)) {
+    // Don't allow deselecting all
+    if (filterState.types.size <= 1) return;
+    filterState.types.delete(t);
+    btn.classList.add('dimmed');
+  } else {
+    filterState.types.add(t);
+    btn.classList.remove('dimmed');
+  }
+  updateSummary(); drawChart();
+}
+
+function resetFilters() {
+  filterState.startYear = 1995;
+  filterState.endYear   = 2026;
+  filterState.types     = new Set(['H','C','N','P','U']);
+  document.getElementById('startSlider').value = 1995;
+  document.getElementById('endSlider').value   = 2026;
+  document.getElementById('startVal').textContent = 1995;
+  document.getElementById('endVal').textContent   = 2026;
+  document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.era-btn[data-start="1995"][data-end="2026"]').classList.add('active');
+  ['H','C','N','P','U'].forEach(t => document.getElementById('tog-'+t) && document.getElementById('tog-'+t).classList.remove('dimmed'));
+  updateSummary(); drawChart();
+}
+
+function updateSummary() {
+  const {startYear, endYear, types} = filterState;
+  const visible = decisions.filter(d => {
+    const yr = new Date(d.date).getFullYear();
+    return yr >= startYear && yr <= endYear && types.has(d.type);
+  });
+  const hikes = visible.filter(d=>d.type==='H').length;
+  const cuts  = visible.filter(d=>d.type==='C').length;
+  const holds = visible.filter(d=>d.type==='N').length;
+  const typeLabels = [];
+  if (types.has('H')) typeLabels.push(`${hikes} hikes`);
+  if (types.has('C')) typeLabels.push(`${cuts} cuts`);
+  if (types.has('N')) typeLabels.push(`${holds} holds`);
+  document.getElementById('filterSummary').innerHTML =
+    `Showing <span>${startYear}–${endYear}</span> · <span>${typeLabels.join(' · ')}</span> · <span>${visible.length} decisions</span>`;
+}
+
+function drawChart() {
+  const W = Math.max(canvas.parentElement.clientWidth, 900);
+  const H = 260;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+
+  const sy = filterState.startYear;
+  const ey = filterState.endYear;
+  // Add 6-month padding on each side for breathing room
+  const tStart = new Date((sy - 0) + '-01-01').getTime() - 15552000000;
+  const tEnd   = new Date((ey + 1) + '-01-01').getTime() + 15552000000;
+  const tRange = tEnd - tStart;
+
+  function xOf(d)    { return PAD.l + ((new Date(d).getTime() - tStart) / tRange) * cW; }
+  function yOf(rate) { return PAD.t + cH - ((rate / 8.0)) * cH; }
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid
+  [1,2,3,4,5,6,7,7.5].forEach(r => {
+    const y = yOf(r);
+    ctx.strokeStyle = '#21262d'; ctx.lineWidth = 1; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+    ctx.fillStyle = '#8b949e'; ctx.font = '10px DM Mono,monospace'; ctx.textAlign = 'right';
+    ctx.fillText(r.toFixed(2) + '%', PAD.l - 4, y + 3.5);
+  });
+  // 0 line
+  const y0 = yOf(0);
+  ctx.strokeStyle = '#21262d'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD.l, y0); ctx.lineTo(W - PAD.r, y0); ctx.stroke();
+  ctx.fillStyle = '#8b949e'; ctx.font = '10px DM Mono,monospace'; ctx.textAlign = 'right';
+  ctx.fillText('0.00%', PAD.l - 4, y0 + 3.5);
+
+  // Year separators + labels
+  ctx.textAlign = 'center';
+  for (let yr = sy; yr <= ey + 1; yr++) {
+    const x = xOf(yr + '-01-01');
+    ctx.strokeStyle = '#21262d'; ctx.setLineDash([3,3]); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t + cH); ctx.stroke();
+    ctx.setLineDash([]);
+    if (yr % 2 === 1 || yr >= 2019) { // show every year from 2019, every other before
+      ctx.fillStyle = '#8b949e'; ctx.font = '10px DM Serif Display,serif';
+      ctx.fillText(yr, x + cW / 64, H - 6);
+    }
+  }
+
+  // Purchase line
+  const px = xOf('2021-11-01');
+  ctx.strokeStyle = 'rgba(88,166,255,0.6)'; ctx.setLineDash([4,3]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(px, PAD.t - 10); ctx.lineTo(px, PAD.t + cH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(88,166,255,0.15)';
+  ctx.beginPath(); ctx.roundRect(px - 50, PAD.t - 22, 100, 14, 3); ctx.fill();
+  ctx.fillStyle = '#58a6ff'; ctx.font = '9px DM Mono,monospace'; ctx.textAlign = 'center';
+  ctx.fillText('🏡 YOUR PURCHASE', px, PAD.t - 11);
+
+  // Era shading
+  const eras = [
+    {start:'1995-01-01', end:'2002-01-01', label:'Post-recession\neasing', color:'rgba(63,185,80,0.03)'},
+    {start:'2002-01-01', end:'2008-09-01', label:'Boom years', color:'rgba(248,81,73,0.03)'},
+    {start:'2008-09-01', end:'2010-06-01', label:'GFC', color:'rgba(230,168,23,0.05)'},
+    {start:'2010-06-01', end:'2016-01-01', label:'Mining\nbust', color:'rgba(63,185,80,0.03)'},
+    {start:'2016-01-01', end:'2022-05-01', label:'Historic low\nplateau', color:'rgba(88,166,255,0.03)'},
+    {start:'2022-05-01', end:'2025-02-01', label:'Hiking\ncycle', color:'rgba(248,81,73,0.04)'},
+    {start:'2025-02-01', end:'2026-02-01', label:'Easing', color:'rgba(63,185,80,0.04)'},
+    {start:'2026-02-01', end:'2027-01-01', label:'Re-hike', color:'rgba(248,81,73,0.04)'},
+  ];
+  eras.forEach(e => {
+    const x1 = Math.max(PAD.l, xOf(e.start));
+    const x2 = Math.min(W - PAD.r, xOf(e.end));
+    if (x2 <= x1) return;
+    ctx.fillStyle = e.color;
+    ctx.fillRect(x1, PAD.t, x2 - x1, cH);
+  });
+
+  // Filter by year range
+  const {startYear, endYear, types} = filterState;
+  // Area fill — use all known decisions in range for the step line shape
+  const known = decisions.filter(d => {
+    if (d.type === 'U') return false;
+    const yr = new Date(d.date).getFullYear();
+    return yr >= startYear - 1 && yr <= endYear + 1; // slight buffer for line continuity
+  });
+  ctx.beginPath();
+  ctx.moveTo(xOf(known[0].date), PAD.t + cH);
+  ctx.lineTo(xOf(known[0].date), yOf(known[0].rate));
+  for (let i = 1; i < known.length; i++) {
+    ctx.lineTo(xOf(known[i].date), yOf(known[i-1].rate));
+    ctx.lineTo(xOf(known[i].date), yOf(known[i].rate));
+  }
+  ctx.lineTo(xOf(known[known.length-1].date), PAD.t + cH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
+  grad.addColorStop(0, 'rgba(230,168,23,0.18)');
+  grad.addColorStop(1, 'rgba(230,168,23,0)');
+  ctx.fillStyle = grad; ctx.fill();
+
+  // Rate line
+  ctx.strokeStyle = '#e6a817'; ctx.lineWidth = 2; ctx.setLineDash([]); ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(xOf(known[0].date), yOf(known[0].rate));
+  for (let i = 1; i < known.length; i++) {
+    ctx.lineTo(xOf(known[i].date), yOf(known[i-1].rate));
+    ctx.lineTo(xOf(known[i].date), yOf(known[i].rate));
+  }
+  ctx.stroke();
+
+  // Dashed upcoming
+  const lastKnown = known[known.length-1];
+  ctx.strokeStyle = 'rgba(230,168,23,0.4)'; ctx.setLineDash([5,4]); ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(xOf(lastKnown.date), yOf(lastKnown.rate));
+  ctx.lineTo(xOf('2026-07-07'), yOf(lastKnown.rate));
+  ctx.stroke(); ctx.setLineDash([]);
+
+  // Dots
+  canvas._dots = [];
+  decisions.forEach(d => {
+    const dyr = new Date(d.date).getFullYear();
+    if (dyr < startYear || dyr > endYear) return;
+    if (!types.has(d.type)) return;
+    const x = xOf(d.date);
+    const y = d.type === 'U' ? yOf(lastKnown.rate) : yOf(d.rate);
+    let color, r;
+    if (d.type === 'U')      { color = '#e6a817'; r = 4; }
+    else if (d.type === 'P') { color = '#58a6ff'; r = 6; }
+    else if (d.type === 'H') { color = '#f85149'; r = 4; }
+    else if (d.type === 'C') { color = '#3fb950'; r = 4; }
+    else                      { color = '#8b949e'; r = 2.5; }
+
+    ctx.strokeStyle = '#0d1117';
+    ctx.lineWidth = (d.type === 'P' || d.type === 'H' || d.type === 'C') ? 1.2 : 0;
+    ctx.setLineDash(d.type === 'U' ? [2,2] : []);
+
+    if (d.type === 'U') {
+      ctx.strokeStyle = color; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.stroke();
+    } else {
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.fill();
+      if (ctx.lineWidth > 0) { ctx.strokeStyle='#0d1117'; ctx.stroke(); }
+    }
+    ctx.setLineDash([]);
+    canvas._dots.push({x, y, r: r + 5, d});
+  });
+
+  // Key annotations — only show if in visible range
+  ctx.font = 'bold 9px DM Mono,monospace'; ctx.textAlign = 'center';
+  const annotations = [
+    {date:'1994-12-14', yr:1994, rate:7.50, label:'7.50% (1994)', color:'#f85149', dy:-11},
+    {date:'2008-08-05', yr:2008, rate:7.25, label:'GFC Peak 7.25%', color:'#f85149', dy:-11},
+    {date:'2023-11-07', yr:2023, rate:4.35, label:'PEAK 4.35%', color:'#e6a817', dy:-11},
+    {date:'2020-11-03', yr:2020, rate:0.10, label:'0.10% LOW', color:'#3fb950', dy:16},
+    {date:'2025-02-18', yr:2025, rate:4.10, label:'1st CUT', color:'#3fb950', dy:-11},
+    {date:'2026-05-05', yr:2026, rate:4.35, label:'NOW 4.35%', color:'#f85149', dy:-11},
+  ];
+  annotations.forEach(a => {
+    if (a.yr < startYear || a.yr > endYear) return;
+    const ax = xOf(a.date), ay = yOf(a.rate);
+    ctx.fillStyle = a.color;
+    ctx.fillText(a.label, ax, ay + a.dy);
+  });
+}
+
+// Tooltip
+canvas.addEventListener('mousemove', e => {
+  if (!canvas._dots) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left), my = (e.clientY - rect.top);
+  let hit = null;
+  for (const dot of canvas._dots) {
+    if (Math.hypot(mx - dot.x, my - dot.y) <= dot.r + 2) { hit = dot; break; }
+  }
+  if (hit) { canvas.style.cursor = 'pointer'; showTip(e, hit.d); }
+  else     { canvas.style.cursor = 'crosshair'; hideTip(); }
+});
+canvas.addEventListener('mouseleave', hideTip);
+
+function showTip(e, d) {
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.style.cssText = `position:fixed;background:#0d1117;border:1px solid;border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:12px;pointer-events:none;z-index:9999;min-width:180px;box-shadow:0 4px 20px rgba(0,0,0,0.6);`;
+    document.body.appendChild(tooltip);
+  }
+  const col  = d.type==='H'?'#f85149':d.type==='C'?'#3fb950':d.type==='P'?'#58a6ff':d.type==='U'?'#e6a817':'#8b949e';
+  const lbl  = d.type==='H'?'HIKE':d.type==='C'?'CUT':d.type==='P'?'PURCHASE':d.type==='U'?'UPCOMING':'HOLD';
+  tooltip.style.borderColor = col;
+  tooltip.innerHTML = `
+    <div style="color:#8b949e;font-size:10px;margin-bottom:4px;">${d.date}</div>
+    <div style="font-size:16px;font-family:'DM Serif Display',serif;color:#e6edf3;margin-bottom:3px;">${d.rate!=null?d.rate.toFixed(2)+'%':'TBD'}</div>
+    <div style="color:${col};font-size:10px;margin-bottom:5px;font-weight:500;">${lbl}</div>
+    <div style="color:#8b949e;font-size:10px;border-top:1px solid #21262d;padding-top:4px;">${d.note}</div>`;
+  const tx = Math.min(e.clientX+14, window.innerWidth-210);
+  const ty = Math.min(e.clientY-10,  window.innerHeight-110);
+  tooltip.style.left = tx+'px'; tooltip.style.top = ty+'px'; tooltip.style.display='block';
+}
+function hideTip() { if (tooltip) tooltip.style.display='none'; }
+
+updateSummary();
+drawChart();
+window.addEventListener('resize', drawChart);
+
+// ═══════════════════════════════════════════════════════════════
+// TABLES
+// ═══════════════════════════════════════════════════════════════
+const yearMeta = {
+  1995:{label:'1995 — Post-Tightening Plateau',    badges:[['badge-hold','All holds at 7.50%']]},
+  1996:{label:'1996 — Easing Begins',              badges:[['badge-cut','3 cuts −1.50%'],['badge-hold','8 holds']]},
+  1997:{label:'1997 — Asia Crisis Cuts',           badges:[['badge-cut','2 cuts −1.00%'],['badge-hold','9 holds']]},
+  1998:{label:'1998 — One More Cut',               badges:[['badge-cut','1 cut −0.25%'],['badge-hold','10 holds']]},
+  1999:{label:'1999 — Recovery Hike',              badges:[['badge-hike','1 hike +0.25%'],['badge-hold','10 holds']]},
+  2000:{label:'2000 — Olympic Boom Hikes',         badges:[['badge-hike','4 hikes +0.75%'],['badge-hold','7 holds']]},
+  2001:{label:'2001 — Dot-Com & 9/11 Cuts',        badges:[['badge-cut','5 cuts −2.00%'],['badge-hold','6 holds']]},
+  2002:{label:'2002 — Recovery Hikes',             badges:[['badge-hike','2 hikes +0.50%'],['badge-hold','9 holds']]},
+  2003:{label:'2003 — Commodity Boom Hikes',       badges:[['badge-hike','2 hikes +0.50%'],['badge-hold','9 holds']]},
+  2004:{label:'2004 — Steady Holds',               badges:[['badge-hold','11 holds at 5.25%']]},
+  2005:{label:'2005 — One Hike',                   badges:[['badge-hike','1 hike +0.25%'],['badge-hold','10 holds']]},
+  2006:{label:'2006 — Pre-GFC Tightening',         badges:[['badge-hike','3 hikes +0.75%'],['badge-hold','8 holds']]},
+  2007:{label:'2007 — GFC Builds, 3 More Hikes',   badges:[['badge-hike','3 hikes +0.75%'],['badge-hold','8 holds']]},
+  2008:{label:'2008 — GFC Emergency Cuts',         badges:[['badge-hike','2 hikes +0.50%'],['badge-cut','4 cuts −3.75%']]},
+  2009:{label:'2009 — GFC Trough & Rebound',       badges:[['badge-cut','2 cuts −0.75%'],['badge-hike','3 hikes +0.75%']]},
+  2010:{label:'2010 — Mining Boom Hikes',          badges:[['badge-hike','5 hikes +1.25%'],['badge-hold','6 holds']]},
+  2011:{label:'2011 — Europe Crisis Cuts',         badges:[['badge-cut','2 cuts −0.50%'],['badge-hold','9 holds']]},
+  2012:{label:'2012 — Four Cuts',                  badges:[['badge-cut','4 cuts −1.25%'],['badge-hold','7 holds']]},
+  2013:{label:'2013 — Two More Cuts to 2.50%',     badges:[['badge-cut','2 cuts −0.50%'],['badge-hold','9 holds']]},
+  2014:{label:'2014 — All Holds at 2.50%',         badges:[['badge-hold','11 holds at 2.50%']]},
+  2015:{label:'2015 — Two Cuts to 2.00%',          badges:[['badge-cut','2 cuts −0.50%'],['badge-hold','9 holds']]},
+  2016:{label:'2016 — Two Cuts to Record 1.50%',   badges:[['badge-cut','2 cuts −0.50%'],['badge-hold','9 holds']]},
+  2017:{label:'2017 — Prolonged Pause',            badges:[['badge-hold','11 holds at 1.50%']]},
+  2018:{label:'2018 — Still Holding',              badges:[['badge-hold','11 holds at 1.50%']]},
+  2019:{label:'2019 — Back to Cutting',            badges:[['badge-cut','3 cuts −0.75%'],['badge-hold','8 holds']]},
+  2020:{label:'2020 — COVID Emergency',            badges:[['badge-cut','3 cuts to 0.10%'],['badge-hold','9 holds']]},
+  2021:{label:'2021 — Historic Low + Your Purchase',badges:[['badge-purchase','🏡 Nov 2021'],['badge-hold','All holds at 0.10%']]},
+  2022:{label:'2022 — The Great Tightening',       badges:[['badge-hike','7 hikes +3.00%'],['badge-hold','4 holds']]},
+  2023:{label:'2023 — Peak Tightening',            badges:[['badge-hike','5 hikes +1.25%'],['badge-hold','6 holds']]},
+  2024:{label:'2024 — The Long Plateau',           badges:[['badge-hold','8 holds at 4.35%']]},
+  2025:{label:'2025 — Relief: Easing Cycle',       badges:[['badge-cut','3 cuts −0.75%'],['badge-hold','5 holds']]},
+  2026:{label:'2026 — New Hike Cycle Begins',      badges:[['badge-hike','3 hikes +0.75%'],['badge-mixed','5 upcoming']]},
+};
+
+// Group by year
+const byYear = {};
+decisions.forEach(d => {
+  const yr = new Date(d.date).getFullYear();
+  if (!byYear[yr]) byYear[yr] = [];
+  byYear[yr].push(d);
+});
+
+const sec = document.getElementById('tableSection');
+
+// Era headers
+const eraHeaders = {
+  1995: '📉 ERA 1: Post-Recession Easing 1995–2002 (7.50% → 4.25%)',
+  2002: '📈 ERA 2: Boom Years 2002–2008 (4.25% → 7.25%)',
+  2008: '🔥 ERA 3: GFC Crisis & Recovery 2008–2013 (7.25% → 2.50%)',
+  2013: '😴 ERA 4: The Long Plateau 2013–2019 (2.50% → 0.75%)',
+  2019: '🦠 ERA 5: COVID Era 2019–2022 (0.75% → 0.10%)',
+  2022: '🚀 ERA 6: Modern Hiking Cycle 2022–2026 (0.10% → 4.35%)',
+};
+
+Object.keys(byYear).sort((a,b) => b - a).forEach(yr => {
+  const meta = yearMeta[yr] || {label: yr, badges:[]};
+  const isOpen = (yr == '2026' || yr == '2021') ? 'open' : '';
+
+  if (eraHeaders[yr]) {
+    sec.innerHTML += `<div class="era-divider">${eraHeaders[yr]}</div>`;
+  }
+
+  const rows = byYear[yr].map(d => {
+    const col   = d.type==='H'?'var(--hike)':d.type==='C'?'var(--cut)':d.type==='P'?'var(--purchase)':d.type==='U'?'var(--accent)':'var(--muted)';
+    const pill  = d.type==='H'?'pill-hike':d.type==='C'?'pill-cut':d.type==='P'?'pill-purchase':d.type==='U'?'pill-upcoming':'pill-hold';
+    const label = d.type==='H'?'Hike':d.type==='C'?'Cut':d.type==='P'?'🏡 Purchase':d.type==='U'?'Upcoming':'Hold';
+    const idx   = decisions.indexOf(d);
+    const prev  = decisions.slice(0, idx).reverse().find(p => p.type !== 'U');
+    let chgHtml = '<span class="chg chg-nil">—</span>';
+    if ((d.type==='H'||d.type==='C') && prev && prev.rate != null) {
+      const delta = (d.rate - prev.rate).toFixed(2);
+      chgHtml = d.type==='H'
+        ? `<span class="chg chg-up">+${delta}%</span>`
+        : `<span class="chg chg-dn">${delta}%</span>`;
+    }
+    const rateHtml = d.rate != null
+      ? `<span class="rate-val" style="color:${col}">${d.rate.toFixed(2)}%</span>`
+      : `<span class="chg chg-nil">TBD</span>`;
+    const rowAttr = d.type==='P' ? 'class="row-purchase"' : d.type==='U' ? 'style="opacity:0.45"' : '';
+    return `<tr ${rowAttr}><td>${d.date}</td><td><span class="pill ${pill}">${label}</span></td><td>${chgHtml}</td><td>${rateHtml}</td><td class="note-col">${d.note}</td></tr>`;
+  }).join('');
+
+  const badgeHtml = meta.badges.map(([cls, txt]) => `<span class="year-badge ${cls}">${txt}</span>`).join('');
+
+  sec.innerHTML += `
+  <div class="year-block ${isOpen}" onclick="this.classList.toggle('open')">
+    <div class="year-header">
+      <div class="year-label">${meta.label}</div>
+      <div class="year-summary">${badgeHtml}<span class="chevron">▼</span></div>
+    </div>
+    <table class="meetings-table">
+      <thead><tr><th>Date</th><th>Decision</th><th>Change</th><th>Rate After</th><th>Context</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+});
+
+sec.innerHTML += `<div class="footer-note">Source: Reserve Bank of Australia (rba.gov.au) · Data as at 5 May 2026 · General information only — not financial advice</div>`;
+</script>
+</body>
+</html>

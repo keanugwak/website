@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m http.server 8080 --directory \"C:\\\\Users\\\\Sean\\\\Desktop\\\\Side-Projects\\\\Seun-website\")",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

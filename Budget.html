@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Finance Report 2026 — Seun Gwak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F0F4FF;--surface:#FFF;--surface2:#F8FAFF;
+  --nav:#060E1F;
+  --border:rgba(15,23,42,.07);--shadow:0 4px 20px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);
+  --ink:#0F172A;--ink2:#334155;--ink3:#64748B;--ink4:#94A3B8;
+  --blue:#2563EB;--blue-s:#EFF6FF;
+  --green:#059669;--green-s:#ECFDF5;
+  --amber:#D97706;--amber-s:#FFFBEB;
+  --red:#DC2626;--red-s:#FEF2F2;
+  --purple:#7C3AED;--purple-s:#F5F3FF;
+  --indigo:#4F46E5;--teal:#0D9488;--orange:#EA580C;
+  --r:14px;--rs:8px;--rl:20px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+
+/* ── Header — fresh ocean blue ── */
+header{background:linear-gradient(160deg,#0369A1 0%,#0EA5E9 55%,#38BDF8 100%);padding:60px 48px 56px;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 55% 70% at 5% 35%,rgba(255,255,255,.18) 0%,transparent 55%),radial-gradient(ellipse 45% 55% at 90% 75%,rgba(255,255,255,.12) 0%,transparent 50%)}
+.header-inner{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap;position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.12em;color:rgba(255,255,255,.75);text-transform:uppercase;margin-bottom:18px}
+.eyebrow::before{content:'';width:22px;height:1px;background:rgba(255,255,255,.5)}
+h1{font-size:clamp(32px,4.5vw,58px);font-weight:800;line-height:1.06;color:#FFFFFF;letter-spacing:-.025em;text-shadow:0 2px 20px rgba(3,105,161,.3)}
+h1 em{font-style:normal;color:#FFF;-webkit-text-fill-color:#FFF;background:none;font-weight:800;opacity:.9}
+.header-meta{font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,.7);margin-top:14px;letter-spacing:.02em}
+.hpills{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.hpill{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-radius:100px;padding:9px 20px;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:#FFFFFF}
+.hpill.g{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.5);color:#FFFFFF}
+.hpill.r{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.9)}
+.balance-card{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.45);backdrop-filter:blur(16px);border-radius:var(--r);padding:24px 30px;text-align:right;flex-shrink:0;position:relative;z-index:1;min-width:200px}
+.bc-label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:10px}
+.bc-value{font-size:36px;font-weight:800;color:#FFFFFF;letter-spacing:-.025em;line-height:1}
+.bc-sub{font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,.65);margin-top:8px}
+
+/* ── Nav ── */
+nav{position:sticky;top:0;z-index:100;background:#075985;border-bottom:1px solid rgba(255,255,255,.15)}
+.nav-inner{max-width:1240px;margin:0 auto;display:flex;padding:0 48px}
+.nav-tab{font-family:'Plus Jakarta Sans',sans-serif;font-size:25px;font-weight:700;color:rgba(255,255,255,.5);padding:24px 40px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;letter-spacing:-.01em}
+.nav-tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.08)}
+.nav-tab.active{color:#FFFFFF;border-bottom-color:#FFFFFF}
+
+/* ── Sub-nav ── */
+#sub-nav{background:var(--surface);border-bottom:1px solid var(--border);display:none;padding:0 48px}
+#sub-nav.visible{display:block}
+.sub-nav-inner{max-width:1240px;margin:0 auto;display:flex;overflow-x:auto}
+.sub-tab{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);padding:14px 20px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.sub-tab:hover{color:var(--ink)}
+.sub-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── Layout ── */
+main{max-width:1240px;margin:0 auto;padding:40px 48px}
+.tab-section{display:none;animation:fadeUp .3s ease}
+.tab-section.active{display:block}
+.sub-section{display:none}
+.sub-section.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Section head ── */
+.section-head{margin-bottom:28px}
+.section-head h2{font-size:28px;font-weight:800;letter-spacing:-.02em}
+.section-head p{font-size:14px;color:var(--ink3);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.s-h3{font-size:22px;font-weight:800;letter-spacing:-.015em;margin:32px 0 16px}
+
+/* ── Hero chart ── */
+.hero-chart{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:30px 32px;margin-bottom:28px;position:relative;overflow:hidden}
+.hero-chart::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3B82F6,#8B5CF6,#0D9488)}
+.hero-chart h3{font-size:19px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+.hero-chart .cs{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink3);margin-bottom:22px}
+
+/* ── Stat cards ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s;cursor:default}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.sc-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);margin-bottom:10px;margin-top:12px}
+.stat-value{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.stat-sub{font-size:14px;color:var(--ink3);margin-top:6px}
+.stat-delta{font-family:'JetBrains Mono',monospace;font-size:13px;margin-top:7px}
+.d-up{color:var(--red)}.d-dn{color:var(--green)}
+.sc-blue .sc-bar{background:var(--blue)}.sc-blue .stat-value{color:var(--blue)}
+.sc-green .sc-bar{background:var(--green)}.sc-green .stat-value{color:var(--green)}
+.sc-red .sc-bar{background:var(--red)}.sc-red .stat-value{color:var(--red)}
+.sc-amber .sc-bar{background:var(--amber)}.sc-amber .stat-value{color:var(--amber)}
+.sc-purple .sc-bar{background:var(--purple)}.sc-purple .stat-value{color:var(--purple)}
+.sc-indigo .sc-bar{background:var(--indigo)}.sc-indigo .stat-value{color:var(--indigo)}
+.sc-teal .sc-bar{background:var(--teal)}.sc-teal .stat-value{color:var(--teal)}
+.sc-ink .sc-bar{background:var(--ink)}.sc-ink .stat-value{color:var(--ink)}
+
+/* ── Charts ── */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px}
+.chart-box.full{grid-column:1/-1}
+.chart-box h3{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+.cs{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--ink3);margin-bottom:18px}
+.chart-wrap{position:relative;width:100%}
+
+/* ── Data table ── */
+.data-table{width:100%;border-collapse:collapse;font-size:14px}
+.data-table thead tr{border-bottom:1px solid var(--border)}
+.data-table th{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);padding:10px 14px;text-align:left;font-weight:500}
+.data-table th:last-child{text-align:right}
+.data-table td{padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--ink2)}
+.data-table td:last-child{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--surface2)}
+.cat-dot{display:inline-block;width:8px;height:8px;border-radius:3px;margin-right:8px;vertical-align:middle}
+
+/* ── Alerts ── */
+.alert{display:flex;gap:12px;align-items:flex-start;padding:14px 18px;border-radius:var(--rs);margin-bottom:16px;font-size:14px;line-height:1.65;color:var(--ink2)}
+.alert-red{background:var(--red-s);border:1px solid rgba(220,38,38,.14)}.alert-red strong{color:var(--red)}
+.alert-green{background:var(--green-s);border:1px solid rgba(5,150,105,.14)}.alert-green strong{color:var(--green)}
+.alert-blue{background:var(--blue-s);border:1px solid rgba(37,99,235,.14)}.alert-blue strong{color:var(--blue)}
+
+/* ── Forecast blocks ── */
+.col-heads{display:grid;grid-template-columns:1fr 90px 90px 100px;padding:9px 20px;background:var(--surface2);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);border-bottom:1px solid var(--border)}
+.col-heads span:not(:first-child){text-align:right}
+.forecast-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.fb-header{display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.fb-header-left{display:flex;align-items:center;gap:10px}
+.fb-dot{width:10px;height:10px;border-radius:3px}
+.fb-title{font-weight:600;font-size:16px}
+.fb-total{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;color:var(--ink)}
+.fb-row{display:grid;grid-template-columns:1fr 90px 90px 100px;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,.04);font-size:14px;align-items:center;transition:background .12s}
+.fb-row:hover{background:var(--surface2)}.fb-row:last-child{border-bottom:none}
+.fb-rv{text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)}
+.fb-rf{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px;color:var(--ink)}
+
+/* ── Grand total ── */
+.grand-total{display:flex;justify-content:space-between;align-items:center;padding:22px 26px;background:linear-gradient(135deg,#0F172A,#1E3A5F);border-radius:var(--r);color:#fff;margin-top:8px}
+.gt-label{font-size:16px;font-weight:500;opacity:.7}
+.gt-sub{font-family:'JetBrains Mono',monospace;font-size:13px;opacity:.35;margin-top:3px}
+.gt-value{font-size:36px;font-weight:800;letter-spacing:-.025em}
+
+/* ── Budget table (advisor) ── */
+.budget-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+.bt-heads{display:grid;grid-template-columns:1fr 100px 90px 110px 120px;padding:9px 20px;background:var(--surface2);font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);border-bottom:1px solid var(--border)}
+.bt-heads span:not(:first-child){text-align:right}
+.bt-row{display:grid;grid-template-columns:1fr 100px 90px 110px 120px;padding:13px 20px;border-bottom:1px solid rgba(0,0,0,.04);font-size:14px;align-items:center;transition:background .12s}
+.bt-row:hover{background:var(--surface2)}.bt-row:last-child{border-bottom:none}
+.bt-cell{text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)}
+.bt-name{font-weight:500;color:var(--ink2)}
+.status-pill{display:inline-flex;justify-content:flex-end;padding:4px 11px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.sp-green{background:var(--green-s);color:var(--green)}
+.sp-red{background:var(--red-s);color:var(--red)}
+.sp-amber{background:var(--amber-s);color:var(--amber)}
+
+/* ── Credit block ── */
+.credit-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:24px}
+.cb-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--green-s)}
+.cb-header h4{font-size:17px;font-weight:700}
+.cb-total-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;color:var(--green)}
+.cb-col-heads{display:grid;grid-template-columns:72px 1fr 80px 110px;padding:8px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);border-bottom:1px solid var(--border);background:var(--surface2)}
+.cb-col-heads span:not(:first-child){text-align:right}
+.cb-row{display:grid;grid-template-columns:72px 1fr 80px 110px;padding:11px 20px;border-bottom:1px solid rgba(0,0,0,.04);font-size:14px;align-items:center;transition:background .12s}
+.cb-row:hover{background:var(--surface2)}.cb-row:last-child{border-bottom:none}
+.cb-date{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)}
+.cb-amount{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--green)}
+.cb-type{text-align:right}
+.pill-pay{display:inline-block;padding:3px 10px;border-radius:100px;background:var(--blue-s);color:var(--blue);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.05em}
+.pill-ref{display:inline-block;padding:3px 10px;border-radius:100px;background:var(--purple-s);color:var(--purple);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.05em}
+.cb-summary{display:flex;justify-content:space-between;padding:12px 20px;background:var(--surface2);border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink3)}
+
+/* ── Insight cards ── */
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:24px}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:transform .18s,box-shadow .18s}
+.insight-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.ic-tag{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);margin-bottom:8px}
+.ic-title{font-weight:700;font-size:17px;margin-bottom:8px}
+.ic-body{font-size:14px;color:var(--ink3);line-height:1.65}
+.ic-amount{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;margin-top:14px}
+
+/* ── Legend ── */
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink3)}
+.legend-swatch{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* ── Footer ── */
+footer{max-width:1240px;margin:48px auto 0;padding:22px 48px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink4);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center}
+a.back-link{color:var(--ink4);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:13px;transition:color .15s}
+a.back-link:hover{color:var(--blue)}
+
+@media(max-width:768px){
+  header,#sub-nav{padding-left:20px;padding-right:20px}
+  main{padding:24px 20px}
+  .nav-inner{padding:0 20px}
+  .chart-grid{grid-template-columns:1fr}
+  h1{font-size:26px}
+  .balance-card{display:none}
+  .bt-row,.bt-heads{grid-template-columns:1fr 80px 80px}
+}
+/* ── UPLOAD UI ── */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r);padding:48px 32px;text-align:center;transition:all .2s;cursor:pointer;background:var(--surface);margin-bottom:20px;position:relative}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue);background:var(--blue-s)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:44px;margin-bottom:14px;line-height:1;display:block}
+.upload-zone-title{font-size:18px;font-weight:700;margin-bottom:6px;color:var(--ink)}
+.upload-zone-hint{font-size:13px;color:var(--ink3);font-family:'JetBrains Mono',monospace;margin-top:4px}
+.uploader-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px 24px;margin-bottom:20px}
+.uploader-panel h4{font-size:16px;font-weight:700;margin-bottom:16px;letter-spacing:-.01em}
+.mapper-grid{display:grid;grid-template-columns:120px 1fr;gap:10px 16px;align-items:center;margin-bottom:18px}
+.mapper-lbl{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink4)}
+.mapper-sel,.month-inp{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--rs);background:var(--bg);color:var(--ink);width:100%;max-width:300px}
+.uploader-panel.hidden{display:none}
+.parse-err{background:var(--red-s);border:1px solid rgba(220,38,38,.18);border-radius:var(--rs);padding:11px 16px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+.parse-err.on{display:block}
+.upload-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.upload-stats.hidden{display:none}
+.us-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;position:relative;overflow:hidden}
+.us-bar{position:absolute;top:0;left:0;right:0;height:3px}
+.us-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink4);margin-bottom:6px;margin-top:10px}
+.us-val{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.us-sub{font-size:12px;color:var(--ink3);margin-top:3px}
+.preview-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px;max-height:420px;overflow-y:auto}
+.preview-wrap.hidden{display:none}
+.preview-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.preview-tbl th{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink4);padding:10px 14px;text-align:left;background:var(--surface2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1}
+.preview-tbl td{padding:9px 14px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--ink2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.preview-tbl td:last-child{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600}
+.preview-tbl tr.is-credit td{color:var(--green)}
+.preview-tbl tr:hover td{background:var(--surface2)}
+.cat-sel{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:100px;background:var(--bg);color:var(--ink2);cursor:pointer;max-width:140px}
+.btn-commit{padding:12px 28px;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-commit:hover{background:#1D4ED8}
+.btn-reset-up{padding:12px 20px;background:transparent;color:var(--ink3);border:1px solid var(--border);border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;cursor:pointer;transition:all .15s;margin-left:10px}
+.btn-reset-up:hover{border-color:#aaa;color:var(--ink)}
+.commit-row{margin-top:8px;display:none}
+.commit-row.on{display:block}
+.upload-ok{background:var(--green-s);border:1px solid rgba(5,150,105,.2);border-radius:var(--r);padding:14px 18px;color:var(--green);font-weight:600;font-size:15px;margin-bottom:20px;display:none;align-items:center;gap:10px}
+.upload-ok.on{display:flex}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:8px;font-size:14px}
+.hist-item-lbl{font-weight:600;color:var(--ink)}
+.hist-item-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3);margin-top:2px}
+.cat-src{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:100px;vertical-align:middle;margin-left:5px;cursor:default}
+.src-hist{background:var(--green-s);color:var(--green)}
+.src-auto{background:var(--blue-s);color:var(--blue)}
+.src-new{background:var(--amber-s);color:var(--amber)}
+.src-ai{background:var(--purple-s);color:var(--purple)}
+/* ── SITE NAV ── */
+.site-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.96)!important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #dde3ea!important;}
+nav:not(.site-nav){top:56px;}
+.site-nav-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
+.site-nav-brand{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:600;color:#0a0a0a;text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px;}
+.site-nav-dot{width:5px;height:5px;background:#1a6bff;border-radius:50%;flex-shrink:0;display:inline-block;}
+.site-nav-links{display:flex;align-items:center;gap:20px;}
+.site-nav-links a{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:400;color:#555;text-decoration:none;transition:color .14s;}
+.site-nav-links a:hover{color:#0a0a0a;}
+.site-nav-links a.active{color:#0a0a0a;font-weight:600;}
+@media(max-width:540px){.site-nav-links{gap:12px;}.site-nav-links a{font-size:13px;}}
+@media(max-width:380px){.site-nav-links{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- SITE NAV -->
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="site-nav-brand">Seun Gwak <span class="site-nav-dot"></span></a>
+    <div class="site-nav-links">
+      <a href="EL1.HTML">EL1</a>
+      <a href="BrainDump.html">Brain Dump</a>
+      <a href="Budget.html" class="active">Budget</a>
+      <a href="Property_sale_calculator.html">Property</a>
+      <a href="rba_cash_rate_history_3.html">RBA Rate</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <p class="eyebrow">NAB Visa ···· 4424 &nbsp;·&nbsp; ANZ ···· 2956 &nbsp;·&nbsp; Personal Finance Report</p>
+      <h1>Financial Report<br><em>2026</em></h1>
+      <p class="header-meta">Jan – Apr 2026 &nbsp;·&nbsp; Seun Gwak &nbsp;·&nbsp; Manor Lakes VIC 3024 &nbsp;·&nbsp; Prepared 30 Apr 2026</p>
+      <div class="hpills">
+        <span class="hpill">ATO · IT Professional</span>
+        <span class="hpill g">↑ 2 pay rises · +10.1%</span>
+        <span class="hpill r">NAB $6,336 balance</span>
+        <span class="hpill">$101,000 gross / yr</span>
+      </div>
+    </div>
+    <div class="balance-card">
+      <p class="bc-label">NAB card balance</p>
+      <p class="bc-value">$6,336</p>
+      <p class="bc-sub">↓ $8,766 cleared · Due 27 Apr</p>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-inner">
+    <button class="nav-tab active" onclick="showSection('advisory',event)">Advisory</button>
+    <button class="nav-tab" onclick="showSection('income',event)">Income</button>
+    <button class="nav-tab" onclick="showSection('expenses',event)">Expenses</button>
+    <button class="nav-tab" onclick="showSection('forecast',event)">Forecast</button>
+    <button class="nav-tab" onclick="showSection('upload',event)">+ Upload</button>
+  </div>
+</nav>
+
+<div id="sub-nav">
+  <div class="sub-nav-inner">
+    <button class="sub-tab active" onclick="showSub('exp-overview',event)">Overview</button>
+    <button class="sub-tab" onclick="showSub('exp-january',event)">Jan Statement</button>
+    <button class="sub-tab" onclick="showSub('exp-february',event)">Feb Statement</button>
+    <button class="sub-tab" onclick="showSub('exp-march',event)">Mar Statement</button>
+    <button class="sub-tab" onclick="showSub('exp-forecast',event)">Apr Forecast</button>
+    <button class="sub-tab" onclick="showSub('exp-insights',event)">Insights</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════ ADVISORY -->
+<section id="advisory" class="tab-section active">
+  <div class="section-head">
+    <h2>Financial advisor analysis</h2>
+    <p>Personalised assessment · $5,979 monthly take-home · May 2026</p>
+  </div>
+
+  <div class="alert alert-red"><div><strong>Critical:</strong> Mortgage ($3,079) + education ($1,168) consume <strong>70.9%</strong> of monthly take-home — leaving only $1,732 for all other living costs, savings and emergencies combined.</div></div>
+  <div class="alert alert-green"><div><strong>Positive:</strong> Two pay rises in 2026 added $548/month. NAB balance dropped $8,766 in one month showing strong repayment capacity. ATO role provides stable, growing income with super contributions.</div></div>
+
+  <div class="stat-grid">
+    <div class="stat-card sc-green"><div class="sc-bar"></div><p class="stat-label">Monthly take-home</p><p class="stat-value">$5,979</p><p class="stat-sub">2 × $2,989.64 fortnightly</p></div>
+    <div class="stat-card sc-blue"><div class="sc-bar"></div><p class="stat-label">After mortgage</p><p class="stat-value">$2,900</p><p class="stat-sub">$5,979 − $3,079 remaining</p></div>
+    <div class="stat-card sc-red"><div class="sc-bar"></div><p class="stat-label">Housing + education</p><p class="stat-value">70.9%</p><p class="stat-sub">$4,247 of $5,979/month</p><p class="stat-delta d-up">▲ Well above safe limits</p></div>
+    <div class="stat-card sc-amber"><div class="sc-bar"></div><p class="stat-label">NAB card balance</p><p class="stat-value">$6,336</p><p class="stat-sub">~$105/month in interest alone</p><p class="stat-delta d-up">▲ Costs $1,260/year</p></div>
+    <div class="stat-card sc-purple"><div class="sc-bar"></div><p class="stat-label">Current savings rate</p><p class="stat-value">0%</p><p class="stat-sub">No regular savings identified</p><p class="stat-delta d-up">▲ Critical gap</p></div>
+    <div class="stat-card sc-indigo"><div class="sc-bar"></div><p class="stat-label">Super (employer)</p><p class="stat-value">~$968</p><p class="stat-sub">11.5% of $101k = $11,615/yr</p></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Current budget reality</h3>
+      <p class="cs">% of $5,979/month take-home · Feb/Mar avg</p>
+      <div class="legend" id="reality-legend"></div>
+      <div class="chart-wrap" style="height:220px"><canvas id="realityDonut"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>Recommended vs actual</h3>
+      <p class="cs">Ideal allocation vs current spend by category</p>
+      <div class="chart-wrap" style="height:260px"><canvas id="recommendedChart"></canvas></div>
+    </div>
+  </div>
+
+  <p class="s-h3">Category-by-category budget analysis</p>
+  <div class="budget-block">
+    <div class="bt-heads"><span>Category</span><span>Current</span><span>% income</span><span>Recommended</span><span>Status</span></div>
+    <div class="bt-row"><span class="bt-name">Mortgage repayment</span><span class="bt-cell">$3,079</span><span class="bt-cell" style="color:var(--red);font-weight:600">51.5%</span><span class="bt-cell">28–35%</span><span class="bt-cell"><span class="status-pill sp-red">Over limit</span></span></div>
+    <div class="bt-row"><span class="bt-name">Education &amp; childcare</span><span class="bt-cell">$1,168</span><span class="bt-cell" style="color:var(--red);font-weight:600">19.5%</span><span class="bt-cell">5–10%</span><span class="bt-cell"><span class="status-pill sp-red">Over limit</span></span></div>
+    <div class="bt-row"><span class="bt-name">Groceries</span><span class="bt-cell">$745</span><span class="bt-cell">12.5%</span><span class="bt-cell">10–15%</span><span class="bt-cell"><span class="status-pill sp-green">On target</span></span></div>
+    <div class="bt-row"><span class="bt-name">Dining out</span><span class="bt-cell">$290</span><span class="bt-cell">4.9%</span><span class="bt-cell">3–5%</span><span class="bt-cell"><span class="status-pill sp-amber">Watch</span></span></div>
+    <div class="bt-row"><span class="bt-name">Utilities (energy, internet, mobile)</span><span class="bt-cell">$232</span><span class="bt-cell">3.9%</span><span class="bt-cell">3–5%</span><span class="bt-cell"><span class="status-pill sp-green">On target</span></span></div>
+    <div class="bt-row"><span class="bt-name">Fitness (2 memberships)</span><span class="bt-cell">$187</span><span class="bt-cell">3.1%</span><span class="bt-cell">1–2%</span><span class="bt-cell"><span class="status-pill sp-amber">Review</span></span></div>
+    <div class="bt-row"><span class="bt-name">Transport (Myki, LINKT, parking)</span><span class="bt-cell">$150</span><span class="bt-cell">2.5%</span><span class="bt-cell">3–5%</span><span class="bt-cell"><span class="status-pill sp-green">On target</span></span></div>
+    <div class="bt-row"><span class="bt-name">Subscriptions (Apple, Claude.ai)</span><span class="bt-cell">$64</span><span class="bt-cell">1.1%</span><span class="bt-cell">&lt;2%</span><span class="bt-cell"><span class="status-pill sp-green">On target</span></span></div>
+    <div class="bt-row"><span class="bt-name" style="color:var(--red)">Savings / emergency fund</span><span class="bt-cell" style="color:var(--red)">$0</span><span class="bt-cell" style="color:var(--red);font-weight:600">0%</span><span class="bt-cell" style="color:var(--green);font-weight:600">10–20%</span><span class="bt-cell"><span class="status-pill sp-red">Critical gap</span></span></div>
+    <div class="bt-row"><span class="bt-name" style="color:var(--red)">NAB debt repayment (extra)</span><span class="bt-cell" style="color:var(--red)">Varies</span><span class="bt-cell" style="color:var(--red);font-weight:600">~0%</span><span class="bt-cell" style="color:var(--green);font-weight:600">5–10%</span><span class="bt-cell"><span class="status-pill sp-red">Urgent</span></span></div>
+  </div>
+
+  <p class="s-h3">Personalised action plan</p>
+  <div class="insight-grid">
+    <div class="insight-card" style="border-top:3px solid var(--red)">
+      <p class="ic-tag" style="color:var(--red)">Priority 1 — Urgent</p>
+      <p class="ic-title">Clear the NAB credit card</p>
+      <p class="ic-body">At ~20% p.a. the $6,336 balance costs ~$105/month in interest alone — $1,260 burned per year. Redirect the $548/month pay-rise gain directly to extra NAB repayments. At $700/month extra you clear it in ~9 months.</p>
+      <p class="ic-amount" style="color:var(--red)">Target: $0 by Jan 2027</p>
+    </div>
+    <div class="insight-card" style="border-top:3px solid var(--red)">
+      <p class="ic-tag" style="color:var(--red)">Priority 2 — Urgent</p>
+      <p class="ic-title">Build a $5,000 emergency buffer</p>
+      <p class="ic-body">Zero visible savings means one unexpected expense forces more credit card debt. Auto-transfer $200/fortnight to a separate high-interest savings account. Target 3 months' essentials (~$15,000) long-term.</p>
+      <p class="ic-amount" style="color:var(--red)">$200/fn → $5,000 in 25 weeks</p>
+    </div>
+    <div class="insight-card" style="border-top:3px solid var(--amber)">
+      <p class="ic-tag" style="color:var(--amber)">Priority 3 — Near-term</p>
+      <p class="ic-title">Consolidate dual gym memberships</p>
+      <p class="ic-body">Anytime Fitness (~$92/month) AND Western Leisure (~$95/month) together cost $187/month — two separate memberships. Dropping one frees $95/month ($1,140/year) toward debt clearance or savings.</p>
+      <p class="ic-amount" style="color:var(--amber)">Potential saving: $95/month</p>
+    </div>
+    <div class="insight-card" style="border-top:3px solid var(--amber)">
+      <p class="ic-tag" style="color:var(--amber)">Priority 4 — Near-term</p>
+      <p class="ic-title">Set a dining-out weekly cap</p>
+      <p class="ic-body">Dining runs $263–$317/month across frequent small purchases. Set a hard $200/month cap. Frequent $5–$30 charges (Sushi &amp; Nori, Crumb, fast food) are hardest to track — a weekly limit works best for a family.</p>
+      <p class="ic-amount" style="color:var(--amber)">Target: save ~$100/month</p>
+    </div>
+    <div class="insight-card" style="border-top:3px solid var(--blue)">
+      <p class="ic-tag" style="color:var(--blue)">Priority 5 — Medium-term</p>
+      <p class="ic-title">Review education costs annually</p>
+      <p class="ic-body">Heathdale ~$860/month and Adventurers ~$290/month are the second-largest cost after the mortgage. As kids get older, review whether all activities are essential. Reducing Adventurers frequency 20% saves ~$58/month.</p>
+      <p class="ic-amount" style="color:var(--blue)">$1,168/month — review each year</p>
+    </div>
+    <div class="insight-card" style="border-top:3px solid var(--green)">
+      <p class="ic-tag" style="color:var(--green)">Priority 6 — Ongoing</p>
+      <p class="ic-title">Maximise superannuation</p>
+      <p class="ic-body">ATO contributes 11.5% super on $101k = ~$11,615/year. Verify contributions are landing. Once NAB debt is cleared, salary sacrifice $50–$100/fn extra — highly tax-effective at the 32.5% marginal rate bracket.</p>
+      <p class="ic-amount" style="color:var(--green)">Employer contributing ~$968/month</p>
+    </div>
+  </div>
+
+  <div class="chart-box" style="margin-top:28px;margin-bottom:24px">
+    <h3>Target budget allocation</h3>
+    <p class="cs">Recommended monthly spend once NAB card is cleared · $5,979 take-home</p>
+    <div class="chart-wrap" style="height:240px"><canvas id="targetBudgetChart"></canvas></div>
+  </div>
+
+  <div class="grand-total"><div><p class="gt-label">Monthly income after mortgage</p><p class="gt-sub">$5,979.28 − $3,078.78 · available for all other costs + savings</p></div><p class="gt-value" style="color:#6EE7B7">$2,900</p></div>
+  <div class="grand-total" style="margin-top:12px"><div><p class="gt-label">Estimated monthly overspend</p><p class="gt-sub">Current spending vs take-home · excluding Jan one-off items</p></div><p class="gt-value" style="color:#FCA5A5">~$500+</p></div>
+
+  <div class="alert alert-green" style="margin-top:24px"><div><strong>Key lever:</strong> Once NAB is cleared (Jan 2027), ~$300/month previously going to interest converts directly to savings. The mortgage drop from $3,360 → $3,079 already freed $281/month — that should be ring-fenced, not absorbed into spending.</div></div>
+  <div class="alert alert-blue"><div><strong>Note:</strong> This analysis covers one income (Seun's ATO salary). If your household has dual income, your financial position is significantly stronger than shown here.</div></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ INCOME -->
+<section id="income" class="tab-section">
+  <div class="section-head">
+    <h2>Income analysis</h2>
+    <p>ANZ One ···· 2956 · ATO Payroll · Sep 2025 – Apr 2026</p>
+  </div>
+
+  <!-- HERO fortnightly chart at TOP -->
+  <div class="hero-chart">
+    <h3>Fortnightly pay — all 17 periods</h3>
+    <p class="cs">Sep 2025 – Apr 2026 · two pay rises highlighted · 09 Apr includes back-pay</p>
+    <div class="chart-wrap" style="height:280px"><canvas id="fortnightlyChart"></canvas></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card sc-green"><div class="sc-bar"></div><p class="stat-label">Current fortnightly</p><p class="stat-value">$2,989</p><p class="stat-sub">From 26 Mar 2026</p></div>
+    <div class="stat-card sc-green"><div class="sc-bar"></div><p class="stat-label">Current monthly</p><p class="stat-value">$5,979</p><p class="stat-sub">2 pays × $2,989.64</p></div>
+    <div class="stat-card sc-blue"><div class="sc-bar"></div><p class="stat-label">Annual salary (gross)</p><p class="stat-value">$101k</p><p class="stat-sub">ATO · IT Professional</p></div>
+    <div class="stat-card sc-ink"><div class="sc-bar"></div><p class="stat-label">Total received YTD</p><p class="stat-value">$47,659</p><p class="stat-sub">17 pays · Sep 25 – Apr 26</p></div>
+    <div class="stat-card sc-indigo"><div class="sc-bar"></div><p class="stat-label">Total pay rise</p><p class="stat-value">+$274</p><p class="stat-sub">+10.1% since Sep 2025</p><p class="stat-delta d-dn">+$548/month extra</p></div>
+    <div class="stat-card sc-red"><div class="sc-bar"></div><p class="stat-label">Mortgage % of income</p><p class="stat-value">51.5%</p><p class="stat-sub">$3,079 of $5,979/month</p><p class="stat-delta d-up">▲ Above safe threshold</p></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Monthly income</h3>
+      <p class="cs">Sep 2025 – Apr 2026 · Dec &amp; Apr higher due to extra/back pays</p>
+      <div class="chart-wrap" style="height:240px"><canvas id="monthlyIncomeChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>Income vs mortgage repayment</h3>
+      <p class="cs">Monthly trend · showing mortgage drop from Mar 2026</p>
+      <div class="chart-wrap" style="height:240px"><canvas id="incomeVsMortgageChart"></canvas></div>
+    </div>
+    <div class="chart-box full">
+      <h3>Pay rise milestones — stepped view</h3>
+      <p class="cs">Fortnightly pay stepped increases · two clear salary upgrades</p>
+      <div class="chart-wrap" style="height:160px"><canvas id="payRiseStepsChart"></canvas></div>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead><tr><th>Period</th><th>Fortnightly pay</th><th>Monthly equivalent</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><td>11 Sep – 31 Dec 2025</td><td>$2,715.33</td><td>$5,430.66</td><td style="color:var(--ink4)">Baseline</td></tr>
+      <tr><td>15 Jan – 12 Mar 2026 <span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">↑ Rise 1</span></td><td style="color:var(--green)">$2,902.13</td><td style="color:var(--green)">$5,804.26</td><td style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:12px">+$186.80/fn · +6.9%</td></tr>
+      <tr><td>26 Mar 2026 onwards <span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">↑ Rise 2</span></td><td style="color:var(--green)">$2,989.64</td><td style="color:var(--green)">$5,979.28</td><td style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:12px">+$87.51/fn · +3.0%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ EXPENSES -->
+<section id="expenses" class="tab-section">
+
+  <!-- OVERVIEW -->
+  <div id="exp-overview" class="sub-section active">
+    <div class="section-head"><h2>Three-month summary</h2><p>Jan 13 – Apr 13, 2026 · NAB Visa ···· 4424</p></div>
+
+    <!-- Monthly expenses line chart hero -->
+    <div class="hero-chart">
+      <h3>Monthly total expenses</h3>
+      <p class="cs">Jan – Apr 2026 · total NAB card charges per statement period · Apr is confirmed recurring forecast only</p>
+      <div class="chart-wrap" style="height:280px"><canvas id="monthlyExpenseChart"></canvas></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card sc-blue"><div class="sc-bar"></div><p class="stat-label">Jan spending</p><p class="stat-value">$10,154</p><p class="stat-sub">incl. large one-off items</p></div>
+      <div class="stat-card sc-green"><div class="sc-bar"></div><p class="stat-label">Feb spending</p><p class="stat-value">$3,598</p><p class="stat-delta d-dn">▼ $6,556 (−65%)</p></div>
+      <div class="stat-card sc-indigo"><div class="sc-bar"></div><p class="stat-label">Mar spending</p><p class="stat-value">$3,915</p><p class="stat-delta d-up">▲ $317 slight increase</p></div>
+      <div class="stat-card sc-amber"><div class="sc-bar"></div><p class="stat-label">Interest &amp; fees</p><p class="stat-value">$747</p><p class="stat-sub">$267 Jan · $279 Feb · $201 Mar</p></div>
+      <div class="stat-card sc-red"><div class="sc-bar"></div><p class="stat-label">Balance drop</p><p class="stat-value">−$8,766</p><p class="stat-sub">$15,102 → $6,336</p></div>
+      <div class="stat-card sc-green"><div class="sc-bar"></div><p class="stat-label">Total payments in</p><p class="stat-value">$17,715</p><p class="stat-sub">$9,863 Jan · $4,193 Feb · $3,659 Mar</p></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <h3>Spending by category</h3>
+        <p class="cs">Three months combined</p>
+        <div class="legend" id="donut-legend"></div>
+        <div class="chart-wrap" style="height:220px"><canvas id="donutChart"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Month-on-month comparison</h3>
+        <p class="cs">Category breakdown · Jan vs Feb vs Mar</p>
+        <div class="chart-wrap" style="height:260px"><canvas id="compareChart"></canvas></div>
+      </div>
+      <div class="chart-box full">
+        <h3>Balance trend</h3>
+        <p class="cs">Opening balance through to closing balance Apr 13</p>
+        <div class="chart-wrap" style="height:160px"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="chart-box full">
+        <h3>Payments received vs spending</h3>
+        <p class="cs">Monthly comparison — charges incurred vs credits received (incl. interest &amp; fees)</p>
+        <div class="chart-wrap" style="height:180px"><canvas id="pmtsChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JANUARY -->
+  <div id="exp-january" class="sub-section">
+    <div class="section-head"><h2>January statement</h2><p>13 Jan – 12 Feb 2026 · Total spend $10,154</p></div>
+    <div class="hero-chart">
+      <h3>Spending by category — January</h3>
+      <p class="cs">Sorted largest to smallest · excludes payments received</p>
+      <div class="chart-wrap" style="height:280px"><canvas id="janHeroChart"></canvas></div>
+    </div>
+    <div class="alert alert-red"><div><strong>Large one-off charges this month:</strong> Globehunters travel $4,521 · VicRoads rego $875 · Fines Vic ×2 $566 · The Good Guys $418 · Buza Chicken $337</div></div>
+    <div class="stat-grid">
+      <div class="stat-card sc-purple"><div class="sc-bar"></div><p class="stat-label">Education</p><p class="stat-value">$1,615</p><p class="stat-sub">Heathdale + Adventurers + RSGK</p></div>
+      <div class="stat-card sc-red"><div class="sc-bar"></div><p class="stat-label">One-off / retail</p><p class="stat-value">$6,680</p><p class="stat-sub">Travel, rego, fines, appliances</p></div>
+      <div class="stat-card sc-amber"><div class="sc-bar"></div><p class="stat-label">Groceries</p><p class="stat-value">$247</p><p class="stat-sub">Coles, Woolworths, Aldi</p></div>
+      <div class="stat-card sc-teal"><div class="sc-bar"></div><p class="stat-label">Utilities</p><p class="stat-value">$396</p><p class="stat-sub">TPG · GloBird ×2</p></div>
+      <div class="stat-card sc-green"><div class="sc-bar"></div><p class="stat-label">Payments received</p><p class="stat-value">$9,863</p><p class="stat-sub">Net repayments this period</p></div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Category</th><th>Key merchants</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td><span class="cat-dot" style="background:#8B5CF6"></span>One-off / retail</td><td>Globehunters, VicRoads, Fines, Good Guys, Kogan</td><td>$6,680</td></tr>
+        <tr><td><span class="cat-dot" style="background:#6366F1"></span>Education</td><td>Heathdale, Adventurers, RSGK Sports, Big Childcare, LCA</td><td>$1,615</td></tr>
+        <tr><td><span class="cat-dot" style="background:#F97316"></span>Dining out</td><td>Buza Chicken, Landing Playcentre, Kebabs, Sushi &amp; Nori</td><td>$692</td></tr>
+        <tr><td><span class="cat-dot" style="background:#6B7280"></span>Fees/Interest</td><td>Interest on purchases</td><td>$267</td></tr>
+        <tr><td><span class="cat-dot" style="background:#10B981"></span>Utilities</td><td>GloBird Energy ×2, TPG Internet</td><td>$396</td></tr>
+        <tr><td><span class="cat-dot" style="background:#3B82F6"></span>Groceries</td><td>Woolworths, Coles, Aldi</td><td>$247</td></tr>
+        <tr><td><span class="cat-dot" style="background:#0D9488"></span>Fitness</td><td>Anytime Fitness, Western Leisure, Zoos, Basketball</td><td>$196</td></tr>
+        <tr><td><span class="cat-dot" style="background:#F59E0B"></span>Transport</td><td>Myki ×5, LINKT, EasyPark, Wilson Parking</td><td>$129</td></tr>
+        <tr><td><span class="cat-dot" style="background:#EF4444"></span>Subscriptions</td><td>Apple ×4, Kogan Mobile ×2</td><td>$53</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FEBRUARY -->
+  <div id="exp-february" class="sub-section">
+    <div class="section-head"><h2>February statement</h2><p>13 Feb – 12 Mar 2026 · Total spend $3,598</p></div>
+    <div class="hero-chart">
+      <h3>Spending by category — February</h3>
+      <p class="cs">Sorted largest to smallest · a much more typical spending month</p>
+      <div class="chart-wrap" style="height:280px"><canvas id="febHeroChart"></canvas></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card sc-indigo"><div class="sc-bar"></div><p class="stat-label">Education</p><p class="stat-value">$1,454</p><p class="stat-sub">Heathdale + Adventurers + PlayHQ</p></div>
+      <div class="stat-card sc-blue"><div class="sc-bar"></div><p class="stat-label">Groceries</p><p class="stat-value">$796</p><p class="stat-sub">Coles, Woolworths, Better Choice</p></div>
+      <div class="stat-card sc-amber"><div class="sc-bar"></div><p class="stat-label">Fees / interest</p><p class="stat-value">$279</p><p class="stat-sub">$244 interest + $35 card fee</p></div>
+      <div class="stat-card sc-teal"><div class="sc-bar"></div><p class="stat-label">Utilities</p><p class="stat-value">$223</p><p class="stat-sub">GloBird, TPG, Kogan Mobile</p></div>
+      <div class="stat-card sc-green"><div class="sc-bar"></div><p class="stat-label">Payments received</p><p class="stat-value">$4,193</p><p class="stat-sub">Net repayments this period</p></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <h3>February category split</h3>
+        <p class="cs">Donut breakdown by spend</p>
+        <div class="chart-wrap" style="height:240px"><canvas id="febDonut"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Weekly spending</h3>
+        <p class="cs">Feb 13 – Mar 12 by week</p>
+        <div class="chart-wrap" style="height:240px"><canvas id="weekChart"></canvas></div>
+      </div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Category</th><th>Key merchants</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td><span class="cat-dot" style="background:#6366F1"></span>Education</td><td>Heathdale, Adventurers ×5, PlayHQ, QuickCliq</td><td>$1,454</td></tr>
+        <tr><td><span class="cat-dot" style="background:#3B82F6"></span>Groceries</td><td>Coles, Woolworths, Better Choice, Big Daddy's</td><td>$796</td></tr>
+        <tr><td><span class="cat-dot" style="background:#6B7280"></span>Fees/Interest</td><td>NAB card fee + interest</td><td>$279</td></tr>
+        <tr><td><span class="cat-dot" style="background:#8B5CF6"></span>Retail/Other</td><td>Kmart ×4, Target, Highpoint, Barber Zone</td><td>$348</td></tr>
+        <tr><td><span class="cat-dot" style="background:#F97316"></span>Dining out</td><td>Sushi &amp; Nori, McDonalds, KFC, Kebabs, Bakers Delight</td><td>$317</td></tr>
+        <tr><td><span class="cat-dot" style="background:#10B981"></span>Utilities</td><td>GloBird Energy, TPG Internet, Kogan Mobile</td><td>$223</td></tr>
+        <tr><td><span class="cat-dot" style="background:#0D9488"></span>Fitness</td><td>Anytime Fitness ×4, Western Leisure ×2, Basketball, Zoos</td><td>$190</td></tr>
+        <tr><td><span class="cat-dot" style="background:#F59E0B"></span>Transport</td><td>Myki ×4, LINKT, Secure Parking</td><td>$63</td></tr>
+        <tr><td><span class="cat-dot" style="background:#EC4899"></span>Health</td><td>Chemist Warehouse, Manor Lakes Pharmacy</td><td>$55</td></tr>
+        <tr><td><span class="cat-dot" style="background:#EF4444"></span>Subscriptions</td><td>Apple ×4</td><td>$47</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MARCH -->
+  <div id="exp-march" class="sub-section">
+    <div class="section-head"><h2>March statement</h2><p>13 Mar – 13 Apr 2026 · Total spend $3,915</p></div>
+    <div class="hero-chart">
+      <h3>Spending by category — March</h3>
+      <p class="cs">Sorted largest to smallest · excludes payments received</p>
+      <div class="chart-wrap" style="height:280px"><canvas id="marChart"></canvas></div>
+    </div>
+    <div class="alert alert-red"><div><strong>Large one-off charges this month:</strong> Lotte Travel Retail (airport) $302 · TK MAXX $176 · Tocca salon ×2 $237 · One By One $125 · Uber trip $124</div></div>
+    <div class="stat-grid">
+      <div class="stat-card sc-indigo"><div class="sc-bar"></div><p class="stat-label">Education</p><p class="stat-value">$1,168</p><p class="stat-sub">Heathdale + Adventurers + QuickCliq</p></div>
+      <div class="stat-card sc-purple"><div class="sc-bar"></div><p class="stat-label">Retail / One-off</p><p class="stat-value">$1,026</p><p class="stat-sub">Salon, airport, TK Maxx, One By One</p></div>
+      <div class="stat-card sc-blue"><div class="sc-bar"></div><p class="stat-label">Groceries</p><p class="stat-value">$693</p><p class="stat-sub">Coles, Woolworths, Big Daddy's</p></div>
+      <div class="stat-card sc-teal"><div class="sc-bar"></div><p class="stat-label">Utilities</p><p class="stat-value">$232</p><p class="stat-sub">GloBird, TPG, Kogan Mobile</p></div>
+      <div class="stat-card sc-green"><div class="sc-bar"></div><p class="stat-label">Credits received</p><p class="stat-value">$3,659</p><p class="stat-sub">4 payments + 1 refund</p></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-box full">
+        <h3>Weekly spending</h3>
+        <p class="cs">Mar 13 – Apr 13 by week</p>
+        <div class="chart-wrap" style="height:200px"><canvas id="marWeekChart"></canvas></div>
+      </div>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Category</th><th>Key merchants</th><th>Amount</th></tr></thead>
+      <tbody>
+        <tr><td><span class="cat-dot" style="background:#6366F1"></span>Education</td><td>Heathdale $859.73, Adventurers ×4, QuickCliq ×2</td><td>$1,168</td></tr>
+        <tr><td><span class="cat-dot" style="background:#8B5CF6"></span>Retail / One-off</td><td>Tocca salon ×2, Lotte Travel Retail, TK MAXX, One By One, Kmart ×2</td><td>$1,026</td></tr>
+        <tr><td><span class="cat-dot" style="background:#3B82F6"></span>Groceries</td><td>Coles, Woolworths, Big Daddy's, Better Choice, Hoppers Fresh</td><td>$693</td></tr>
+        <tr><td><span class="cat-dot" style="background:#F97316"></span>Dining out</td><td>Crumb ×2, Sushi &amp; Nori ×3, Grilld, Chik Chik Pop ×3, Heart Bakes ×2</td><td>$263</td></tr>
+        <tr><td><span class="cat-dot" style="background:#F59E0B"></span>Transport</td><td>Myki ×7, Uber $123.53, LINKT, EasyPark, First* Parking</td><td>$236</td></tr>
+        <tr><td><span class="cat-dot" style="background:#10B981"></span>Utilities</td><td>GloBird $149.83, TPG $76.99, Kogan Mobile $5.00</td><td>$232</td></tr>
+        <tr><td><span class="cat-dot" style="background:#6B7280"></span>Fees/Interest</td><td>Interest $165.88 + card fee $35.00</td><td>$201</td></tr>
+        <tr><td><span class="cat-dot" style="background:#0D9488"></span>Fitness</td><td>Anytime Fitness ×5, Western Leisure ×2, Wyndham Basketball</td><td>$194</td></tr>
+        <tr><td><span class="cat-dot" style="background:#EF4444"></span>Subscriptions</td><td>Apple ×3 ($22.99+$4.49+$2.99), Claude.ai $34.00</td><td>$64</td></tr>
+      </tbody>
+    </table>
+    <div class="credit-block">
+      <div class="cb-header"><h4>Payments &amp; credits received</h4><div style="text-align:right"><p style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)">Total credited</p><p class="cb-total-val">+$3,659.03</p></div></div>
+      <div class="cb-col-heads"><span>Date</span><span style="text-align:left">Description</span><span>Type</span><span>Amount</span></div>
+      <div class="cb-row"><span class="cb-date">16 Mar</span><span style="color:var(--ink2)">Internet Payment — linked account transfer</span><span class="cb-type"><span class="pill-pay">Payment</span></span><span class="cb-amount">+$69.00</span></div>
+      <div class="cb-row"><span class="cb-date">18 Mar</span><span style="color:var(--ink2)">Internet Payment — linked account transfer</span><span class="cb-type"><span class="pill-pay">Payment</span></span><span class="cb-amount">+$350.00</span></div>
+      <div class="cb-row"><span class="cb-date">18 Mar</span><span style="color:var(--ink2)">Internet Payment — linked account transfer</span><span class="cb-type"><span class="pill-pay">Payment</span></span><span class="cb-amount">+$200.00</span></div>
+      <div class="cb-row"><span class="cb-date">26 Mar</span><span style="color:var(--ink2)">Internet Payment — linked account transfer</span><span class="cb-type"><span class="pill-pay">Payment</span></span><span class="cb-amount">+$3,000.00</span></div>
+      <div class="cb-row"><span class="cb-date">07 Apr</span><span style="color:var(--ink2)">7-ELEVEN 1159 Werribee — merchant refund</span><span class="cb-type"><span class="pill-ref">Refund</span></span><span class="cb-amount">+$40.03</span></div>
+      <div class="cb-summary"><span>4 payments · 1 merchant refund</span><span>Total: $3,659.03</span></div>
+    </div>
+  </div>
+
+  <!-- FORECAST -->
+  <div id="exp-forecast" class="sub-section">
+    <div class="section-head"><h2>April forecast</h2><p>Confirmed recurring charges only · Apr 13 – May 12, 2026</p></div>
+    <div class="col-heads"><span>Merchant</span><span>Feb actual</span><span>Mar actual</span><span>Apr forecast</span></div>
+    <div class="forecast-block">
+      <div class="fb-header"><div class="fb-header-left"><div class="fb-dot" style="background:#6366F1"></div><span class="fb-title">Education &amp; childcare</span></div><span class="fb-total">$1,146.09</span></div>
+      <div class="fb-row"><span>Heathdale Christian College</span><span class="fb-rv">$829.73</span><span class="fb-rv">$859.73</span><span class="fb-rf">$859.73</span></div>
+      <div class="fb-row"><span>Adventurers Education (×4 weeks)</span><span class="fb-rv">$357.95</span><span class="fb-rv">$289.00</span><span class="fb-rf">$286.36</span></div>
+    </div>
+    <div class="forecast-block">
+      <div class="fb-header"><div class="fb-header-left"><div class="fb-dot" style="background:#10B981"></div><span class="fb-title">Utilities &amp; telco</span></div><span class="fb-total">$231.82</span></div>
+      <div class="fb-row"><span>GloBird Energy</span><span class="fb-rv">$140.61</span><span class="fb-rv">$149.83</span><span class="fb-rf">$149.83</span></div>
+      <div class="fb-row"><span>TPG Internet</span><span class="fb-rv">$76.99</span><span class="fb-rv">$76.99</span><span class="fb-rf">$76.99</span></div>
+      <div class="fb-row"><span>Kogan Mobile</span><span class="fb-rv">$5.00</span><span class="fb-rv">$5.00</span><span class="fb-rf">$5.00</span></div>
+    </div>
+    <div class="forecast-block">
+      <div class="fb-header"><div class="fb-header-left"><div class="fb-dot" style="background:#0D9488"></div><span class="fb-title">Fitness</span></div><span class="fb-total">$187.00</span></div>
+      <div class="fb-row"><span>Western Leisure Services</span><span class="fb-rv">$95.20</span><span class="fb-rv">$95.20</span><span class="fb-rf">$95.20</span></div>
+      <div class="fb-row"><span>Anytime Fitness</span><span class="fb-rv">$91.80</span><span class="fb-rv">$91.80</span><span class="fb-rf">$91.80</span></div>
+    </div>
+    <div class="forecast-block">
+      <div class="fb-header"><div class="fb-header-left"><div class="fb-dot" style="background:#EF4444"></div><span class="fb-title">Digital subscriptions</span></div><span class="fb-total">$64.47</span></div>
+      <div class="fb-row"><span>Apple.com/Bill (iCloud, TV, One)</span><span class="fb-rv">$46.57</span><span class="fb-rv">$30.47</span><span class="fb-rf">$30.47</span></div>
+      <div class="fb-row"><span>Claude.ai</span><span class="fb-rv">—</span><span class="fb-rv">$34.00</span><span class="fb-rf">$34.00</span></div>
+    </div>
+    <div class="grand-total"><div><p class="gt-label">Total confirmed recurring</p><p class="gt-sub">Apr 13 – May 12, 2026 · before groceries &amp; discretionary</p></div><p class="gt-value">$1,629.38</p></div>
+    <div class="chart-box" style="margin-top:20px">
+      <h3>Forecast breakdown</h3>
+      <p class="cs">Confirmed recurring by category</p>
+      <div class="chart-wrap" style="height:200px"><canvas id="forecastChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div id="exp-insights" class="sub-section">
+    <div class="section-head"><h2>Key insights &amp; actions</h2><p>What stands out across all three statements</p></div>
+    <div class="alert alert-green"><div><strong>Milestone:</strong> balance dropped from $15,102 to $6,336 — a $8,766 net reduction thanks to $12,882 in payments over one month.</div></div>
+    <div class="insight-grid">
+      <div class="insight-card" style="border-top:3px solid var(--green)"><p class="ic-tag" style="color:var(--green)">Balance</p><p class="ic-title">Debt cracked below $7k</p><p class="ic-body">A $12,882 payment in March slashed the balance from $15,102 to $6,336 — the largest single-month reduction yet. Available credit is now $8,663 against a $15,000 limit.</p><p class="ic-amount" style="color:var(--green)">−$8,766 in March alone</p></div>
+      <div class="insight-card" style="border-top:3px solid var(--indigo)"><p class="ic-tag" style="color:var(--indigo)">Education</p><p class="ic-title">Largest fixed cost after mortgage</p><p class="ic-body">Heathdale plus Adventurers Education locks in over $1,100 every month before any other spending. March came in at $1,168 — consistent with prior months.</p><p class="ic-amount" style="color:var(--indigo)">$1,168/month in March</p></div>
+      <div class="insight-card" style="border-top:3px solid var(--amber)"><p class="ic-tag" style="color:var(--amber)">January anomaly</p><p class="ic-title">One-offs inflated Jan by $6,680</p><p class="ic-body">Globehunters travel ($4,522), VicRoads rego ($875), two Fines Vic charges ($566), and The Good Guys ($418) won't recur. Feb and Mar are far more representative months.</p><p class="ic-amount" style="color:var(--amber)">$4,522 single travel charge</p></div>
+      <div class="insight-card" style="border-top:3px solid var(--blue)"><p class="ic-tag" style="color:var(--blue)">Travel</p><p class="ic-title">Possible trip in March</p><p class="ic-body">A $302 Lotte Travel Retail charge at Melbourne Airport plus a $124 Uber trip suggest travel activity in March. Neither category recurred in previous months.</p><p class="ic-amount" style="color:var(--blue)">$426 travel-related in March</p></div>
+      <div class="insight-card" style="border-top:3px solid var(--red)"><p class="ic-tag" style="color:var(--red)">Subscriptions</p><p class="ic-title">Claude.ai added to subscriptions</p><p class="ic-body">A $34/month Claude.ai subscription appeared in March, joining Apple's 3 charges ($30.47). Total digital subscriptions are now ~$64/month and growing.</p><p class="ic-amount" style="color:var(--red)">~$64/month digital subs</p></div>
+      <div class="insight-card" style="border-top:3px solid var(--teal)"><p class="ic-tag" style="color:var(--teal)">Repayment</p><p class="ic-title">Balance now achievable to clear</p><p class="ic-body">At $6,336, paying off the balance is now achievable. Maintaining $700/month above minimum spend clears it in ~9 months. Minimum-only payments would take 58 years at this balance — $33,623 in interest.</p><p class="ic-amount" style="color:var(--teal)">Clear by Jan 2027</p></div>
+    </div>
+  </div>
+
+</section><!-- end expenses -->
+
+
+<!-- ══════════════════════════════════════════════════════════ UPLOAD -->
+<section id="upload" class="tab-section">
+  <div class="section-head">
+    <h2>Upload statement</h2>
+    <p>Drop any bank CSV export · transactions are auto-categorised and all charts update instantly</p>
+  </div>
+
+  <div class="upload-ok" id="upload-ok"><span>✓</span><span id="upload-ok-msg">Statement added.</span></div>
+  <div class="parse-err" id="parse-err"></div>
+
+  <div class="upload-zone" id="upload-zone">
+    <input type="file" id="file-input" accept=".pdf,.csv,.txt">
+    <span class="upload-icon" id="upload-icon">📂</span>
+    <p class="upload-zone-title" id="upload-zone-title">Drop your statement here, or click to browse</p>
+    <p class="upload-zone-hint">NAB PDF statement · or any CSV export from internet banking</p>
+  </div>
+
+  <div class="uploader-panel hidden" id="mapper-panel">
+    <h4>Map columns &amp; label</h4>
+    <div class="mapper-grid">
+      <span class="mapper-lbl">Month label</span>
+      <input class="month-inp" id="month-label" type="text" placeholder="e.g. May 2026">
+      <span class="mapper-lbl">Date column</span>
+      <select class="mapper-sel" id="col-date"></select>
+      <span class="mapper-lbl">Amount column</span>
+      <select class="mapper-sel" id="col-amount"></select>
+      <span class="mapper-lbl">Description</span>
+      <select class="mapper-sel" id="col-desc"></select>
+    </div>
+    <button class="btn-commit" onclick="parseAndPreview()">Preview transactions →</button>
+  </div>
+
+  <div class="upload-stats hidden" id="upload-stats">
+    <div class="us-card"><div class="us-bar" style="background:var(--red)"></div><p class="us-lbl">Total charges</p><p class="us-val" id="us-total">—</p><p class="us-sub" id="us-count">—</p></div>
+    <div class="us-card"><div class="us-bar" style="background:var(--green)"></div><p class="us-lbl">Credits received</p><p class="us-val" id="us-credits">—</p><p class="us-sub" id="us-credit-count">—</p></div>
+    <div class="us-card"><div class="us-bar" style="background:var(--blue)"></div><p class="us-lbl">Largest charge</p><p class="us-val" id="us-largest">—</p><p class="us-sub" id="us-largest-desc">—</p></div>
+    <div class="us-card"><div class="us-bar" style="background:var(--amber)"></div><p class="us-lbl">Top category</p><p class="us-val" id="us-top-cat">—</p><p class="us-sub" id="us-top-amt">—</p></div>
+  </div>
+
+  <div class="preview-wrap hidden" id="preview-wrap">
+    <table class="preview-tbl">
+      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr></thead>
+      <tbody id="preview-body"></tbody>
+    </table>
+  </div>
+
+  <div class="commit-row" id="commit-row">
+    <button class="btn-commit" onclick="commitUpload()">✓ Add to report</button>
+    <button class="btn-reset-up" onclick="resetUploader()">Cancel</button>
+  </div>
+
+  <div id="upload-history" style="margin-top:24px"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ FORECAST -->
+<section id="forecast" class="tab-section">
+  <div class="section-head">
+    <h2 id="fc-title">Next month forecast</h2>
+    <p id="fc-subtitle">Based on Jan / Feb / Mar actuals · 3 months of data</p>
+  </div>
+
+  <div class="alert alert-blue"><div>
+    <strong>How this works:</strong> Fixed recurring costs (education, utilities, fitness, subscriptions) use last month's actual value. Variable costs (groceries, dining, transport) use a rolling 2-month average. Retail one-offs are excluded. The forecast rebuilds automatically each time you upload and commit a new statement.
+  </div></div>
+
+  <div class="col-heads" id="fc-col-heads">
+    <span>Merchant / Category</span><span>Prev actual</span><span>Last actual</span><span>Forecast</span>
+  </div>
+  <div id="fc-blocks"></div>
+  <div id="fc-grand" style="margin-top:16px"></div>
+
+  <div class="chart-grid" style="margin-top:24px">
+    <div class="chart-box">
+      <h3>Forecast by category</h3>
+      <p class="cs">Fixed recurring + estimated variable · next month</p>
+      <div class="chart-wrap" style="height:220px"><canvas id="fcBreakdownChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>Monthly trend + forecast</h3>
+      <p class="cs">All actuals · forecast shown dashed in amber</p>
+      <div class="chart-wrap" style="height:220px"><canvas id="fcTrendChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <span>NAB Visa ···· 4424 &nbsp;·&nbsp; ANZ ···· 2956 &nbsp;·&nbsp; Mr S. Gwak &nbsp;·&nbsp; Manor Lakes VIC 3024</span>
+  <a href="index.html" class="back-link">← Back to Home</a>
+</footer>
+
+<script>
+// ── Chart.js global defaults ──────────────────────────────────────────────
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.color = '#64748B';
+Chart.defaults.plugins.tooltip.backgroundColor = '#0F172A';
+Chart.defaults.plugins.tooltip.titleColor = '#F8FAFC';
+Chart.defaults.plugins.tooltip.bodyColor = '#94A3B8';
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 10;
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.titleFont = {family:"'Plus Jakarta Sans'",weight:'700',size:13};
+Chart.defaults.plugins.tooltip.bodyFont = {family:"'JetBrains Mono'",size:12};
+
+const $ = id => document.getElementById(id);
+const fmtDollar = v => ` $${v.toLocaleString('en-AU')}`;
+const fmtDollar2 = v => ` $${v.toFixed(2)}`;
+
+// ── Modern color palette ──────────────────────────────────────────────────
+const C = {
+  education:'#6366F1', groceries:'#3B82F6', dining:'#F97316', fitness:'#0D9488',
+  transport:'#F59E0B', retail:'#8B5CF6', utilities:'#10B981',
+  subs:'#EF4444', fees:'#6B7280', health:'#EC4899',
+  income:'#059669', mortgage:'#DC2626'
+};
+
+// ── INCOME: Fortnightly hero chart ────────────────────────────────────────
+const fnLabels = ['11 Sep','25 Sep','09 Oct','23 Oct','06 Nov','20 Nov','04 Dec','18 Dec','31 Dec','15 Jan','29 Jan','12 Feb','26 Feb','12 Mar','26 Mar','09 Apr','23 Apr'];
+const fnData   = [2715.33,2715.32,2715.33,2715.34,2715.33,2715.32,2715.33,2715.33,2715.34,2902.12,2902.13,2902.14,2902.12,2902.12,2989.65,3225.85,2989.64];
+const fnColors = fnData.map((v,i) => i===9||i===14 ? '#6EE7B7' : i===15 ? '#FCA5A5' : '#60A5FA');
+
+new Chart($('fortnightlyChart'), {
+  type:'line',
+  data:{
+    labels:fnLabels,
+    datasets:[{
+      label:'Fortnightly pay',
+      data:fnData,
+      borderColor:'#3B82F6',
+      borderWidth:2.5,
+      backgroundColor: ctx => {
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,280);
+        g.addColorStop(0,'rgba(59,130,246,0.22)');
+        g.addColorStop(1,'rgba(59,130,246,0)');
+        return g;
+      },
+      fill:true,tension:0.3,
+      pointRadius:fnData.map((_,i)=>i===9||i===14||i===15?8:4),
+      pointBackgroundColor:fnColors,
+      pointBorderColor:'#fff',
+      pointBorderWidth:2
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label: c => {
+        const notes=['','','','','','','','','','↑ Pay Rise 1 +6.9%','','','','','↑ Pay Rise 2 +3.0%','incl. back-pay ~$236',''];
+        return ` $${c.parsed.y.toFixed(2)}${notes[c.dataIndex]?' · '+notes[c.dataIndex]:''}`;
+      }}}
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:10},maxRotation:40}},
+      y:{min:2600,max:3300,ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── INCOME: Monthly income bar ────────────────────────────────────────────
+new Chart($('monthlyIncomeChart'), {
+  type:'bar',
+  data:{
+    labels:['Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26'],
+    datasets:[{
+      label:'Monthly income',
+      data:[5430.65,5430.67,5430.65,8146.00,5804.25,5804.26,5891.77,6215.49],
+      backgroundColor:['#3B82F6','#3B82F6','#3B82F6','#F97316','#6366F1','#6366F1','#6366F1','#F97316'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar2(c.parsed.y)}}},
+    scales:{
+      x:{grid:{display:false}},
+      y:{min:5000,ticks:{callback:v=>'$'+(v/1000).toFixed(1)+'k'},grid:{color:'rgba(100,116,139,0.08)'}}
+    }
+  }
+});
+
+// ── INCOME: Income vs mortgage ────────────────────────────────────────────
+new Chart($('incomeVsMortgageChart'), {
+  type:'line',
+  data:{
+    labels:['Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26'],
+    datasets:[
+      {label:'Monthly income',data:[5430.65,5430.67,5430.65,8146.00,5804.25,5804.26,5891.77,6215.49],borderColor:'#059669',backgroundColor:'rgba(5,150,105,0.07)',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#059669',pointBorderColor:'#fff',pointBorderWidth:2},
+      {label:'Mortgage repayment',data:[3359.97,3359.97,3359.97,3359.97,3359.97,3359.97,3078.78,3078.78],borderColor:'#DC2626',borderDash:[5,3],backgroundColor:'rgba(220,38,38,0.05)',fill:true,tension:0,pointRadius:4,pointBackgroundColor:'#DC2626',pointBorderColor:'#fff',pointBorderWidth:2}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,boxHeight:10,font:{size:12}}},tooltip:{callbacks:{label:c=>fmtDollar2(c.parsed.y)}}},
+    scales:{x:{grid:{display:false}},y:{min:2800,ticks:{callback:v=>'$'+(v/1000).toFixed(1)+'k'},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── INCOME: Pay rise stepped line ─────────────────────────────────────────
+new Chart($('payRiseStepsChart'), {
+  type:'line',
+  data:{
+    labels:fnLabels,
+    datasets:[{
+      label:'Fortnightly pay',
+      data:fnData.map(v=>v>3000?2989.64:v),
+      borderColor:'#8B5CF6',
+      backgroundColor: ctx => {
+        const g=ctx.chart.ctx.createLinearGradient(0,0,0,160);
+        g.addColorStop(0,'rgba(139,92,246,0.18)');
+        g.addColorStop(1,'rgba(139,92,246,0)');
+        return g;
+      },
+      fill:true,stepped:true,pointRadius:0,borderWidth:2.5
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.y)}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10},maxRotation:40}},y:{min:2600,max:3100,ticks:{callback:v=>'$'+v.toLocaleString()},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── OVERVIEW: 3-month donut ───────────────────────────────────────────────
+const donutData={
+  labels:['Education','Retail/One-off','Groceries','Dining','Utilities','Fitness','Fees/Interest','Transport','Subscriptions','Health'],
+  values:[4237,8054,1736,1272,851,580,747,428,164,55],
+  colors:['#6366F1','#8B5CF6','#3B82F6','#F97316','#10B981','#0D9488','#6B7280','#F59E0B','#EF4444','#EC4899']
+};
+const dLeg=$('donut-legend');
+donutData.labels.forEach((l,i)=>{dLeg.innerHTML+=`<div class="legend-item"><div class="legend-swatch" style="background:${donutData.colors[i]}"></div>${l}</div>`;});
+
+const donutChart=new Chart($('donutChart'),{
+  type:'doughnut',
+  data:{labels:donutData.labels,datasets:[{data:donutData.values,backgroundColor:donutData.colors,borderWidth:2,borderColor:'#fff'}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed)}}}}
+});
+
+// ── OVERVIEW: Compare bar ─────────────────────────────────────────────────
+const compareChart=new Chart($('compareChart'),{
+  type:'bar',
+  data:{
+    labels:['Education','Groceries','Dining','Utilities','Fitness','Retail','Fees','Transport','Subs'],
+    datasets:[
+      {label:'Jan',data:[1615,247,692,396,196,6680,267,129,53],backgroundColor:'#3B82F6',borderRadius:4},
+      {label:'Feb',data:[1454,796,317,223,190,348,279,63,47],backgroundColor:'#059669',borderRadius:4},
+      {label:'Mar',data:[1168,693,263,232,194,1026,201,236,64],backgroundColor:'#7C3AED',borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,boxHeight:10,font:{size:12}}},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.y)}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v)},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── OVERVIEW: Balance trend ───────────────────────────────────────────────
+new Chart($('trendChart'),{
+  type:'line',
+  data:{
+    labels:['Jan 13 (open)','Feb 12','Mar 12','Apr 13'],
+    datasets:[{
+      label:'Balance',data:[14825,15383,15102,6336],
+      borderColor:'#DC2626',
+      backgroundColor: ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,160);g.addColorStop(0,'rgba(220,38,38,0.12)');g.addColorStop(1,'rgba(220,38,38,0)');return g;},
+      fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#DC2626',pointBorderColor:'#fff',pointBorderWidth:2,borderWidth:2.5
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.y)}}},
+    scales:{x:{grid:{display:false}},y:{min:6000,ticks:{callback:v=>'$'+(v/1000).toFixed(1)+'k'},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── OVERVIEW: Payments vs spending ────────────────────────────────────────
+new Chart($('pmtsChart'),{
+  type:'bar',
+  data:{
+    labels:['January','February','March'],
+    datasets:[
+      {label:'Total charges (spend+fees)',data:[10421,3877,4116],backgroundColor:'#DC2626',borderRadius:5},
+      {label:'Payments & credits received',data:[9863,4193,3659],backgroundColor:'#059669',borderRadius:5}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,boxHeight:10,font:{size:12}}},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.y)}}},
+    scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v)},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── JANUARY: Hero horizontal bar ─────────────────────────────────────────
+new Chart($('janHeroChart'),{
+  type:'bar',
+  data:{
+    labels:['One-off/Retail','Education','Dining','Utilities','Fees/Interest','Groceries','Fitness','Transport','Subscriptions'],
+    datasets:[{
+      data:[6680,1615,692,396,267,247,196,129,53],
+      backgroundColor:['#8B5CF6','#6366F1','#F97316','#10B981','#6B7280','#3B82F6','#0D9488','#F59E0B','#EF4444'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.x)}}},
+    scales:{x:{ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v)},grid:{color:'rgba(100,116,139,0.08)'}},y:{grid:{display:false}}}
+  }
+});
+
+// ── FEBRUARY: Hero horizontal bar ────────────────────────────────────────
+new Chart($('febHeroChart'),{
+  type:'bar',
+  data:{
+    labels:['Education','Groceries','Fees/Interest','Retail/Other','Dining','Utilities','Fitness','Transport','Health','Subscriptions'],
+    datasets:[{
+      data:[1454,796,279,348,317,223,190,63,55,47],
+      backgroundColor:['#6366F1','#3B82F6','#6B7280','#8B5CF6','#F97316','#10B981','#0D9488','#F59E0B','#EC4899','#EF4444'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.x)}}},
+    scales:{x:{ticks:{callback:v=>'$'+v},grid:{color:'rgba(100,116,139,0.08)'}},y:{grid:{display:false}}}
+  }
+});
+
+// ── FEBRUARY: Donut ───────────────────────────────────────────────────────
+new Chart($('febDonut'),{
+  type:'doughnut',
+  data:{
+    labels:['Education','Groceries','Retail','Dining','Fees','Utilities','Fitness','Transport','Health','Subs'],
+    datasets:[{
+      data:[1454,796,348,317,279,223,190,63,55,47],
+      backgroundColor:['#6366F1','#3B82F6','#8B5CF6','#F97316','#6B7280','#10B981','#0D9488','#F59E0B','#EC4899','#EF4444'],
+      borderWidth:2,borderColor:'#fff'
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+    plugins:{legend:{position:'right',labels:{boxWidth:10,boxHeight:10,font:{size:11}}},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed)}}}}
+});
+
+// ── FEBRUARY: Weekly bar ──────────────────────────────────────────────────
+new Chart($('weekChart'),{
+  type:'bar',
+  data:{
+    labels:['Feb 13–16','Feb 17–23','Feb 24–Mar 2','Mar 3–9','Mar 10–12'],
+    datasets:[{
+      data:[560,370,370,1420,378],
+      backgroundColor:['#3B82F6','#3B82F6','#3B82F6','#DC2626','#3B82F6'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.y)}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{ticks:{callback:v=>'$'+v},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── MARCH: Hero horizontal bar ────────────────────────────────────────────
+new Chart($('marChart'),{
+  type:'bar',
+  data:{
+    labels:['Education','Retail/One-off','Groceries','Dining','Transport','Utilities','Fees/Interest','Fitness','Subscriptions'],
+    datasets:[{
+      data:[1168,1026,693,263,236,232,201,194,64],
+      backgroundColor:['#6366F1','#8B5CF6','#3B82F6','#F97316','#F59E0B','#10B981','#6B7280','#0D9488','#EF4444'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.x)}}},
+    scales:{x:{ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(1)+'k':v)},grid:{color:'rgba(100,116,139,0.08)'}},y:{grid:{display:false}}}
+  }
+});
+
+// ── MARCH: Weekly bar ─────────────────────────────────────────────────────
+new Chart($('marWeekChart'),{
+  type:'bar',
+  data:{
+    labels:['Mar 13–19','Mar 20–26','Mar 27–Apr 2','Apr 3–9','Apr 10–13'],
+    datasets:[{
+      data:[657,357,683,1395,838],
+      backgroundColor:['#6366F1','#6366F1','#6366F1','#DC2626','#6366F1'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.y)}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{ticks:{callback:v=>'$'+v},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── FORECAST: Bar ─────────────────────────────────────────────────────────
+new Chart($('forecastChart'),{
+  type:'bar',
+  data:{
+    labels:['Education','Utilities','Fitness','Subscriptions'],
+    datasets:[{
+      data:[1146.09,231.82,187.00,64.47],
+      backgroundColor:['#6366F1','#10B981','#0D9488','#EF4444'],
+      borderRadius:8,borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar2(c.parsed.y)}}},
+    scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>'$'+v},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── ADVISOR: Reality donut ────────────────────────────────────────────────
+const rData={
+  labels:['Mortgage','Education','Groceries','Dining','Utilities','Fitness','Transport','Subscriptions','Discretionary'],
+  values:[3079,1168,745,290,232,187,150,64,500],
+  colors:['#DC2626','#6366F1','#3B82F6','#F97316','#10B981','#0D9488','#F59E0B','#EF4444','#8B5CF6']
+};
+const rLeg=$('reality-legend');
+rData.labels.forEach((l,i)=>{rLeg.innerHTML+=`<div class="legend-item"><div class="legend-swatch" style="background:${rData.colors[i]}"></div>${l}</div>`;});
+const rTotal=rData.values.reduce((a,b)=>a+b,0);
+new Chart($('realityDonut'),{
+  type:'doughnut',
+  data:{labels:rData.labels,datasets:[{data:rData.values,backgroundColor:rData.colors,borderWidth:2,borderColor:'#fff'}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const pct=((c.parsed/rTotal)*100).toFixed(1);return ` $${c.parsed.toLocaleString()} (${pct}%)`;}}}}
+  }
+});
+
+// ── ADVISOR: Recommended vs actual ───────────────────────────────────────
+new Chart($('recommendedChart'),{
+  type:'bar',
+  data:{
+    labels:['Mortgage','Education','Groceries','Dining','Utilities','Fitness','Transport','Subs','Savings'],
+    datasets:[
+      {label:'Actual %',data:[51.5,19.5,12.5,4.9,3.9,3.1,2.5,1.1,0],backgroundColor:'#DC2626',borderRadius:4},
+      {label:'Recommended %',data:[32,8,12,4,4,1.5,4,1.5,10],backgroundColor:'#059669',borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{boxWidth:10,boxHeight:10,font:{size:12}}},tooltip:{callbacks:{label:c=>` ${c.parsed.y}%`}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── ADVISOR: Target budget bar ────────────────────────────────────────────
+new Chart($('targetBudgetChart'),{
+  type:'bar',
+  data:{
+    labels:['Mortgage','Education','Groceries','Savings','Dining','Utilities','Transport','Fitness','Emergency','Subs+Other'],
+    datasets:[{
+      label:'Target $/month',
+      data:[2093,1168,717,598,239,239,239,179,179,329],
+      backgroundColor:['#DC2626','#6366F1','#3B82F6','#059669','#F97316','#10B981','#F59E0B','#0D9488','#7C3AED','#8B5CF6'],
+      borderRadius:6,borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` $${c.parsed.y.toLocaleString()} /month`}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{callback:v=>'$'+v},grid:{color:'rgba(100,116,139,0.08)'}}}
+  }
+});
+
+// ── OVERVIEW: Monthly expenses line chart ─────────────────────────────────
+const monthlyExpChart=new Chart($('monthlyExpenseChart'), {
+  type: 'line',
+  data: {
+    labels: ['Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026 (forecast)'],
+    datasets: [
+      {
+        label: 'Total expenses',
+        data: [10154, 3598, 3915, 1629],
+        borderColor: '#DC2626',
+        borderWidth: 2.5,
+        backgroundColor: ctx => {
+          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 280);
+          g.addColorStop(0, 'rgba(220,38,38,0.2)');
+          g.addColorStop(1, 'rgba(220,38,38,0)');
+          return g;
+        },
+        fill: true,
+        tension: 0.4,
+        pointRadius: [7, 7, 7, 6],
+        pointBackgroundColor: ['#DC2626', '#DC2626', '#DC2626', '#F59E0B'],
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2.5
+      },
+      {
+        label: 'Recurring fixed only',
+        data: [null, null, null, 1629],
+        borderColor: '#F59E0B',
+        borderWidth: 0,
+        pointRadius: 0,
+        fill: false,
+        showLine: false
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: c => {
+            const notes = [
+              ' · incl. $6,680 one-off charges',
+              ' · typical month (no large one-offs)',
+              ' · slight uptick from retail one-offs',
+              ' · confirmed recurring only — excl. groceries & discretionary'
+            ];
+            return ` $${c.parsed.y.toLocaleString()}${notes[c.dataIndex] || ''}`;
+          },
+          title: c => c[0].label
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { size: 13, family: "'Plus Jakarta Sans'" }, color: '#64748B' }
+      },
+      y: {
+        min: 0,
+        ticks: {
+          callback: v => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v),
+          font: { size: 12 }
+        },
+        grid: { color: 'rgba(100,116,139,0.08)' }
+      }
+    }
+  }
+});
+
+// ══════════════════════════════════════════════════════════════ UPLOAD ════
+
+const ALL_CATS = ['education','groceries','dining','fitness','transport','utilities','subscriptions','health','retail','fees','mortgage','income','other'];
+const CAT_COLORS_MAP = {
+  education:'#6366F1',groceries:'#3B82F6',dining:'#F97316',fitness:'#0D9488',
+  transport:'#F59E0B',utilities:'#10B981',subscriptions:'#EF4444',
+  health:'#EC4899',retail:'#8B5CF6',fees:'#6B7280',
+  mortgage:'#DC2626',income:'#059669',other:'#94A3B8'
+};
+const CAT_KW = {
+  mortgage:['mortgage','home loan'],
+  education:['heathdale','adventurers','playhq','quickcliq','rsgk','childcare','lca','school','tafe','university','kindy'],
+  groceries:['woolworths','coles','aldi','iga','better choice','big daddy','hoppers fresh','supermarket','drakes','fresh food'],
+  dining:['mcdonald','kfc','grilld','sushi','crumb','kebab','buza','hungry jack','subway','nandos','domino','pizza','bakery','bakers delight','heart bake','chik chik','landing play','cafe','coffee house','restaurant','liquorland','bouar deau','sons of manor'],
+  fitness:['anytime fitness','dbs*anytime','western leisure','basketball','zoos','gym','aquatic','leisure centre'],
+  transport:['myki','linkt','easypark','wilson parking','secure parking','first* parking','uber','didi','ola','taxify','taxipay','gm taxi','seoulmetropolitan','parking','toll','petrol','bp ','7-eleven','ampol','caltex','shell'],
+  utilities:['globird','tpg','kogan mobile','origin energy','agl','red energy','jemena','sumo','aussie broadband','broadband','electricity','gas bill'],
+  subscriptions:['apple.com','claude','netflix','spotify','disney','amazon prime','stan','binge','foxtel','youtube','microsoft','adobe','kayo','skroaming','roaming'],
+  health:['chemist warehouse','cwh ','pharmacy','medical','dentist','hospital','nib ','bupa','medibank','hcf'],
+  retail:['kmart','target','big w','good guys','myer','david jones','jb hi-fi','vicroads','tk maxx','one by one','lotte','globehunters','ikea','bunnings','harvey norman','kogan','ebay','amazon','barber','salon','tocca','oztook','relay'],
+  fees:['interest on purchase','monthly card','credit fee','late payment','annual fee','card fee','overdrawn','dishonour','bpay'],
+};
+
+// ── Merchant history cache ────────────────────────────────────────────────
+// Pre-seeded from Jan/Feb/Mar statements — grows every time a statement is committed
+const MERCHANT_SEEDS = {
+  // Education
+  'heathdale':'education', 'adventurers education':'education',
+  'playhq':'education', 'quickcliq':'education',
+  'rsgk sports':'education', 'big childcare':'education',
+  // Groceries
+  'woolworths':'groceries', 'coles':'groceries', 'aldi':'groceries',
+  'better choice':'groceries', 'big daddy':'groceries', 'hoppers fresh':'groceries',
+  // Dining
+  'sushi nori':'dining', 'jo sushi':'dining', 'buza chicken':'dining',
+  'crumb':'dining', 'grilld':'dining', 'chik chik pop':'dining',
+  'heart bake':'dining', 'kebab':'dining', 'mcdonalds':'dining',
+  'kfc':'dining', 'bakers delight':'dining', 'landing playcentre':'dining',
+  'sons of manor':'dining', 'bouar deau':'dining', 'liquorland':'dining',
+  'dominos':'dining', 'domino':'dining',
+  // Fitness
+  'anytime fitness':'fitness', 'dbs*anytime':'fitness',
+  'western leisure':'fitness', 'wyndham basketball':'fitness',
+  // Transport
+  'myki':'transport', 'linkt':'transport', 'easypark':'transport',
+  'wilson parking':'transport', 'secure parking':'transport',
+  'first* parking':'transport', 'uber':'transport',
+  'taxipay':'transport', 'shell reddy':'transport', 'shell ':'transport',
+  // Utilities
+  'globird':'utilities', 'tpg internet':'utilities', 'kogan mobile':'utilities',
+  // Subscriptions
+  'apple.com':'subscriptions', 'apple com':'subscriptions',
+  'claude.ai':'subscriptions', 'skroaming':'subscriptions',
+  // Health
+  'chemist warehouse':'health', 'cwh ':'health', 'manor lakes pharmacy':'health',
+  // Retail
+  'kmart':'retail', 'tk maxx':'retail', 'one by one':'retail',
+  'tocca':'retail', 'lotte travel':'retail', 'vicroads':'retail',
+  'good guys':'retail', 'globehunters':'retail', 'oztook':'retail',
+  'relay hong':'retail',
+  // Fees
+  'interest on purchase':'fees', 'monthly card':'fees',
+  'card fee':'fees', 'credit fee':'fees',
+};
+const merchantCache = new Map(Object.entries(MERCHANT_SEEDS));
+// Load any merchant categorisations learned from previous upload sessions
+try {
+  const saved = localStorage.getItem('nabBudget_mc');
+  if(saved) JSON.parse(saved).forEach(([k,v])=>merchantCache.set(k,v));
+} catch(e) {}
+
+// Normalise a description into a compact lookup key
+function normMerchant(desc) {
+  return (desc||'').toLowerCase()
+    .replace(/\*/g,' ')
+    .replace(/[^a-z0-9 ]/g,' ')
+    .replace(/\b(pty|ltd|the|and|of|au|com|www|online|store|australia|vic|nsw|qld|wa|sa)\b/g,' ')
+    .replace(/\s+/g,' ').trim()
+    .split(' ').filter(w=>w.length>2).slice(0,3).join(' ');
+}
+
+// Returns {cat, src} where src is 'history' | 'auto' | 'new'
+function autoCat(desc) {
+  if(!desc) return {cat:'other', src:'new'};
+
+  // Normalised full description (keeps stop-words — used for substring matching)
+  const d = desc.toLowerCase()
+    .replace(/\*/g,' ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+
+  const norm = normMerchant(desc);
+
+  // 1 ── Exact match on learned key
+  if(merchantCache.has(norm)) return {cat:merchantCache.get(norm), src:'history'};
+
+  // 2 ── Substring: check every cached key against the full description
+  //      Sort longest key first so more-specific entries win
+  const entries = [...merchantCache.entries()].sort((a,b)=>b[0].length-a[0].length);
+  for(const [key, cat] of entries) {
+    if(d.includes(key.trim())) return {cat, src:'history'};
+  }
+
+  // 3 ── Keyword rules fallback
+  for(const [cat, kws] of Object.entries(CAT_KW)) {
+    if(kws.some(k=>d.includes(k))) return {cat, src:'auto'};
+  }
+
+  return {cat:'other', src:'new'};
+}
+
+function parseCSVLine(line) {
+  const out=[]; let inQ=false, cur='';
+  for (let i=0;i<line.length;i++) {
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;continue;}
+    if(c===','&&!inQ){out.push(cur.trim());cur='';continue;}
+    cur+=c;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+let _rawRows=[], _txns=[], _csvHeaders=[];
+
+// ── PDF.js worker ─────────────────────────────────────────────────────────
+if(typeof pdfjsLib!=='undefined'){
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+function readFile(file) {
+  const isPDF=/\.pdf$/i.test(file.name)||file.type==='application/pdf';
+  if(isPDF){ parsePDFFile(file); return; }
+  // CSV path
+  const r=new FileReader();
+  r.onload=e=>{
+    const lines=(e.target.result).split(/\r?\n/).filter(l=>l.trim());
+    if(lines.length<2){showUpErr('File appears empty or has only one row.');return;}
+    _csvHeaders=parseCSVLine(lines[0]);
+    _rawRows=lines.slice(1).map(l=>parseCSVLine(l)).filter(r=>r.length>=2);
+    showMapper();
+  };
+  r.readAsText(file);
+}
+
+async function parsePDFFile(file) {
+  if(typeof pdfjsLib==='undefined'){
+    showUpErr('PDF library not loaded yet — please refresh the page and try again.');
+    return;
+  }
+  hideUpErr();
+  $('upload-icon').textContent='⏳';
+  $('upload-zone-title').textContent='Reading PDF…';
+
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+    const allLines = [];
+
+    for(let p=1; p<=pdf.numPages; p++){
+      const page = await pdf.getPage(p);
+      const tc   = await page.getTextContent();
+
+      // Group text items by rounded Y (same row = same visual line in the table)
+      const byY = new Map();
+      tc.items.forEach(item=>{
+        if(!item.str.trim()) return;
+        const y = Math.round(item.transform[5]/2)*2;
+        if(!byY.has(y)) byY.set(y,[]);
+        byY.get(y).push({x:item.transform[4], t:item.str});
+      });
+
+      // Sort top-to-bottom (PDF Y is bottom-up → sort descending)
+      [...byY.keys()].sort((a,b)=>b-a).forEach(y=>{
+        const row = byY.get(y).sort((a,b)=>a.x-b.x).map(i=>i.t).join(' ').trim();
+        if(row) allLines.push(row);
+      });
+    }
+
+    const {txns, period} = parseNABLines(allLines);
+
+    if(!txns.length){
+      $('upload-icon').textContent='📂';
+      $('upload-zone-title').textContent='Drop your statement here, or click to browse';
+      showUpErr('No transactions found. Make sure this is a NAB credit/debit card PDF statement (pages 2–3 should show "Transaction details").');
+      return;
+    }
+
+    _txns = txns.sort((a,b)=>a.isCredit-b.isCredit||b.amount-a.amount);
+    if(period) $('month-label').value=period;
+    $('mapper-panel').classList.add('hidden');
+
+    // Tier 4: enrich unknowns with Gemini (handles its own loading state + icon restore)
+    await enrichWithAI(_txns);
+
+    renderPreview();
+    renderUpStats();
+    $('upload-stats').classList.remove('hidden');
+    $('preview-wrap').classList.remove('hidden');
+    $('commit-row').classList.add('on');
+
+  } catch(err){
+    $('upload-icon').textContent='📂';
+    $('upload-zone-title').textContent='Drop your statement here, or click to browse';
+    showUpErr('Could not read PDF: '+err.message+'. Try exporting as CSV from NAB internet banking instead.');
+  }
+}
+
+function parseNABLines(lines){
+  const txns=[];
+  let period='';
+
+  // ── Extract statement period ──────────────────────────────────────────
+  // e.g. "Statement Period 14 Apr 26-12 May 26" or spread across two items
+  const fullText = lines.join('\n');
+  const pm = fullText.match(/Statement Period\s+(\d{1,2}\s+\w{3}\s+\d{2})\s*[-–]\s*(\d{1,2}\s+\w{3}\s+\d{2})/i);
+  if(pm){
+    const yr  = '20'+(pm[2].match(/\d{2}$/)?.[0]||'26');
+    const m1  = pm[1].match(/[A-Za-z]+/)?.[0]||'';
+    const m2  = pm[2].match(/[A-Za-z]+/)?.[0]||'';
+    period = m1===m2 ? `${m1} ${yr}` : `${m1}–${m2} ${yr}`;
+  }
+
+  // ── Parse each transaction row ────────────────────────────────────────
+  // Format: DD/MM/YY  DD/MM/YY  VNNNNN  <description>  <amount>  [CR]
+  for(const line of lines){
+    const m = line.match(
+      /^(\d{2}\/\d{2}\/\d{2})\s+(\d{2}\/\d{2}\/\d{2})\s+V\d{4}\s+(.*)\s+([\d,]+\.\d{2})\s*(CR)?$/i
+    );
+    if(!m) continue;
+    const amt = parseFloat(m[4].replace(/,/g,''));
+    if(isNaN(amt)||amt===0) continue;
+    const {cat:_cat, src:_src} = autoCat(m[3]);
+    txns.push({
+      date:      m[2].trim(),
+      desc:      m[3].trim(),
+      amount:    amt,
+      isCredit:  !!m[5],
+      category:  _cat,
+      catSource: _src
+    });
+  }
+
+  return {txns, period};
+}
+
+function showMapper(){
+  hideUpErr();
+  $('mapper-panel').classList.remove('hidden');
+  ['col-date','col-amount','col-desc'].forEach(id=>{
+    $(id).innerHTML=_csvHeaders.map((h,i)=>`<option value="${i}">${h||'Column '+(i+1)}</option>`).join('');
+  });
+  _csvHeaders.forEach((h,i)=>{
+    const hl=h.toLowerCase();
+    if(/date|time/i.test(hl)) $('col-date').value=i;
+    if(/amount|debit|credit|value|sum/i.test(hl)) $('col-amount').value=i;
+    if(/desc|narr|merchant|detail|particular|reference/i.test(hl)) $('col-desc').value=i;
+  });
+}
+
+async function parseAndPreview(){
+  hideUpErr();
+  const dI=+$('col-date').value, aI=+$('col-amount').value, nI=+$('col-desc').value;
+  _txns=[];
+  let skipped=0;
+  _rawRows.forEach(row=>{
+    const raw=(row[aI]||'').replace(/[$, ]/g,'');
+    const amt=parseFloat(raw);
+    if(isNaN(amt)){skipped++;return;}
+    const {cat:_c, src:_s}=autoCat(row[nI]||'');
+    _txns.push({date:row[dI]||'',desc:row[nI]||'',amount:Math.abs(amt),isCredit:amt>0,category:_c,catSource:_s});
+  });
+  if(!_txns.length){showUpErr(`No valid rows parsed. Try adjusting column mapping. (${skipped} rows skipped)`);return;}
+  // sort: debits first by amount desc, then credits
+  _txns.sort((a,b)=>a.isCredit-b.isCredit||b.amount-a.amount);
+
+  // Tier 4: enrich any remaining 'other' merchants with Gemini
+  await enrichWithAI(_txns);
+
+  renderPreview();
+  renderUpStats();
+  $('upload-stats').classList.remove('hidden');
+  $('preview-wrap').classList.remove('hidden');
+  $('commit-row').classList.add('on');
+}
+
+const SRC_BADGE = {
+  history: `<span class="cat-src src-hist" title="Matched from your upload history">hist</span>`,
+  auto:    `<span class="cat-src src-auto" title="Matched by keyword rule">auto</span>`,
+  ai:      `<span class="cat-src src-ai"   title="Categorised by Gemini AI">AI ✦</span>`,
+  new:     `<span class="cat-src src-new"  title="Unknown merchant — please verify">new?</span>`,
+};
+
+function renderPreview(){
+  $('preview-body').innerHTML=_txns.map((t,i)=>`
+    <tr class="${t.isCredit?'is-credit':''}">
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3)">${t.date}</td>
+      <td title="${t.desc.replace(/"/g,'')}">${t.desc.substring(0,36)}${t.desc.length>36?'…':''}</td>
+      <td style="white-space:nowrap">
+        <select class="cat-sel" onchange="_txns[${i}].category=this.value;_txns[${i}].catSource='manual';this.parentElement.querySelector('.cat-src').remove()">
+          ${ALL_CATS.map(c=>`<option value="${c}"${c===t.category?' selected':''}>${c}</option>`).join('')}
+        </select>
+        ${t.isCredit ? '' : (SRC_BADGE[t.catSource]||SRC_BADGE.new)}
+      </td>
+      <td style="color:${t.isCredit?'var(--green)':'var(--red)'}">${t.isCredit?'+':'-'}$${t.amount.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    </tr>`).join('');
+}
+
+function renderUpStats(){
+  const deb=_txns.filter(t=>!t.isCredit), cr=_txns.filter(t=>t.isCredit);
+  const tot=deb.reduce((s,t)=>s+t.amount,0);
+  const totCr=cr.reduce((s,t)=>s+t.amount,0);
+  const big=deb[0];
+  const catT={};deb.forEach(t=>{catT[t.category]=(catT[t.category]||0)+t.amount;});
+  const top=Object.entries(catT).sort((a,b)=>b[1]-a[1])[0];
+  $('us-total').textContent='$'+Math.round(tot).toLocaleString();
+  $('us-count').textContent=deb.length+' charges';
+  $('us-credits').textContent='$'+Math.round(totCr).toLocaleString();
+  $('us-credit-count').textContent=cr.length+' credits';
+  $('us-largest').textContent=big?'$'+big.amount.toLocaleString('en-AU',{maximumFractionDigits:0}):'—';
+  $('us-largest-desc').textContent=big?big.desc.substring(0,20):'';
+  $('us-top-cat').textContent=top?top[0]:'—';
+  $('us-top-amt').textContent=top?'$'+Math.round(top[1]).toLocaleString():'';
+}
+
+// ── Learn merchant→category from a committed statement ────────────────────
+function learnMerchants(txns) {
+  txns.filter(t=>!t.isCredit).forEach(t=>{
+    if(t.category==='other') return;          // don't cache 'other' — re-evaluate next time
+    const key = normMerchant(t.desc);
+    if(key.length < 3) return;               // too short to be useful
+    merchantCache.set(key, t.category);
+  });
+  try {
+    localStorage.setItem('nabBudget_mc', JSON.stringify([...merchantCache.entries()]));
+  } catch(e) {}
+}
+
+// ── Historical months (Jan/Feb/Mar pre-seeded · grows with each upload) ────
+const MONTH_FULL_MAP={Jan:'January',Feb:'February',Mar:'March',Apr:'April',May:'May',Jun:'June',Jul:'July',Aug:'August',Sep:'September',Oct:'October',Nov:'November',Dec:'December'};
+
+const HISTORICAL_MONTHS=[
+  {label:'January', short:'Jan',total:10154,credits:9863,
+   cats:{education:1615,retail:6680,dining:692,utilities:396,groceries:247,fitness:196,transport:129,subscriptions:53,fees:267}},
+  {label:'February',short:'Feb',total:3598, credits:4193,
+   cats:{education:1454,groceries:796,fees:279,retail:348,dining:317,utilities:223,fitness:190,transport:63,health:55,subscriptions:47}},
+  {label:'March',   short:'Mar',total:3915, credits:3659,
+   cats:{education:1168,retail:1026,groceries:693,dining:263,transport:236,utilities:232,fees:201,fitness:194,subscriptions:64}},
+];
+
+// Merchant-level recurring items — drives fixed-cost forecast rows
+const RECURRING_ITEMS={
+  education:[
+    {name:'Heathdale Christian College',actuals:{Feb:829.73,Mar:859.73}},
+    {name:'Adventurers Education',       actuals:{Feb:357.95,Mar:289.00}},
+  ],
+  utilities:[
+    {name:'GloBird Energy',actuals:{Feb:140.61,Mar:149.83}},
+    {name:'TPG Internet',  actuals:{Feb:76.99, Mar:76.99}},
+    {name:'Kogan Mobile',  actuals:{Feb:5.00,  Mar:5.00}},
+  ],
+  fitness:[
+    {name:'Western Leisure Services',actuals:{Feb:95.20,Mar:95.20}},
+    {name:'Anytime Fitness',         actuals:{Feb:91.80,Mar:91.80}},
+  ],
+  subscriptions:[
+    {name:'Apple.com/Bill',actuals:{Feb:46.57,Mar:30.47}},
+    {name:'Claude.ai',     actuals:{Feb:0,    Mar:34.00}},
+  ],
+};
+
+// Category display config for forecast blocks
+const FC_CFG={
+  education:    {color:'#6366F1',label:'Education & childcare'},
+  utilities:    {color:'#10B981',label:'Utilities & telco'},
+  fitness:      {color:'#0D9488',label:'Fitness memberships'},
+  subscriptions:{color:'#EF4444',label:'Digital subscriptions'},
+  groceries:    {color:'#3B82F6',label:'Groceries'},
+  dining:       {color:'#F97316',label:'Dining out'},
+  transport:    {color:'#F59E0B',label:'Transport'},
+  health:       {color:'#EC4899',label:'Health & pharmacy'},
+  fees:         {color:'#6B7280',label:'Bank fees & interest'},
+};
+
+// ── Gemini AI — Tier 4 auto-categorisation ────────────────────────────────
+// Same API key and model as BrainDump.html
+const GEMINI_KEY   = 'AIzaSyBR6lH9Qdna7_JJIBnZYSzMZzanzyRwdE4';
+const GEMINI_MODEL = 'gemini-2.5-flash';
+
+async function enrichWithAI(txns) {
+  // Collect unique descriptions that none of the first 3 tiers matched
+  const unknowns = [...new Set(
+    txns.filter(t => !t.isCredit && t.catSource === 'new').map(t => t.desc)
+  )];
+
+  if (!unknowns.length || !GEMINI_KEY) {
+    // Nothing to do — just restore the upload zone state
+    $('upload-icon').textContent = '📂';
+    $('upload-zone-title').textContent = 'Drop your statement here, or click to browse';
+    return;
+  }
+
+  $('upload-icon').textContent = '🤖';
+  $('upload-zone-title').textContent =
+    `Asking Gemini about ${unknowns.length} unknown merchant${unknowns.length > 1 ? 's' : ''}…`;
+
+  const prompt =
+`You are categorising Australian bank/credit card statement merchant descriptions.
+
+Valid categories: ${ALL_CATS.join(', ')}
+
+Category guidance:
+- education   : schools, childcare, tutoring, kids' sporting clubs
+- groceries   : supermarkets, fresh food, grocery stores
+- dining      : restaurants, cafes, fast food, takeaway, bars, bottle shops
+- fitness     : gyms, leisure centres, personal training, adult sports memberships
+- transport   : taxis, rideshare, toll roads, public transit, parking, petrol stations
+- utilities   : electricity, gas, internet, phone, mobile plans
+- subscriptions: streaming, software, SaaS, app stores, digital services, roaming
+- health      : pharmacies, medical centres, dental, hospital, health insurance
+- retail      : clothing, homewares, electronics, department stores, salons, online shopping
+- fees        : bank fees, interest charges, card fees, government fines, registration
+- mortgage    : home loan repayments
+- income      : salary deposits, payments received, refunds, credits
+- other       : only if genuinely none of the above fit
+
+Return ONLY a valid JSON object. Keys must be the EXACT merchant strings listed below. Values must be one category name.
+
+${unknowns.map(d => `"${d}"`).join('\n')}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 1024,
+            responseMimeType: 'application/json',
+          },
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(`${res.status} — ${errBody.error?.message || res.statusText}`);
+    }
+
+    const body  = await res.json();
+    const raw   = body.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+
+    // Strip markdown fences if Gemini adds them
+    let clean = raw.replace(/^```json\s*/im, '').replace(/```\s*$/im, '').trim();
+    if (!clean.startsWith('{')) {
+      const m = clean.match(/\{[\s\S]*\}/);
+      clean = m ? m[0] : '{}';
+    }
+
+    const aiMap    = JSON.parse(clean);
+    const validCats = new Set(ALL_CATS);
+    let learned = 0;
+
+    // Apply AI categories back to the transaction list
+    txns.forEach(t => {
+      if (t.isCredit || t.catSource !== 'new') return;
+      const aiCat = (aiMap[t.desc] || '').toLowerCase().trim();
+      if (aiCat && validCats.has(aiCat) && aiCat !== 'other') {
+        t.category  = aiCat;
+        t.catSource = 'ai';
+        // Write into merchant cache — next upload won't need AI for this merchant
+        const key = normMerchant(t.desc);
+        if (key.length >= 3) { merchantCache.set(key, aiCat); learned++; }
+      }
+    });
+
+    // Persist newly learned AI categorisations to localStorage
+    if (learned) {
+      try { localStorage.setItem('nabBudget_mc', JSON.stringify([...merchantCache.entries()])); } catch(e) {}
+    }
+
+    console.log(`[Budget] Gemini categorised ${Object.keys(aiMap).length} merchants, ${learned} learned.`);
+
+  } catch(err) {
+    // Non-blocking — unknown merchants simply keep catSource:'new' and amber badge
+    console.warn('[Budget] Gemini enrichment failed:', err.message);
+  }
+
+  $('upload-icon').textContent = '📂';
+  $('upload-zone-title').textContent = 'Drop your statement here, or click to browse';
+}
+
+function commitUpload(){
+  const label=($('month-label').value.trim())||`Upload ${new Date().toLocaleDateString('en-AU',{month:'short',year:'numeric'})}`;
+  const deb=_txns.filter(t=>!t.isCredit), cr=_txns.filter(t=>t.isCredit);
+  const tot=deb.reduce((s,t)=>s+t.amount,0);
+  const totCr=cr.reduce((s,t)=>s+t.amount,0);
+  const catT={};ALL_CATS.forEach(c=>catT[c]=0);deb.forEach(t=>{catT[t.category]=(catT[t.category]||0)+t.amount;});
+
+  // Learn from user-confirmed categorisations before anything else
+  learnMerchants(_txns);
+
+  // Update monthly expense chart
+  monthlyExpChart.data.labels.push(label);
+  const ds0=monthlyExpChart.data.datasets[0];
+  ds0.data.push(Math.round(tot));
+  if(Array.isArray(ds0.pointRadius))ds0.pointRadius.push(7);
+  if(Array.isArray(ds0.pointBackgroundColor))ds0.pointBackgroundColor.push('#DC2626');
+  if(Array.isArray(ds0.pointBorderColor))ds0.pointBorderColor.push('#fff');
+  if(Array.isArray(ds0.pointBorderWidth))ds0.pointBorderWidth.push(2.5);
+  monthlyExpChart.update();
+
+  // Update compare chart — new dataset per uploaded month
+  const cats=['Education','Groceries','Dining','Utilities','Fitness','Retail','Fees','Transport','Subs'];
+  const cMap={Education:'education',Groceries:'groceries',Dining:'dining',Utilities:'utilities',Fitness:'fitness',Retail:'retail',Fees:'fees',Transport:'transport',Subs:'subscriptions'};
+  const palette=['#F97316','#0D9488','#7C3AED','#EC4899','#059669','#F59E0B'];
+  compareChart.data.datasets.push({
+    label,
+    data:cats.map(c=>Math.round(catT[cMap[c]]||0)),
+    backgroundColor:palette[(compareChart.data.datasets.length-3)%palette.length],
+    borderRadius:4
+  });
+  compareChart.update();
+
+  // Inject statement sub-tab + view
+  injectStatementTab(label,_txns,catT,tot,totCr);
+
+  // Push new month into historical data and rebuild forecast
+  const _fa=label.match(/\b([A-Z][a-z]{2})\b/)?.[1]||label.substring(0,3);
+  const _fl=MONTH_FULL_MAP[_fa]||label.replace(/\s*20\d\d\s*/,'').trim();
+  const _merchants={};
+  deb.forEach(t=>{const k=normMerchant(t.desc);_merchants[k]=(_merchants[k]||0)+t.amount;});
+  HISTORICAL_MONTHS.push({label:_fl,short:_fa,total:Math.round(tot),credits:Math.round(totCr),cats:Object.fromEntries(Object.entries(catT).filter(([,v])=>v>0).map(([k,v])=>[k,Math.round(v)])),merchants:_merchants});
+  buildForecast();
+
+  // History card
+  $('upload-history').innerHTML=`<div class="hist-item"><div><p class="hist-item-lbl">${label}</p><p class="hist-item-meta">${deb.length} charges · ${cr.length} credits</p></div><span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--red)">−$${Math.round(tot).toLocaleString()}</span></div>`+$('upload-history').innerHTML;
+
+  $('upload-ok-msg').textContent=`${label} added — ${deb.length} transactions totalling $${Math.round(tot).toLocaleString()}.`;
+  $('upload-ok').classList.add('on');
+  resetUploader(true);
+}
+
+// ── Helper: group debits into 7-day week buckets ─────────────────────────
+function buildWeeklyData(debits) {
+  const withDates = debits.map(t => {
+    const p = (t.date||'').split('/');
+    if (p.length !== 3) return null;
+    const ts = new Date(2000+parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0])).getTime();
+    return isNaN(ts) ? null : {amount: t.amount, ts};
+  }).filter(Boolean);
+  if (!withDates.length) return {labels:[], totals:[]};
+
+  const minTs = Math.min(...withDates.map(t=>t.ts));
+  const buckets = {};
+  withDates.forEach(t => {
+    const w = Math.floor((t.ts - minTs) / 604800000); // 7 days in ms
+    buckets[w] = (buckets[w]||0) + t.amount;
+  });
+  const weeks = Object.keys(buckets).map(Number).sort((a,b)=>a-b);
+  const fmt = d => `${d.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]}`;
+  return {
+    labels: weeks.map(w => {
+      const s=new Date(minTs+w*604800000), e=new Date(minTs+w*604800000+518400000);
+      return `${fmt(s)}–${fmt(e)}`;
+    }),
+    totals: weeks.map(w => Math.round(buckets[w]))
+  };
+}
+
+// ── Inject a fully-analysed statement tab (mirrors Jan/Feb/Mar style) ─────
+function injectStatementTab(label, txns, catT, tot, totCr) {
+  const sid       = 'exp-' + label.replace(/[^a-z0-9]/gi,'').toLowerCase();
+  const cidHero   = `upc-h-${sid}`;
+  const cidDonut  = `upc-d-${sid}`;
+  const cidWeekly = `upc-w-${sid}`;
+
+  // ── Naming convention: "[Mon] Statement" / "Month statement" ─────────────
+  // Mirrors Jan Statement / Feb Statement / Mar Statement pattern
+  const _MF={Jan:'January',Feb:'February',Mar:'March',Apr:'April',May:'May',Jun:'June',
+             Jul:'July',Aug:'August',Sep:'September',Oct:'October',Nov:'November',Dec:'December'};
+  const _ab  = label.match(/\b([A-Z][a-z]{2})\b/)?.[1] || '';
+  const _btnTxt  = _ab ? `${_ab} Statement`                                : label.replace(/\s*20\d\d\s*/,'').trim()+' Statement';
+  const _h2Txt   = _ab ? `${_MF[_ab]||_ab} statement`                     : label.replace(/\s*20\d\d\s*/,'').trim()+' statement';
+  const _shortMo = _ab ? (_MF[_ab]||_ab)                                  : label.replace(/\s*20\d\d\s*/,'').trim();
+
+  // ── Sub-tab button ──────────────────────────────────────────────────────
+  const btn = document.createElement('button');
+  btn.className = 'sub-tab';
+  btn.textContent = _btnTxt;
+  btn.onclick = e => showSub(sid, e);
+  document.querySelector('.sub-nav-inner').appendChild(btn);
+
+  const deb      = txns.filter(t=>!t.isCredit).sort((a,b)=>b.amount-a.amount);
+  const cr       = txns.filter(t=>t.isCredit);
+  const topCats  = Object.entries(catT).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const scColors = ['sc-indigo','sc-blue','sc-amber','sc-teal','sc-purple','sc-ink'];
+
+  // ── Large one-off alert (single charges ≥ $150) ─────────────────────────
+  const bigOnes  = deb.filter(t=>t.amount>=150).slice(0,5);
+  const alertHTML = bigOnes.length
+    ? `<div class="alert alert-red"><div><strong>Large charges this period:</strong> ${
+        bigOnes.map(t=>`${t.desc.substring(0,28)} $${t.amount.toLocaleString('en-AU',{minimumFractionDigits:2})}`).join(' · ')
+      }</div></div>`
+    : '';
+
+  // ── Stat cards — top 4 categories + totals ──────────────────────────────
+  const statCards = topCats.slice(0,4).map(([c,v],i)=>`
+    <div class="stat-card ${scColors[i]}"><div class="sc-bar"></div>
+      <p class="stat-label">${c}</p>
+      <p class="stat-value">$${Math.round(v).toLocaleString()}</p>
+      <p class="stat-sub">${(catT[c+'_count']||deb.filter(t=>t.category===c).length)} transactions</p>
+    </div>`).join('');
+
+  // ── Category summary table (mirrors Jan/Feb/Mar: Category | Merchants | Amount) ─
+  const catGroups = {};
+  deb.forEach(t => {
+    if (!catGroups[t.category]) catGroups[t.category] = {total:0, seen:new Set()};
+    catGroups[t.category].total += t.amount;
+    // Clean merchant name: strip trailing location words, take first 22 chars
+    const clean = t.desc
+      .replace(/\b(WYNDHAM VALE|MANOR LAKES|HOPPERS CROSS|WERRIBEE|RINGWOOD|NORTH SYDNEY|NORTH RYDE|MASCOT|PTY LTD|PTY|AUST)\b/gi,'')
+      .replace(/\s+/g,' ').trim().substring(0, 22);
+    catGroups[t.category].seen.add(clean);
+  });
+  const catRows = topCats.map(([cat]) => {
+    const g = catGroups[cat];
+    if (!g) return '';
+    const merchants = [...g.seen].slice(0,3).join(', ');
+    return `<tr>
+      <td><span class="cat-dot" style="background:${CAT_COLORS_MAP[cat]||'#94A3B8'}"></span>${cat}</td>
+      <td>${merchants}</td>
+      <td>$${g.total.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    </tr>`;
+  }).join('');
+
+  // ── Weekly data ─────────────────────────────────────────────────────────
+  const weekly = buildWeeklyData(deb);
+
+  // ── Credit block rows (div-based, matching Mar style) ───────────────────
+  const crRows = cr.map(t=>`
+    <div class="cb-row">
+      <span class="cb-date">${t.date}</span>
+      <span style="color:var(--ink2)">${t.desc}</span>
+      <span class="cb-type"><span class="pill-pay">Payment</span></span>
+      <span class="cb-amount">+$${t.amount.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+    </div>`).join('');
+
+  // ── Build section ───────────────────────────────────────────────────────
+  const sec = document.createElement('div');
+  sec.id = sid; sec.className = 'sub-section';
+  sec.innerHTML = `
+    <div class="section-head">
+      <h2>${_h2Txt}</h2>
+      <p>${label} · NAB Visa ···· 4424 · Total spend $${Math.round(tot).toLocaleString()}</p>
+    </div>
+
+    <div class="hero-chart">
+      <h3>Spending by category — ${_shortMo}</h3>
+      <p class="cs">Sorted largest to smallest · excludes payments received</p>
+      <div class="chart-wrap" style="height:280px"><canvas id="${cidHero}"></canvas></div>
+    </div>
+
+    ${alertHTML}
+
+    <div class="stat-grid">
+      <div class="stat-card sc-red"><div class="sc-bar"></div>
+        <p class="stat-label">Total charges</p>
+        <p class="stat-value">$${Math.round(tot).toLocaleString()}</p>
+        <p class="stat-sub">${deb.length} transactions</p>
+      </div>
+      <div class="stat-card sc-green"><div class="sc-bar"></div>
+        <p class="stat-label">Credits received</p>
+        <p class="stat-value">$${Math.round(totCr).toLocaleString()}</p>
+        <p class="stat-sub">${cr.length} payment${cr.length!==1?'s':''}</p>
+      </div>
+      ${statCards}
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-box">
+        <h3>${label} category split</h3>
+        <p class="cs">Donut breakdown by spend</p>
+        <div class="chart-wrap" style="height:240px"><canvas id="${cidDonut}"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Weekly spending</h3>
+        <p class="cs">${label} · charges per week</p>
+        <div class="chart-wrap" style="height:240px"><canvas id="${cidWeekly}"></canvas></div>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Category</th><th>Key merchants</th><th>Amount</th></tr></thead>
+      <tbody>${catRows}</tbody>
+    </table>
+
+    ${cr.length ? `
+    <div class="credit-block" style="margin-top:24px">
+      <div class="cb-header">
+        <h4>Payments &amp; credits received</h4>
+        <div style="text-align:right">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)">Total credited</p>
+          <p class="cb-total-val">+$${totCr.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}</p>
+        </div>
+      </div>
+      <div class="cb-col-heads">
+        <span>Date</span><span style="text-align:left">Description</span><span>Type</span><span>Amount</span>
+      </div>
+      ${crRows}
+      <div class="cb-summary">
+        <span>${cr.length} payment${cr.length!==1?'s':''}</span>
+        <span>Total: +$${totCr.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+      </div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('expenses').appendChild(sec);
+
+  // ── Render all three charts once DOM is ready ────────────────────────────
+  requestAnimationFrame(() => {
+    // 1 — Hero horizontal bar
+    const ctxH = document.getElementById(cidHero);
+    if (ctxH) new Chart(ctxH, {
+      type:'bar',
+      data:{
+        labels: topCats.map(([c])=>c),
+        datasets:[{
+          data: topCats.map(([,v])=>Math.round(v)),
+          backgroundColor: topCats.map(([c])=>CAT_COLORS_MAP[c]||'#94A3B8'),
+          borderRadius:6, borderSkipped:false
+        }]
+      },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.x)}}},
+        scales:{
+          x:{ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(1)+'k':v)}, grid:{color:'rgba(100,116,139,0.08)'}},
+          y:{grid:{display:false}}
+        }
+      }
+    });
+
+    // 2 — Donut (mirrors Feb style)
+    const ctxD = document.getElementById(cidDonut);
+    if (ctxD) new Chart(ctxD, {
+      type:'doughnut',
+      data:{
+        labels: topCats.map(([c])=>c),
+        datasets:[{
+          data: topCats.map(([,v])=>Math.round(v)),
+          backgroundColor: topCats.map(([c])=>CAT_COLORS_MAP[c]||'#94A3B8'),
+          borderWidth:2, borderColor:'#fff'
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, cutout:'60%',
+        plugins:{
+          legend:{position:'right', labels:{boxWidth:10,boxHeight:10,font:{size:11}}},
+          tooltip:{callbacks:{label:c=>fmtDollar(c.parsed)}}
+        }
+      }
+    });
+
+    // 3 — Weekly bar (mirrors Mar style — peak week highlighted red)
+    const ctxW = document.getElementById(cidWeekly);
+    if (ctxW && weekly.labels.length) {
+      const maxVal = Math.max(...weekly.totals);
+      new Chart(ctxW, {
+        type:'bar',
+        data:{
+          labels: weekly.labels,
+          datasets:[{
+            data: weekly.totals,
+            backgroundColor: weekly.totals.map(v => v===maxVal ? '#DC2626' : '#6366F1'),
+            borderRadius:6, borderSkipped:false
+          }]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.y)}}},
+          scales:{
+            x:{grid:{display:false}, ticks:{font:{size:11}}},
+            y:{ticks:{callback:v=>'$'+v}, grid:{color:'rgba(100,116,139,0.08)'}}
+          }
+        }
+      });
+    }
+  });
+}
+
+function resetUploader(keepHistory){
+  _rawRows=[];_txns=[];_csvHeaders=[];
+  $('file-input').value='';
+  $('mapper-panel').classList.add('hidden');
+  $('upload-stats').classList.add('hidden');
+  $('preview-wrap').classList.add('hidden');
+  $('commit-row').classList.remove('on');
+  $('month-label').value='';
+  hideUpErr();
+}
+function showUpErr(msg){const e=$('parse-err');e.textContent=msg;e.classList.add('on');}
+function hideUpErr(){$('parse-err').classList.remove('on');}
+
+// Drag-and-drop wiring
+(()=>{
+  const inp=$('file-input'), zone=$('upload-zone');
+  inp.addEventListener('change',e=>{if(e.target.files[0])readFile(e.target.files[0]);});
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)readFile(f);});
+})();
+
+// ══════════════════════════════════════════════════════════ FORECAST ═════
+
+let fcChartBar=null, fcChartLine=null;
+
+function nextMonthShort(s){
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const i=M.indexOf(s); return i>=0?M[(i+1)%12]:'Next';
+}
+
+// Resolve per-merchant actual from an uploaded month (has .merchants map) or hardcoded .actuals
+function getItemActual(item, month){
+  if(!month) return 0;
+  if(month.merchants){
+    const k=normMerchant(item.name);
+    if(month.merchants[k]) return month.merchants[k];
+    const first=k.split(' ')[0];
+    for(const [mk,mv] of Object.entries(month.merchants)){
+      if(mk.startsWith(first)||first.length>3&&mk.includes(first)) return mv;
+    }
+  }
+  return item.actuals?.[month.short]||0;
+}
+
+function buildForecast(){
+  const mons=HISTORICAL_MONTHS;
+  if(!mons.length) return;
+  const prev=mons.length>=2?mons[mons.length-2]:null;
+  const last=mons[mons.length-1];
+  const nextS=nextMonthShort(last.short);
+  const nextFull=MONTH_FULL_MAP[nextS]||nextS;
+
+  $('fc-title').textContent=`${nextFull} forecast`;
+  $('fc-subtitle').textContent=`Based on ${mons.map(m=>m.short).join(' / ')} actuals · ${mons.length} month${mons.length>1?'s':''} of data`;
+  $('fc-col-heads').innerHTML=`<span>Merchant / Category</span><span>${prev?prev.short:'—'} actual</span><span>${last.short} actual</span><span>${nextS} forecast</span>`;
+
+  let blocksHTML='', fixedTotal=0, varTotal=0;
+  const fcByCat={};
+
+  // ── Fixed recurring blocks — merchant-level (mirrors Apr Forecast style) ─
+  for(const [cat,items] of Object.entries(RECURRING_ITEMS)){
+    const cfg=FC_CFG[cat]; if(!cfg) continue;
+    const enriched=items.map(item=>{
+      const pa=getItemActual(item,prev), la=getItemActual(item,last);
+      const knownVals=Object.values(item.actuals||{}).filter(v=>v>0);
+      const fallback=knownVals.length?knownVals.reduce((s,v)=>s+v,0)/knownVals.length:0;
+      const fc=Math.round((la>0?la:pa>0?pa:fallback)*100)/100;
+      return {...item,pa,la,fc};
+    }).filter(i=>i.fc>0);
+    if(!enriched.length) continue;
+    const catFc=enriched.reduce((s,i)=>s+i.fc,0);
+    fixedTotal+=catFc; fcByCat[cat]=(fcByCat[cat]||0)+catFc;
+    blocksHTML+=`
+    <div class="forecast-block">
+      <div class="fb-header">
+        <div class="fb-header-left"><div class="fb-dot" style="background:${cfg.color}"></div><span class="fb-title">${cfg.label}</span></div>
+        <span class="fb-total">$${catFc.toFixed(2)}</span>
+      </div>
+      ${enriched.map(i=>`
+      <div class="fb-row"><span>${i.name}</span>
+        <span class="fb-rv">${i.pa>0?'$'+i.pa.toFixed(2):'—'}</span>
+        <span class="fb-rv">${i.la>0?'$'+i.la.toFixed(2):'—'}</span>
+        <span class="fb-rf">$${i.fc.toFixed(2)}</span>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  // ── Variable cost block — category-level rolling avg ─────────────────────
+  const varCats=['groceries','dining','transport','health','fees'];
+  let varRows='';
+  varCats.forEach(cat=>{
+    const cfg=FC_CFG[cat];
+    const recent=mons.slice(-2).map(m=>m.cats[cat]||0);
+    const est=Math.round(recent.reduce((s,v)=>s+v,0)/recent.length);
+    if(!est) return;
+    const pv=prev?prev.cats[cat]||0:0, lv=last.cats[cat]||0;
+    varTotal+=est; fcByCat[cat]=(fcByCat[cat]||0)+est;
+    varRows+=`
+      <div class="fb-row">
+        <span style="display:flex;align-items:center;gap:8px">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${cfg.color};flex-shrink:0"></span>
+          ${cfg.label}
+        </span>
+        <span class="fb-rv">${pv?'$'+pv.toLocaleString():'—'}</span>
+        <span class="fb-rv">${lv?'$'+lv.toLocaleString():'—'}</span>
+        <span class="fb-rv" style="color:var(--amber);font-weight:600">~$${est.toLocaleString()}</span>
+      </div>`;
+  });
+  if(varRows) blocksHTML+=`
+    <div class="forecast-block" style="margin-top:8px">
+      <div class="fb-header" style="background:var(--amber-s)">
+        <div class="fb-header-left"><div class="fb-dot" style="background:var(--amber)"></div><span class="fb-title">Variable costs (rolling 2-month average)</span></div>
+        <span class="fb-total" style="color:var(--amber)">~$${varTotal.toLocaleString()}</span>
+      </div>
+      <div class="col-heads" style="background:transparent;border-top:none;padding:8px 20px 4px">
+        <span>Category</span><span>${prev?prev.short:'—'} actual</span><span>${last.short} actual</span><span>Estimated</span>
+      </div>
+      ${varRows}
+    </div>`;
+
+  $('fc-blocks').innerHTML=blocksHTML;
+
+  const grand=fixedTotal+varTotal;
+  $('fc-grand').innerHTML=`
+    <div class="grand-total">
+      <div><p class="gt-label">Total confirmed recurring</p><p class="gt-sub">${nextS} · fixed costs only · high confidence</p></div>
+      <p class="gt-value" style="color:#6EE7B7">$${fixedTotal.toFixed(2)}</p>
+    </div>
+    <div class="grand-total" style="margin-top:12px;background:linear-gradient(135deg,#451A03,#92400E)">
+      <div><p class="gt-label">Total estimated spend</p><p class="gt-sub">Fixed + variable rolling averages · retail one-offs excluded</p></div>
+      <p class="gt-value" style="color:#FCD34D">~$${grand.toLocaleString()}</p>
+    </div>`;
+
+  // ── Charts ────────────────────────────────────────────────────────────────
+  const cats=Object.entries(fcByCat).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  if(fcChartBar){fcChartBar.destroy();fcChartBar=null;}
+  const ctxB=$('fcBreakdownChart');
+  if(ctxB) fcChartBar=new Chart(ctxB,{
+    type:'bar',
+    data:{labels:cats.map(([c])=>FC_CFG[c]?.label||c),datasets:[{data:cats.map(([,v])=>Math.round(v)),backgroundColor:cats.map(([c])=>FC_CFG[c]?.color||'#94A3B8'),borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar2(c.parsed.y)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{ticks:{callback:v=>'$'+v},grid:{color:'rgba(100,116,139,0.08)'}}}}
+  });
+  if(fcChartLine){fcChartLine.destroy();fcChartLine=null;}
+  const ctxL=$('fcTrendChart');
+  if(ctxL){
+    const allLabels=[...mons.map(m=>m.short),nextS+' ✦'];
+    const allTotals=[...mons.map(m=>m.total),Math.round(grand)];
+    fcChartLine=new Chart(ctxL,{
+      type:'line',
+      data:{labels:allLabels,datasets:[{label:'Spend',data:allTotals,borderColor:'#DC2626',borderWidth:2.5,backgroundColor:ctx=>{const g=ctx.chart.ctx.createLinearGradient(0,0,0,220);g.addColorStop(0,'rgba(220,38,38,0.15)');g.addColorStop(1,'rgba(220,38,38,0)');return g;},fill:true,tension:0.35,pointRadius:[...mons.map(()=>5),7],pointBackgroundColor:[...mons.map(()=>'#DC2626'),'#F59E0B'],pointBorderColor:'#fff',pointBorderWidth:2,segment:{borderDash:ctx=>ctx.p0DataIndex>=mons.length-1?[6,3]:undefined}}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtDollar(c.parsed.y)}}},scales:{x:{grid:{display:false}},y:{min:0,ticks:{callback:v=>'$'+(v>=1000?(v/1000).toFixed(0)+'k':v)},grid:{color:'rgba(100,116,139,0.08)'}}}}
+    });
+  }
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function showSection(id, evt) {
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(evt&&evt.target) evt.target.classList.add('active');
+  document.getElementById('sub-nav').classList.toggle('visible', id==='expenses');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showSub(id, evt) {
+  document.querySelectorAll('.sub-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(evt&&evt.target) evt.target.classList.add('active');
+}
+
+// Initialise forecast on page load
+buildForecast();
+</script>
+</body>
+</html>

@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIC Property Sale Cost Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:        #1B2A4A;
+            --navy-mid:    #243558;
+            --gold:        #D4A843;
+            --gold-light:  #E8C070;
+            --gold-pale:   #FBF4E3;
+            --cream:       #F2EFE9;
+            --white:       #FFFFFF;
+            --gray-50:     #F9FAFB;
+            --gray-100:    #F3F4F6;
+            --gray-200:    #E5E7EB;
+            --gray-300:    #D1D5DB;
+            --gray-400:    #9CA3AF;
+            --gray-500:    #6B7280;
+            --gray-600:    #4B5563;
+            --gray-700:    #374151;
+            --gray-800:    #1F2937;
+            --red-soft:    #FCA5A5;
+            --green:       #16A34A;
+            --shadow-sm:   0 1px 3px rgba(27,42,74,.08), 0 1px 2px rgba(27,42,74,.05);
+            --shadow-md:   0 4px 14px rgba(27,42,74,.10), 0 2px 6px rgba(27,42,74,.06);
+            --shadow-lg:   0 12px 36px rgba(27,42,74,.14), 0 4px 12px rgba(27,42,74,.08);
+            --r:           12px;
+            --r-sm:        8px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--gray-800);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(27,42,74,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(27,42,74,.025) 1px, transparent 1px);
+            background-size: 44px 44px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── HEADER ─────────────────────────────── */
+        header {
+            background: var(--navy);
+            position: relative;
+            overflow: hidden;
+            padding: 3rem 2rem 2.25rem;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,168,67,.12) 0%, transparent 70%);
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+        }
+
+        .header-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+
+        .header-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--gold);
+            border: 1px solid rgba(212,168,67,.35);
+            padding: .28rem .8rem;
+            border-radius: 100px;
+            margin-bottom: .9rem;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.75rem, 4vw, 2.7rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            max-width: 680px;
+        }
+
+        header h1 em {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        header p {
+            margin-top: .7rem;
+            color: rgba(255,255,255,.55);
+            font-size: .9rem;
+            max-width: 520px;
+            font-weight: 300;
+        }
+
+        /* ── LAYOUT ──────────────────────────────── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 370px;
+            gap: 1.75rem;
+            align-items: start;
+        }
+
+        @media (max-width: 940px) {
+            .layout { grid-template-columns: 1fr; }
+            .results-column { order: -1; }
+            .results-column .results-card { position: static; }
+        }
+
+        /* ── INPUTS COLUMN ───────────────────────── */
+        .inputs-column { display: flex; flex-direction: column; gap: 1.1rem; }
+
+        /* ── CARDS ───────────────────────────────── */
+        .card {
+            background: var(--white);
+            border-radius: var(--r);
+            border: 1px solid rgba(27,42,74,.07);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            animation: fadeUp .35s ease both;
+        }
+
+        .card:nth-child(2)  { animation-delay: .05s; }
+        .card:nth-child(3)  { animation-delay: .10s; }
+        .card:nth-child(4)  { animation-delay: .15s; }
+        .card:nth-child(5)  { animation-delay: .20s; }
+        .card:nth-child(6)  { animation-delay: .25s; }
+        .card:nth-child(7)  { animation-delay: .30s; }
+        .card:nth-child(8)  { animation-delay: .35s; }
+        .card:nth-child(9)  { animation-delay: .40s; }
+        .card:nth-child(10) { animation-delay: .45s; }
+        .card:nth-child(11) { animation-delay: .50s; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: 1.1rem 1.4rem;
+            border-bottom: 1px solid var(--gray-100);
+            cursor: pointer;
+            user-select: none;
+            transition: background .15s;
+        }
+
+        .card-header:hover { background: var(--gray-50); }
+
+        .card-icon {
+            width: 34px; height: 34px;
+            border-radius: 7px;
+            background: var(--gold-pale);
+            display: flex; align-items: center; justify-content: center;
+            font-size: .95rem;
+            flex-shrink: 0;
+        }
+
+        .card-titles { flex: 1; }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .card-sub {
+            font-size: .72rem;
+            color: var(--gray-400);
+        }
+
+        .card-amount {
+            font-size: .88rem;
+            font-weight: 600;
+            color: var(--navy);
+            white-space: nowrap;
+        }
+
+        .card-chevron {
+            color: var(--gray-400);
+            font-size: .65rem;
+            transition: transform .2s;
+        }
+
+        .card-chevron.open { transform: rotate(180deg); }
+
+        .card-body { padding: 1.2rem 1.4rem; }
+        .card-body.collapsed { display: none; }
+
+        /* ── FORM FIELDS ─────────────────────────── */
+        .field { margin-bottom: .9rem; }
+        .field:last-child { margin-bottom: 0; }
+
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            margin-bottom: .35rem;
+        }
+
+        /* Tooltip */
+        .tip {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            color: var(--gray-500);
+            font-size: .58rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+            position: relative;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .tip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: calc(100% + 7px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--navy);
+            color: rgba(255,255,255,.9);
+            font-size: .7rem;
+            padding: .55rem .8rem;
+            border-radius: 6px;
+            width: 230px;
+            white-space: normal;
+            font-weight: 400;
+            line-height: 1.45;
+            z-index: 200;
+            box-shadow: var(--shadow-md);
+            pointer-events: none;
+        }
+
+        .tip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: calc(100% + 3px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--navy);
+            z-index: 200;
+        }
+
+        /* Inputs */
+        .input-wrap { position: relative; }
+
+        .input-prefix {
+            position: absolute;
+            left: .82rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: .88rem;
+            color: var(--gray-400);
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            height: 40px;
+            padding: 0 .85rem;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--r-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .875rem;
+            color: var(--gray-800);
+            background: #fff;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+            -webkit-appearance: none;
+        }
+
+        .input-wrap input[type="number"] { padding-left: 1.65rem; }
+
+        input:focus, select:focus {
+            border-color: var(--navy);
+            box-shadow: 0 0 0 3px rgba(27,42,74,.08);
+        }
+
+        /* Sale price big */
+        #salePrice {
+            font-size: 1.45rem !important;
+            font-weight: 600 !important;
+            height: 56px !important;
+            color: var(--navy) !important;
+            border-color: rgba(27,42,74,.4) !important;
+        }
+
+        #salePrice:focus { box-shadow: 0 0 0 3px rgba(27,42,74,.12) !important; }
+
+        .sale-prefix {
+            font-size: 1.2rem !important;
+            color: var(--navy) !important;
+            font-weight: 600 !important;
+        }
+
+        /* Segmented control */
+        .segmented {
+            display: flex;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--r-sm);
+            overflow: hidden;
+            background: var(--gray-50);
+        }
+
+        .segmented button {
+            flex: 1;
+            padding: .48rem .5rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .78rem;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--gray-600);
+            transition: all .15s;
+        }
+
+        .segmented button.active {
+            background: var(--navy);
+            color: #fff;
+        }
+
+        /* Toggle */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: .75rem;
+        }
+
+        .toggle-label { font-size: .84rem; color: var(--gray-700); flex: 1; }
+
+        .sw { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+        .sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+        .sw-track {
+            position: absolute;
+            inset: 0;
+            background: var(--gray-300);
+            border-radius: 100px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .sw-track::before {
+            content: '';
+            position: absolute;
+            width: 16px; height: 16px;
+            left: 3px; top: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform .2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,.2);
+        }
+
+        .sw input:checked ~ .sw-track { background: var(--navy); }
+        .sw input:checked ~ .sw-track::before { transform: translateX(18px); }
+
+        /* Checkbox item rows */
+        .check-row {
+            display: grid;
+            grid-template-columns: 18px 1fr 110px;
+            align-items: center;
+            gap: .65rem;
+            padding: .55rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .check-row:last-child { border-bottom: none; }
+
+        input[type="checkbox"] {
+            width: 16px; height: 16px;
+            cursor: pointer;
+            accent-color: var(--navy);
+            flex-shrink: 0;
+        }
+
+        .check-label { font-size: .82rem; color: var(--gray-700); }
+
+        .check-amt { position: relative; }
+        .check-amt .input-prefix { left: .6rem; font-size: .8rem; }
+        .check-amt input[type="number"] {
+            height: 34px;
+            font-size: .8rem;
+            padding-left: 1.35rem;
+        }
+
+        /* Slider */
+        .slider-row { display: flex; align-items: center; gap: 1rem; }
+
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 5px;
+            border-radius: 3px;
+            background: var(--gray-200);
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--navy);
+            cursor: pointer;
+            border: 2.5px solid #fff;
+            box-shadow: 0 1px 5px rgba(27,42,74,.3);
+        }
+
+        .slider-val {
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--navy);
+            min-width: 48px;
+            text-align: right;
+        }
+
+        /* Two-col grid */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+
+        /* Radio pills */
+        .pill-group { display: flex; gap: .45rem; flex-wrap: wrap; }
+
+        .pill input { position: absolute; opacity: 0; width: 0; }
+
+        .pill label {
+            display: block;
+            padding: .38rem .9rem;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 100px;
+            font-size: .8rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .pill input:checked + label {
+            border-color: var(--navy);
+            background: var(--navy);
+            color: #fff;
+        }
+
+        /* Note / hint */
+        .field-note {
+            font-size: .7rem;
+            color: var(--gray-400);
+            margin-top: .3rem;
+        }
+
+        /* Info box */
+        .infobox {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--r-sm);
+            padding: .8rem 1rem;
+            font-size: .77rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+            margin-top: .8rem;
+        }
+
+        .infobox strong { color: var(--navy); }
+
+        /* Alert box */
+        .alertbox {
+            display: flex;
+            gap: .55rem;
+            background: var(--gold-pale);
+            border: 1px solid rgba(212,168,67,.3);
+            border-radius: var(--r-sm);
+            padding: .75rem 1rem;
+            font-size: .77rem;
+            color: #7A5C10;
+            line-height: 1.5;
+            margin-bottom: .9rem;
+        }
+
+        .alertbox strong { color: #5A3E08; }
+
+        /* Hidden */
+        .hidden { display: none !important; }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%239CA3AF' d='M5 7L0.5 2.5h9z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .85rem center;
+            padding-right: 2rem;
+        }
+
+        /* ── RESULTS COLUMN ──────────────────────── */
+        .results-column { position: sticky; top: 1.5rem; }
+
+        .results-card {
+            background: var(--navy);
+            border-radius: var(--r);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .res-header {
+            padding: 1.4rem 1.5rem .9rem;
+            border-bottom: 1px solid rgba(255,255,255,.07);
+        }
+
+        .res-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .res-header p {
+            font-size: .7rem;
+            color: rgba(255,255,255,.38);
+            margin-top: .15rem;
+        }
+
+        /* Net proceeds card */
+        .net-card {
+            margin: 1.1rem 1.5rem;
+            background: linear-gradient(135deg, rgba(212,168,67,.18), rgba(212,168,67,.07));
+            border: 1px solid rgba(212,168,67,.3);
+            border-radius: var(--r-sm);
+            padding: 1.15rem;
+            text-align: center;
+        }
+
+        .net-label {
+            font-size: .64rem;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: .45rem;
+        }
+
+        .net-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.1rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+            transition: color .2s;
+        }
+
+        .net-value.negative { color: var(--red-soft); }
+
+        .net-sub {
+            font-size: .7rem;
+            color: rgba(255,255,255,.42);
+            margin-top: .4rem;
+        }
+
+        /* Chart */
+        .chart-wrap { padding: .25rem 1.5rem .9rem; }
+        .chart-container { position: relative; height: 175px; }
+
+        /* Breakdown list */
+        .bk-list { padding: 0 1.5rem; }
+
+        .bk-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .52rem 0;
+            border-bottom: 1px solid rgba(255,255,255,.055);
+        }
+
+        .bk-item:last-child { border-bottom: none; }
+
+        .bk-left {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            min-width: 0;
+        }
+
+        .bk-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .bk-name {
+            font-size: .76rem;
+            color: rgba(255,255,255,.6);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bk-pct {
+            font-size: .67rem;
+            color: rgba(255,255,255,.27);
+            margin-left: .3rem;
+        }
+
+        .bk-amt {
+            font-size: .8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.82);
+            flex-shrink: 0;
+            margin-left: .5rem;
+        }
+
+        .bk-amt.neg { color: var(--red-soft); }
+
+        /* Total row */
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .9rem 1.5rem;
+            border-top: 1px solid rgba(255,255,255,.09);
+        }
+
+        .total-label {
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: rgba(255,255,255,.42);
+        }
+
+        .total-amt {
+            font-size: .95rem;
+            font-weight: 600;
+            color: var(--red-soft);
+        }
+
+        /* Print btn */
+        .print-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            width: calc(100% - 3rem);
+            margin: 0 1.5rem 1.5rem;
+            padding: .65rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,.14);
+            border-radius: var(--r-sm);
+            color: rgba(255,255,255,.42);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .76rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .print-btn:hover {
+            background: rgba(255,255,255,.06);
+            color: rgba(255,255,255,.75);
+            border-color: rgba(255,255,255,.22);
+        }
+
+        /* ── FOOTER ──────────────────────────────── */
+        footer {
+            background: #fff;
+            border-top: 1px solid var(--gray-200);
+            padding: 1.5rem 2rem;
+            margin-top: 2rem;
+        }
+
+        .footer-inner { max-width: 1200px; margin: 0 auto; }
+
+        .disclaimer {
+            font-size: .72rem;
+            color: var(--gray-400);
+            line-height: 1.65;
+        }
+
+        .disclaimer strong { color: var(--gray-600); }
+
+        /* ── PRINT ───────────────────────────────── */
+        @media print {
+            body::before { display: none; }
+            header { padding: 1.5rem; }
+            .layout { grid-template-columns: 1fr 300px; gap: 1rem; }
+            .results-column { position: static; }
+            .print-btn, .card-chevron { display: none !important; }
+            .card-body.collapsed { display: block !important; }
+            .card-header { cursor: default; pointer-events: none; }
+        }
+
+        /* ── RESPONSIVE ──────────────────────────── */
+        @media (max-width: 600px) {
+            header { padding: 1.75rem 1.1rem; }
+            .container { padding: 1.1rem .85rem; }
+            .two-col { grid-template-columns: 1fr; }
+            header h1 { font-size: 1.5rem; }
+        }
+        /* ── SITE NAV ── */
+        .site-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #e8e8e8;}
+        .site-nav-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
+        .site-nav-brand{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:600;color:#0a0a0a;text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px;}
+        .site-nav-dot{width:5px;height:5px;background:#1a6bff;border-radius:50%;flex-shrink:0;display:inline-block;}
+        .site-nav-links{display:flex;align-items:center;gap:20px;}
+        .site-nav-links a{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:400;color:#555;text-decoration:none;transition:color .14s;}
+        .site-nav-links a:hover{color:#0a0a0a;}
+        .site-nav-links a.active{color:#0a0a0a;font-weight:600;}
+        @media(max-width:540px){.site-nav-links{gap:12px;}.site-nav-links a{font-size:13px;}}
+        @media(max-width:380px){.site-nav-links{display:none;}}
+    </style>
+</head>
+<body>
+
+<!-- SITE NAV -->
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="site-nav-brand">Seun Gwak <span class="site-nav-dot"></span></a>
+    <div class="site-nav-links">
+      <a href="EL1.HTML">EL1</a>
+      <a href="BrainDump.html">Brain Dump</a>
+      <a href="Newsite.html">Budget</a>
+      <a href="Property_sale_calculator.html" class="active">Property</a>
+      <a href="rba_cash_rate_history_3.html">RBA Rate</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+    <div class="header-inner">
+        <div class="header-tag">&#127982; Victoria, Australia · 2024–25</div>
+        <h1>Property Sale<br><em>Cost Calculator</em></h1>
+        <p>A comprehensive breakdown of every cost involved in selling your Victorian property — from listing day to settlement.</p>
+    </div>
+</header>    
+
+<div class="container">
+<div class="layout">
+
+    <!-- ═══════════════════════════════════════
+         INPUTS COLUMN
+    ═══════════════════════════════════════ -->
+    <div class="inputs-column">
+
+        <!-- 1 · PROPERTY DETAILS -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">🏠</div>
+                <div class="card-titles">
+                    <div class="card-title">Property Details</div>
+                    <div class="card-sub">Sale price and property type</div>
+                </div>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="field">
+                    <div class="field-label">Expected Sale Price</div>
+                    <div class="input-wrap">
+                        <span class="input-prefix sale-prefix">$</span>
+                        <input type="number" id="salePrice" value="770000" placeholder="770000" oninput="calculate()">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Property Type</div>
+                    <div class="pill-group">
+                        <label class="pill"><input type="radio" name="ptype" value="house" checked onchange="calculate()"><span>House</span></label>
+                        <label class="pill"><input type="radio" name="ptype" value="unit" onchange="calculate()"><span>Unit / Apartment</span></label>
+                        <label class="pill"><input type="radio" name="ptype" value="townhouse" onchange="calculate()"><span>Townhouse</span></label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Property Status
+                        <span class="tip" data-tip="Primary residence (PPOR) is exempt from Capital Gains Tax. Investment properties attract CGT and land tax.">?</span>
+                    </div>
+                    <div class="pill-group">
+                        <label class="pill"><input type="radio" name="pstatus" value="primary" checked onchange="onStatusChange()"><span>Primary Residence</span></label>
+                        <label class="pill"><input type="radio" name="pstatus" value="investment" onchange="onStatusChange()"><span>Investment Property</span></label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Expected Settlement Date</div>
+                    <input type="date" id="settlementDate" oninput="calculate()">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 · AGENT COMMISSION -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">🤝</div>
+                <div class="card-titles">
+                    <div class="card-title">Agent Commission</div>
+                    <div class="card-sub">Real estate agent fees (incl. GST)</div>
+                </div>
+                <span class="card-amount" id="h-commission">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="field">
+                    <div class="field-label">Commission Type</div>
+                    <div class="segmented" id="commSeg">
+                        <button class="active" onclick="setCommType('pct',this)">Percentage (%)</button>
+                        <button onclick="setCommType('flat',this)">Flat Fee ($)</button>
+                    </div>
+                </div>
+                <div id="commPctWrap" class="field">
+                    <div class="field-label">
+                        Commission Rate
+                        <span class="tip" data-tip="Victoria's typical commission is 1.6%–2.5% including GST. Rates are negotiable — always get a few quotes. Some agents offer a tiered structure with a bonus above a target price.">?</span>
+                    </div>
+                    <div class="slider-row">
+                        <input type="range" id="commRate" min="1.0" max="3.5" step="0.05" value="1.55" oninput="onRateSlide()">
+                        <span class="slider-val" id="commRateLabel">1.55%</span>
+                    </div>
+                    <div class="field-note" id="commPctNote">Estimated commission based on 2.00% of sale price</div>
+                </div>
+                <div id="commFlatWrap" class="field hidden">
+                    <div class="field-label">Fixed Commission Amount (incl. GST)</div>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="commFlat" value="15000" oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 · MARKETING -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">📣</div>
+                <div class="card-titles">
+                    <div class="card-title">Marketing & Advertising</div>
+                    <div class="card-sub">realestate.com.au listing cost</div>
+                </div>
+                <span class="card-amount" id="h-marketing">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="field">
+                    <div class="field-label">realestate.com.au Listing
+                        <span class="tip" data-tip="Premiere+ listing gives ~6× more views than standard. Typically 45-day campaign. Costs vary by market area.">?</span>
+                    </div>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="mREAAmt" value="3000" oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 · LEGAL -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">⚖️</div>
+                <div class="card-titles">
+                    <div class="card-title">Legal & Conveyancing</div>
+                    <div class="card-sub">Conveyancer, Section 32, title searches</div>
+                </div>
+                <span class="card-amount" id="h-legal">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="field">
+                    <div class="field-label">Conveyancer / Solicitor Fee
+                        <span class="tip" data-tip="A conveyancer manages the legal transfer of ownership. In Victoria, vendors must prepare a Section 32 Vendor's Statement — your conveyancer handles this.">?</span>
+                    </div>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="convFee" value="1500" oninput="calculate()">
+
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="field">
+                        <div class="field-label">Title Search
+                            <span class="tip" data-tip="Your conveyancer searches for easements, caveats, restrictions and encumbrances on the title to include in the Section 32.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="titleSearch" value="0" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Section 32 / Vendor Statement
+                            <span class="tip" data-tip="Required by Victorian law. Must be given to all buyers before they sign the Contract of Sale. Includes council, water, planning certificates and title information.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="vendorStmt" value="0" oninput="calculate()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 · LOAN -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">🏦</div>
+                <div class="card-titles">
+                    <div class="card-title">Current Mortgage / Loan</div>
+                    <div class="card-sub">Outstanding balance and discharge costs</div>
+                </div>
+                <span class="card-amount" id="h-loan">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="toggle-row">
+                    <span class="toggle-label">I have an outstanding mortgage on this property</span>
+                    <label class="sw">
+                        <input type="checkbox" id="hasMortgage" checked onchange="onMortgageToggle()">
+                        <div class="sw-track"></div>
+                    </label>
+                </div>
+                <div id="mortgageFields">
+                    <div class="field">
+                        <div class="field-label">Outstanding Loan Balance
+                            <span class="tip" data-tip="The remaining amount owed on your home loan at the time of settlement. This is paid directly to your lender from the sale proceeds on settlement day.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="loanBalance" value="533000" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="two-col">
+                        <div class="field">
+                            <div class="field-label">Discharge Fee
+                                <span class="tip" data-tip="Fee charged by your lender to remove the mortgage from your title at settlement. Typically $150–$400. Check your loan documents or call your bank.">?</span>
+                            </div>
+                            <div class="input-wrap">
+                                <span class="input-prefix">$</span>
+                                <input type="number" id="dischargeFee" value="0" oninput="calculate()">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Fixed Rate Break Cost
+                                <span class="tip" data-tip="If you're breaking a fixed-rate loan early, your lender may charge a break cost. This can be substantial. Request an exact figure from your lender before selling.">?</span>
+                            </div>
+                            <div class="input-wrap">
+                                <span class="input-prefix">$</span>
+                                <input type="number" id="breakCost" value="0" placeholder="0" oninput="calculate()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7 · PRE-SALE -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">🔧</div>
+                <div class="card-titles">
+                    <div class="card-title">Pre-Sale Preparation</div>
+                    <div class="card-sub">Inspections, repairs and presentation</div>
+                </div>
+                <span class="card-amount" id="h-presale">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="check-row">
+                    <input type="checkbox" id="hasBPI" onchange="calculate()">
+                    <div class="check-label">Building & Pest Inspection
+                        <span class="tip" data-tip="A pre-sale inspection lets you identify and disclose issues upfront, building buyer confidence and reducing the risk of price renegotiations or sale collapse.">?</span>
+                    </div>
+                    <div class="check-amt input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="bpiAmt" value="600" oninput="calculate()">
+                    </div>
+                </div>
+                <div style="height:.6rem"></div>
+                <div class="field">
+                    <div class="field-label">Repairs & Maintenance</div>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="repairs" value="0" placeholder="0" oninput="calculate()">
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="field">
+                        <div class="field-label">Gardening / Landscaping</div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="gardening" value="0" placeholder="0" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Cleaning / Presentation</div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="cleaning" value="0" placeholder="0" oninput="calculate()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8 · GOVERNMENT -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">🏛️</div>
+                <div class="card-titles">
+                    <div class="card-title">Government & Rates</div>
+                    <div class="card-sub">Land tax, council & water rates adjustment</div>
+                </div>
+                <span class="card-amount" id="h-govt">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <!-- Land Tax (investment only) -->
+                <div id="landTaxWrap">
+                    <div class="field">
+                        <div class="field-label">Site / Land Value (for land tax estimate)
+                            <span class="tip" data-tip="Victorian land tax is calculated on the site value (land only, not improvements). Find this on your council rates notice. Primary residences are exempt.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="landValue" value="0" placeholder="Enter site value from rates notice" oninput="calculate()">
+                        </div>
+                        <div class="field-note">Leave as $0 if unknown. Primary residences are exempt from land tax.</div>
+                    </div>
+                    <div id="landTaxResult" class="alertbox hidden">
+                        <span>💡</span>
+                        <span>Estimated 2024–25 land tax: <strong id="landTaxCalcVal">$0</strong>. Based on site value only. Actual amount depends on all Victorian land holdings — contact SRO Victoria for an exact figure.</span>
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="field">
+                        <div class="field-label">Council Rates Adjustment
+                            <span class="tip" data-tip="At settlement, council rates are apportioned between buyer and seller based on the exact settlement date. You pay for your portion up to settlement day.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="councilRates" value="0" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Water Rates Adjustment
+                            <span class="tip" data-tip="Water rates are also apportioned at settlement between buyer and seller in Victoria.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="waterRates" value="0" oninput="calculate()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9 · MOVING -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">📦</div>
+                <div class="card-titles">
+                    <div class="card-title">Moving Costs</div>
+                    <div class="card-sub">Removalists and relocation</div>
+                </div>
+                <span class="card-amount" id="h-moving">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="two-col">
+                    <div class="field">
+                        <div class="field-label">Removalist Costs
+                            <span class="tip" data-tip="Melbourne metro removalists typically cost $1,000–$3,500 depending on house size and distance. Interstate moves are significantly higher.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="removalist" value="0" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Storage / Temp. Accommodation</div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="storage" value="0" placeholder="0" oninput="calculate()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10 · CGT -->
+        <div class="card" id="cgtCard">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">📊</div>
+                <div class="card-titles">
+                    <div class="card-title">Capital Gains Tax (CGT)</div>
+                    <div class="card-sub">Estimated tax liability for investment properties</div>
+                </div>
+                <span class="card-amount" id="h-cgt">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div id="cgtPrimaryNote" class="alertbox">
+                    <span>✅</span>
+                    <span><strong>No CGT applies</strong> — your principal place of residence (PPOR) is exempt from Capital Gains Tax. Switch to <em>Investment Property</em> above to calculate CGT.</span>
+                </div>
+                <div id="cgtFields" class="hidden">
+                    <div class="field">
+                        <div class="field-label">Original Purchase Price
+                            <span class="tip" data-tip="The price you paid when you originally purchased the property. Used to calculate your capital gain.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="purchasePrice" value="500000" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="two-col">
+                        <div class="field">
+                            <div class="field-label">Purchase Costs
+                                <span class="tip" data-tip="Stamp duty, conveyancing and other costs you paid when buying. These increase your cost base and reduce your capital gain.">?</span>
+                            </div>
+                            <div class="input-wrap">
+                                <span class="input-prefix">$</span>
+                                <input type="number" id="purchaseCosts" value="25000" oninput="calculate()">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Years Held
+                                <span class="tip" data-tip="Holding for more than 12 months qualifies you for the 50% CGT discount — your taxable gain is halved.">?</span>
+                            </div>
+                            <input type="number" id="yearsHeld" value="5" min="0" max="80" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Your Marginal Income Tax Rate
+                            <span class="tip" data-tip="Your capital gain is added to your other income and taxed at your marginal rate. Select the rate that applies to your total taxable income including the capital gain. Consult your accountant for accuracy.">?</span>
+                        </div>
+                        <select id="taxRate" onchange="calculate()">
+                            <option value="0">0% — Below $18,200 (tax-free threshold)</option>
+                            <option value="0.19">19% — $18,201 to $45,000</option>
+                            <option value="0.325" selected>32.5% — $45,001 to $120,000</option>
+                            <option value="0.37">37% — $120,001 to $180,000</option>
+                            <option value="0.45">45% — Over $180,000</option>
+                        </select>
+                    </div>
+                    <div class="infobox" id="cgtInfoBox"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11 · OTHER -->
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div class="card-icon">➕</div>
+                <div class="card-titles">
+                    <div class="card-title">Other / Miscellaneous</div>
+                    <div class="card-sub">Strata, OC certificates, other costs</div>
+                </div>
+                <span class="card-amount" id="h-other">—</span>
+                <div class="card-chevron open">▼</div>
+            </div>
+            <div class="card-body">
+                <div class="two-col">
+                    <div class="field">
+                        <div class="field-label">Owners Corporation (OC) Certificate
+                            <span class="tip" data-tip="Required for properties in a body corporate / owners corporation. The certificate discloses financial status, levies and meeting minutes. Typically $200–$500.">?</span>
+                        </div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="ocCert" value="0" placeholder="0" oninput="calculate()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="field-label">Body Corporate Levies (apportioned)</div>
+                        <div class="input-wrap">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="strata" value="0" placeholder="0" oninput="calculate()">
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Other Costs</div>
+                    <div class="input-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="otherCosts" value="0" placeholder="0" oninput="calculate()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end inputs-column -->
+
+    <!-- ═══════════════════════════════════════
+         RESULTS COLUMN
+    ═══════════════════════════════════════ -->
+    <div class="results-column">
+        <div class="results-card">
+
+            <div class="res-header">
+                <h2>Your Sale Proceeds</h2>
+                <p>Updates in real-time as you adjust inputs</p>
+            </div>
+
+            <!-- Net Proceeds -->
+            <div class="net-card">
+                <div class="net-label">Estimated Net Proceeds</div>
+                <div class="net-value" id="netValue">$0</div>
+                <div class="net-sub" id="netSub">after all costs &amp; loan repayment</div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-wrap">
+                <div class="chart-container">
+                    <canvas id="costChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Breakdown list -->
+            <div class="bk-list">
+                <div class="bk-item">
+                    <div class="bk-left">
+                        <div class="bk-dot" style="background:#4B7BE5"></div>
+                        <span class="bk-name">Sale Price</span>
+                    </div>
+                    <span class="bk-amt" id="bk-sale">$0</span>
+                </div>
+                <div class="bk-item">
+                    <div class="bk-left">
+                        <div class="bk-dot" style="background:#E85D5D"></div>
+                        <span class="bk-name">Agent Commission</span>
+                        <span class="bk-pct" id="bk-commPct"></span>
+                    </div>
+                    <span class="bk-amt neg" id="bk-comm">−$0</span>
+                </div>
+                <div class="bk-item">
+                    <div class="bk-left">
+                        <div class="bk-dot" style="background:#F59E42"></div>
+                        <span class="bk-name">Marketing</span>
+                        <span class="bk-pct" id="bk-mktPct"></span>
+                    </div>
+                    <span class="bk-amt neg" id="bk-mkt">−$0</span>
+                </div>
+                <div class="bk-item">
+                    <div class="bk-left">
+                        <div class="bk-dot" style="background:#A78BFA"></div>
+                        <span class="bk-name">Legal &amp; Conveyancing</span>
+                        <span class="bk-pct" id="bk-legalPct"></span>
+                    </div>
+                    <span class="bk-amt neg" id="bk-legal">−$0</span>
+                </div>
+                <div class="bk-item" id="bk-loanRow">
+                    <div class="bk-left">
+                        <div class="bk-dot" style="background:#34D399"></div>
+                        <span class="bk-name">Loan Repayment</span>
+                        <span class="bk-pct" id="bk-loanPct"></span>
+                    </div>
+                    <span class="bk-amt neg" id="bk-loan">−$0</span>
+                </div>
+                <div class="bk-item">
+                    <div class="bk-left">
+                        <div class="bk-dot" style="background:#FB923C"></div>
+                        <span class="bk-name">Pre-sale, Auction &amp; Moving</span>
+                        <span class="bk-pct" id="bk-presalePct"></span>
+                    </div>
+                    <span class="bk-amt neg" id="bk-presale">−$0</span>
+                </div>
+                <div class="bk-item">
+                    <div class="bk-left">
+                        <div class="bk-dot" style="background:#60A5FA"></div>
+                        <span class="bk-name">Govt &amp; Rates</span>
+                        <span class="bk-pct" id="bk-govtPct"></span>
+                    </div>
+                    <span class="bk-amt neg" id="bk-govt">−$0</span>
+                </div>
+                <div class="bk-item" id="bk-cgtRow" style="display:none">
+                    <div class="bk-left">
+                        <div class="bk-dot" style="background:#F43F5E"></div>
+                        <span class="bk-name">Est. Capital Gains Tax</span>
+                        <span class="bk-pct" id="bk-cgtPct"></span>
+                    </div>
+                    <span class="bk-amt neg" id="bk-cgt">−$0</span>
+                </div>
+            </div>
+
+            <div class="total-row">
+                <span class="total-label">Total Costs</span>
+                <span class="total-amt" id="totalCostsAmt">−$0</span>
+            </div>
+
+            <button class="print-btn" onclick="window.print()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="6 9 6 2 18 2 18 9"/>
+                    <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                    <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                Print / Save as PDF
+            </button>
+
+        </div>
+    </div><!-- end results-column -->
+
+</div><!-- end layout -->
+</div><!-- end container -->
+
+<footer>
+    <div class="footer-inner">
+        <div class="disclaimer">
+            <strong>Important Disclaimer:</strong> This calculator provides estimates only and is not financial, legal or tax advice. All figures are indicative and will vary depending on your property, lender, agent, conveyancer and personal tax situation. Agent commissions are negotiable. CGT calculations are simplified — actual liability depends on your complete taxable income, deductions and ATO assessment. Land tax estimates are based on published SRO Victoria rates and do not account for aggregated holdings, trust surcharges or other adjustments — contact the State Revenue Office Victoria for an exact liability. Council and water rate adjustments depend on your settlement date and local council. Always obtain independent advice from a qualified accountant, solicitor and financial adviser before making property decisions.
+            <br><br>Rates and thresholds reflect the 2024–25 Australian financial year. The State Revenue Office Victoria (SRO) is the authority for land tax. The Australian Taxation Office (ATO) governs capital gains tax.
+        </div>
+    </div>
+</footer>
+
+<script>
+/* ════════════════════════════════════════════
+   CHART
+════════════════════════════════════════════ */
+const COLORS = {
+    net:      '#D4A843',
+    comm:     '#E85D5D',
+    mkt:      '#F59E42',
+    legal:    '#A78BFA',
+    loan:     '#34D399',
+    presale:  '#FB923C',
+    govt:     '#60A5FA',
+    cgt:      '#F43F5E',
+};
+
+let chart;
+
+function initChart() {
+    const ctx = document.getElementById('costChart').getContext('2d');
+    chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Net Proceeds','Commission','Marketing','Legal','Loan','Pre-sale & Moving','Govt & Rates','CGT'],
+            datasets: [{
+                data: [770000, 0, 0, 0, 0, 0, 0, 0],
+                backgroundColor: Object.values(COLORS),
+                borderWidth: 2,
+                borderColor: '#1B2A4A',
+                hoverOffset: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label(ctx) {
+                            const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+                            const pct   = total > 0 ? ((ctx.raw/total)*100).toFixed(1) : '0.0';
+                            return ` ${ctx.label}: ${fmt(ctx.raw)} (${pct}%)`;
+                        }
+                    },
+                    backgroundColor: '#1B2A4A',
+                    titleColor: '#D4A843',
+                    bodyColor: 'rgba(255,255,255,.85)',
+                    padding: 10,
+                    cornerRadius: 7,
+                }
+            },
+            animation: { duration: 350, easing: 'easeInOutQuart' }
+        }
+    });
+}
+
+/* ════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════ */
+const fmt = v => new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD',maximumFractionDigits:0}).format(isNaN(v)?0:v);
+const pctStr = (v, sale) => sale > 0 ? `${((v/sale)*100).toFixed(1)}%` : '';
+const gv = id => parseFloat(document.getElementById(id)?.value)||0;
+const gc = id => document.getElementById(id)?.checked||false;
+
+/* Victoria Land Tax 2024-25 (general threshold $300k) */
+function vicLandTax(siteVal) {
+    if (siteVal < 300000)  return 0;
+    if (siteVal <= 600000) return 375  + (siteVal -  300000) * 0.002;
+    if (siteVal <= 1000000) return 975  + (siteVal -  600000) * 0.005;
+    if (siteVal <= 1800000) return 2975 + (siteVal - 1000000) * 0.008;
+    if (siteVal <= 3000000) return 9375 + (siteVal - 1800000) * 0.013;
+    return 24975 + (siteVal - 3000000) * 0.0255;
+}
+
+/* CGT estimate */
+function calcCGT(salePrice, purchasePrice, purchaseCosts, sellingCosts, yearsHeld, rate) {
+    const costBase    = purchasePrice + purchaseCosts;
+    const capitalGain = salePrice - costBase - sellingCosts;
+    if (capitalGain <= 0) return { cgt: 0, capitalGain, taxableGain: 0, discount: false };
+    const discount    = yearsHeld >= 1;
+    const taxableGain = discount ? capitalGain * 0.5 : capitalGain;
+    const cgt         = taxableGain * rate;
+    return { cgt, capitalGain, taxableGain, discount };
+}
+
+/* ════════════════════════════════════════════
+   MAIN CALCULATION
+════════════════════════════════════════════ */
+function calculate() {
+    const sale = gv('salePrice');
+    const isInv = document.querySelector('input[name="pstatus"]:checked')?.value === 'investment';
+
+    /* ── Commission ── */
+    const commType = document.querySelector('#commSeg .active').textContent.trim().startsWith('Percentage') ? 'pct' : 'flat';
+    const commRate = gv('commRate') / 100;
+    const commission = commType === 'pct' ? sale * commRate : gv('commFlat');
+
+    // Update commission note
+    document.getElementById('commPctNote').textContent =
+        commType === 'pct'
+            ? `Estimated commission at ${(commRate*100).toFixed(2)}% of sale price`
+            : 'Fixed flat-fee commission applied';
+
+    /* ── Marketing ── */
+    const marketing = gv('mREAAmt');
+
+    /* ── Legal ── */
+    const legal = gv('convFee') + gv('titleSearch') + gv('vendorStmt');
+
+    /* ── Loan ── */
+    const hasMtg = gc('hasMortgage');
+    const loanBalance = hasMtg ? gv('loanBalance') : 0;
+    const dischargeCosts = hasMtg ? gv('dischargeFee') + gv('breakCost') : 0;
+    const totalLoan = loanBalance + dischargeCosts;
+
+    /* ── Pre-sale ── */
+    const bpi      = gc('hasBPI') ? gv('bpiAmt') : 0;
+    const presale  = bpi + gv('repairs') + gv('gardening') + gv('cleaning');
+
+    /* ── Moving ── */
+    const moving = gv('removalist') + gv('storage');
+
+    /* ── Government ── */
+    let landTax = 0;
+    if (isInv) {
+        const sv = gv('landValue');
+        landTax = vicLandTax(sv);
+        if (sv > 0) {
+            document.getElementById('landTaxResult').classList.remove('hidden');
+            document.getElementById('landTaxCalcVal').textContent = fmt(landTax);
+        } else {
+            document.getElementById('landTaxResult').classList.add('hidden');
+        }
+    } else {
+        document.getElementById('landTaxResult').classList.add('hidden');
+    }
+    const govt = landTax + gv('councilRates') + gv('waterRates');
+
+    /* ── Other ── */
+    const other = gv('ocCert') + gv('strata') + gv('otherCosts');
+
+    /* ── Grouped: pre-sale + moving + other ── */
+    const presaleGroup = presale + moving + other;
+
+    /* Selling costs (excluding loan, used for CGT cost base) */
+    const sellingCosts = commission + marketing + legal + dischargeCosts + presaleGroup + govt;
+
+    /* ── CGT ── */
+    let cgt = 0, cgtDetails = null;
+    if (isInv) {
+        cgtDetails = calcCGT(
+            sale,
+            gv('purchasePrice'),
+            gv('purchaseCosts'),
+            sellingCosts,
+            gv('yearsHeld'),
+            parseFloat(document.getElementById('taxRate').value) || 0
+        );
+        cgt = cgtDetails.cgt;
+
+        const box = document.getElementById('cgtInfoBox');
+        if (cgtDetails.capitalGain <= 0) {
+            box.innerHTML = `<strong>No capital gain</strong> — your cost base exceeds the sale price. You may have a capital loss to offset against other gains. Consult your accountant.`;
+        } else {
+            box.innerHTML = `
+                <strong>CGT Summary</strong><br>
+                Capital Gain: ${fmt(cgtDetails.capitalGain)}<br>
+                ${cgtDetails.discount
+                    ? `50% CGT Discount (held &gt;12 months): −${fmt(cgtDetails.capitalGain * 0.5)}<br>`
+                    : '⚠️ No 50% discount — held less than 12 months<br>'}
+                Taxable Gain: ${fmt(cgtDetails.taxableGain)}<br>
+                <strong>Estimated CGT: ${fmt(cgt)}</strong>
+            `;
+        }
+    }
+
+    /* ── Totals ── */
+    const totalCosts = commission + marketing + legal + totalLoan + presaleGroup + govt + cgt;
+    const netProceeds = sale - totalCosts;
+
+    /* ════ UPDATE UI ════ */
+
+    // Section header amounts
+    document.getElementById('h-commission').textContent = fmt(commission);
+    document.getElementById('h-marketing').textContent  = fmt(marketing);
+    document.getElementById('h-legal').textContent      = fmt(legal);
+    document.getElementById('h-loan').textContent       = hasMtg ? fmt(totalLoan) : '—';
+document.getElementById('h-presale').textContent    = fmt(presale + moving);
+    document.getElementById('h-govt').textContent       = fmt(govt);
+    document.getElementById('h-cgt').textContent        = isInv ? fmt(cgt) : '—';
+    document.getElementById('h-other').textContent      = fmt(other);
+
+    // Net proceeds
+    const netEl = document.getElementById('netValue');
+    netEl.textContent = fmt(Math.max(0, netProceeds));
+    netEl.classList.toggle('negative', netProceeds < 0);
+    const netPct = sale > 0 ? ((netProceeds/sale)*100).toFixed(1) : '0.0';
+    document.getElementById('netSub').textContent =
+        netProceeds < 0
+            ? `⚠️ Costs exceed sale price by ${fmt(Math.abs(netProceeds))}`
+            : `${netPct}% of sale price · after all costs & loan`;
+
+    // Breakdown rows
+    document.getElementById('bk-sale').textContent      = fmt(sale);
+    document.getElementById('bk-comm').textContent      = `−${fmt(commission)}`;
+    document.getElementById('bk-commPct').textContent   = pctStr(commission, sale);
+    document.getElementById('bk-mkt').textContent       = `−${fmt(marketing)}`;
+    document.getElementById('bk-mktPct').textContent    = pctStr(marketing, sale);
+    document.getElementById('bk-legal').textContent     = `−${fmt(legal)}`;
+    document.getElementById('bk-legalPct').textContent  = pctStr(legal, sale);
+    document.getElementById('bk-loan').textContent      = `−${fmt(totalLoan)}`;
+    document.getElementById('bk-loanPct').textContent   = pctStr(totalLoan, sale);
+    document.getElementById('bk-loanRow').style.display = hasMtg ? 'flex' : 'none';
+    document.getElementById('bk-presale').textContent   = `−${fmt(presaleGroup)}`;
+    document.getElementById('bk-presalePct').textContent= pctStr(presaleGroup, sale);
+    document.getElementById('bk-govt').textContent      = `−${fmt(govt)}`;
+    document.getElementById('bk-govtPct').textContent   = pctStr(govt, sale);
+    document.getElementById('bk-cgt').textContent       = `−${fmt(cgt)}`;
+    document.getElementById('bk-cgtPct').textContent    = pctStr(cgt, sale);
+    document.getElementById('bk-cgtRow').style.display  = (isInv && cgt > 0) ? 'flex' : 'none';
+
+    document.getElementById('totalCostsAmt').textContent = `−${fmt(totalCosts)}`;
+
+    // Chart
+    chart.data.datasets[0].data = [
+        Math.max(0, netProceeds),
+        commission,
+        marketing,
+        legal,
+        hasMtg ? totalLoan : 0,
+        presaleGroup,
+        govt,
+        cgt,
+    ];
+    chart.update();
+}
+
+/* ════════════════════════════════════════════
+   UI HANDLERS
+════════════════════════════════════════════ */
+function toggleCard(hdr) {
+    const body  = hdr.nextElementSibling;
+    const arrow = hdr.querySelector('.card-chevron');
+    body.classList.toggle('collapsed');
+    arrow.classList.toggle('open');
+}
+
+let _commType = 'pct';
+function setCommType(type, btn) {
+    _commType = type;
+    document.querySelectorAll('#commSeg button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('commPctWrap').classList.toggle('hidden', type !== 'pct');
+    document.getElementById('commFlatWrap').classList.toggle('hidden', type !== 'flat');
+    calculate();
+}
+
+function onRateSlide() {
+    const slider = document.getElementById('commRate');
+    const val    = parseFloat(slider.value);
+    document.getElementById('commRateLabel').textContent = val.toFixed(2) + '%';
+    // Fill track
+    const min  = parseFloat(slider.min);
+    const max  = parseFloat(slider.max);
+    const pct  = ((val - min) / (max - min)) * 100;
+    slider.style.background = `linear-gradient(to right, #1B2A4A ${pct}%, #E5E7EB ${pct}%)`;
+    calculate();
+}
+
+function onMortgageToggle() {
+    const on = gc('hasMortgage');
+    document.getElementById('mortgageFields').style.display = on ? 'block' : 'none';
+    calculate();
+}
+
+
+function onStatusChange() {
+    const isInv = document.querySelector('input[name="pstatus"]:checked')?.value === 'investment';
+    document.getElementById('cgtPrimaryNote').style.display = isInv ? 'none' : 'flex';
+    document.getElementById('cgtFields').classList.toggle('hidden', !isInv);
+    document.getElementById('landTaxWrap').style.display = isInv ? 'block' : 'none';
+    if (!isInv) document.getElementById('landTaxResult').classList.add('hidden');
+    calculate();
+}
+
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+    // Default settlement date: 60 days out
+    const d = new Date();
+    d.setDate(d.getDate() + 60);
+    document.getElementById('settlementDate').value = d.toISOString().split('T')[0];
+
+    // Init slider track fill
+    onRateSlide();
+
+    // Apply default status (primary residence — hide investment fields)
+    onStatusChange();
+    onMortgageToggle();
+
+    // Build chart
+    initChart();
+
+    // Initial calculation
+    calculate();
+});
+</script>
+</body>
+</html>

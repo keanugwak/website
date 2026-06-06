@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seun Gwak — 곽승관</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:           #ffffff;
+      --black:        #0a0a0a;
+      --blue:         #1a6bff;
+      --blue-tint:    #f0f4ff;
+      --muted:        #888888;
+      --border:       #e8e8e8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--black);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-brand-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--blue);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .nav-links a {
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: color 0.14s;
+    }
+    .nav-links a:hover { color: var(--black); }
+
+    /* ── INTRO ── */
+    .intro {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 60px 24px 44px;
+    }
+    .intro-name {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: clamp(3.4rem, 8.2vw, 5.2rem);
+      color: var(--black);
+      line-height: 1.02;
+      letter-spacing: -0.025em;
+      margin-bottom: 14px;
+    }
+    .intro-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .intro-korean {
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+    }
+    .intro-sep {
+      width: 3px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .intro-tagline {
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--muted);
+    }
+    /* ── MAIN ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      flex: 1;
+    }
+    .section-label {
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* ── CARD GRID ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      padding: 20px 22px 22px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: border-color 0.16s, background 0.16s;
+      cursor: pointer;
+    }
+    .card:hover {
+      border-color: var(--blue);
+      background: var(--blue-tint);
+    }
+    .card--wide {
+      grid-column: 1 / -1;
+    }
+    .card-tag {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 7px;
+    }
+    .card-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .card-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--black);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .card-arrow {
+      font-size: 22px;
+      color: var(--border);
+      flex-shrink: 0;
+      transition: color 0.16s, transform 0.16s;
+      line-height: 1.2;
+    }
+    .card:hover .card-arrow {
+      color: var(--blue);
+      transform: translateX(3px);
+    }
+    .card-desc {
+      font-size: 19px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 18px 24px;
+      text-align: center;
+    }
+    .footer-text {
+      font-size: 18px;
+      font-weight: 300;
+      color: #c0c0c0;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 540px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .card--wide { grid-column: span 1; }
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: 16px; }
+    }
+    @media (max-width: 380px) {
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      Seun Gwak
+      <span class="nav-brand-dot"></span>
+    </a>
+    <div class="nav-links">
+      <a href="EL1.HTML">EL1</a>
+      <a href="BrainDump.html">Brain Dump</a>
+      <a href="Newsite.html">Budget</a>
+      <a href="Property_sale_calculator.html">Property</a>
+      <a href="rba_cash_rate_history_3.html">RBA Rate</a>
+    </div>
+  </div>
+</nav>
+
+<!-- INTRO -->
+<div class="intro">
+  <div class="intro-name">God is Good</div>
+  <div class="intro-meta">
+    <span class="intro-korean">곽승관</span>
+    <span class="intro-sep"></span>
+    <span class="intro-tagline">A private space for family</span>
+  </div>
+</div>
+
+<!-- PAGES -->
+<main>
+  <p class="section-label">Pages</p>
+  <div class="card-grid">
+
+    <a href="EL1.HTML" class="card">
+      <div class="card-tag">Resume</div>
+      <div class="card-row">
+        <span class="card-title">Road to EL1</span>
+        <span class="card-arrow">→</span>
+      </div>
+      <div class="card-desc">Resume vault — upload, organise, and view documents</div>
+    </a>
+
+    <a href="BrainDump.html" class="card">
+      <div class="card-tag">AI · Productivity</div>
+      <div class="card-row">
+        <span class="card-title">Brain Dump Hub</span>
+        <span class="card-arrow">→</span>
+      </div>
+      <div class="card-desc">Dump anything on your mind — AI ranks and sorts by Eisenhower priority matrix</div>
+    </a>
+
+    <a href="Newsite.html" class="card">
+      <div class="card-tag">Finance</div>
+      <div class="card-row">
+        <span class="card-title">Budget</span>
+        <span class="card-arrow">→</span>
+      </div>
+      <div class="card-desc">Income, expenses and financial overview</div>
+    </a>
+
+    <a href="Property_sale_calculator.html" class="card">
+      <div class="card-tag">Property</div>
+      <div class="card-row">
+        <span class="card-title">Sale Calculator</span>
+        <span class="card-arrow">→</span>
+      </div>
+      <div class="card-desc">Sale calculator for Lancewood Road</div>
+    </a>
+
+    <a href="rba_cash_rate_history_3.html" class="card card--wide">
+      <div class="card-tag">Finance · Australia</div>
+      <div class="card-row">
+        <span class="card-title">RBA Cash Rate</span>
+        <span class="card-arrow">→</span>
+      </div>
+      <div class="card-desc">Reserve Bank cash rate history — 30 years of every decision</div>
+    </a>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-text">Seun Gwak &nbsp;·&nbsp; 곽승관 &nbsp;·&nbsp; Private &nbsp;·&nbsp; 2026</p>
+</footer>
+
+</body>
+</html>
