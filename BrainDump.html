@@ -601,10 +601,11 @@ JSON format:
 }`;
 
 // ═══════════════════════════════════════════════════════
-// GEMINI CONFIG — paste your free key from aistudio.google.com
+// GEMINI CONFIG — requests go through a server-side proxy
+// (netlify/functions/gemini-proxy.js) so the API key is never
+// exposed in the browser. Set GEMINI_API_KEY in Netlify env vars.
 // ═══════════════════════════════════════════════════════
-const GEMINI_KEY   = 'AIzaSyBR6lH9Qdna7_JJIBnZYSzMZzanzyRwdE4';
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_PROXY_URL = '/api/gemini';
 
 // ═══════════════════════════════════════════════════════
 // ANALYSE
@@ -613,11 +614,6 @@ async function analyse() {
   const text = document.getElementById('dumpArea').value.trim();
   if (!text) { showToast('⚠️ Write something first'); return; }
   if (text.length < 10) { showToast('⚠️ Add a bit more detail'); return; }
-
-  if (!GEMINI_KEY) {
-    showToast('⚠️ Add your Gemini API key in BrainDump.html (GEMINI_KEY)');
-    return;
-  }
 
   setLoading(true);
 
@@ -634,12 +630,12 @@ async function analyse() {
   let response;
   try {
     response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
+      GEMINI_PROXY_URL,
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }
     );
   } catch (netErr) {
     setLoading(false);
-    showToast('⚠️ Cannot reach Google API — check internet connection.');
+    showToast('⚠️ Cannot reach the proxy — check internet connection.');
     console.error('[BrainDump] Network error:', netErr);
     return;
   }
@@ -667,7 +663,7 @@ async function analyse() {
         showToast('⚠️ ' + waitMsg);
 
       } else if (response.status === 403) {
-        showToast('⚠️ 403 Invalid API key — check GEMINI_KEY in the code.');
+        showToast('⚠️ 403 Invalid API key — check GEMINI_API_KEY in Netlify env vars.');
 
       } else if (response.status === 404) {
         showToast('⚠️ 404 Model not found — ' + msg);
