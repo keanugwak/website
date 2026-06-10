@@ -137,32 +137,51 @@
     .card-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 12px;
     }
     .card {
       display: block;
       text-decoration: none;
       color: inherit;
-      padding: 20px 22px 22px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      transition: border-color 0.16s, background 0.16s;
+      padding: 22px 24px 24px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      transition: border-color 0.16s, background 0.16s, box-shadow 0.16s;
       cursor: pointer;
     }
     .card:hover {
       border-color: var(--blue);
       background: var(--blue-tint);
+      box-shadow: 0 4px 20px rgba(26,107,255,0.08);
     }
     .card--wide {
       grid-column: 1 / -1;
     }
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--blue-tint);
+      border: 1.5px solid #d0e2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px;
+      transition: background 0.16s, border-color 0.16s;
+      flex-shrink: 0;
+    }
+    .card:hover .card-icon {
+      background: #ddeaff;
+      border-color: var(--blue);
+    }
     .card-tag {
-      font-size: 17px;
+      font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.11em;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
       color: var(--blue);
-      margin-bottom: 7px;
+      margin-bottom: 6px;
     }
     .card-row {
       display: flex;
@@ -172,15 +191,15 @@
       margin-bottom: 6px;
     }
     .card-title {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 600;
       color: var(--black);
       letter-spacing: -0.02em;
       line-height: 1.2;
     }
     .card-arrow {
-      font-size: 22px;
-      color: var(--border);
+      font-size: 20px;
+      color: #d0d0d0;
       flex-shrink: 0;
       transition: color 0.16s, transform 0.16s;
       line-height: 1.2;
@@ -190,10 +209,10 @@
       transform: translateX(3px);
     }
     .card-desc {
-      font-size: 19px;
+      font-size: 17px;
       font-weight: 300;
       color: var(--muted);
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     /* ── FOOTER ── */
@@ -256,6 +275,7 @@
   <div class="card-grid">
 
     <a href="EL1.HTML" class="card">
+      <div class="card-icon">📄</div>
       <div class="card-tag">Resume</div>
       <div class="card-row">
         <span class="card-title">Road to EL1</span>
@@ -265,6 +285,7 @@
     </a>
 
     <a href="BrainDump.html" class="card">
+      <div class="card-icon">🧠</div>
       <div class="card-tag">AI · Productivity</div>
       <div class="card-row">
         <span class="card-title">Brain Dump Hub</span>
@@ -274,6 +295,7 @@
     </a>
 
     <a href="Newsite.html" class="card">
+      <div class="card-icon">💰</div>
       <div class="card-tag">Finance</div>
       <div class="card-row">
         <span class="card-title">Budget</span>
@@ -283,6 +305,7 @@
     </a>
 
     <a href="Property_sale_calculator.html" class="card">
+      <div class="card-icon">🏡</div>
       <div class="card-tag">Property</div>
       <div class="card-row">
         <span class="card-title">Sale Calculator</span>
@@ -292,6 +315,7 @@
     </a>
 
     <a href="rba_cash_rate_history_3.html" class="card card--wide">
+      <div class="card-icon">🏦</div>
       <div class="card-tag">Finance · Australia</div>
       <div class="card-row">
         <span class="card-title">RBA Cash Rate</span>

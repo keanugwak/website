@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(python -m http.server 8080 --directory \"C:\\\\Users\\\\Sean\\\\Desktop\\\\Side-Projects\\\\Seun-website\")",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git checkout *)",
+      "Bash(curl -s -i \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyBR6lH9Qdna7_JJIBnZYSzMZzanzyRwdE4\" -X OPTIONS -H \"Origin: http://localhost:8080\" -H \"Access-Control-Request-Method: POST\")",
+      "Bash(curl -s -i \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyBR6lH9Qdna7_JJIBnZYSzMZzanzyRwdE4\" -X OPTIONS -H \"Origin: null\" -H \"Access-Control-Request-Method: POST\")"
     ]
   }
 }
