@@ -627,32 +627,54 @@ async function analyse() {
     },
   });
 
-  let response;
-  try {
-    response = await fetch(
-      GEMINI_PROXY_URL,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }
-    );
-  } catch (netErr) {
-    setLoading(false);
-    showToast('⚠️ Cannot reach the proxy — check internet connection.');
-    console.error('[BrainDump] Network error:', netErr);
-    return;
-  }
+  const MAX_ATTEMPTS = 3;
+  const RETRY_DELAYS_MS = [1500, 3000]; // delay before attempt 2 and attempt 3
 
-  try {
-    const body = await response.json().catch(() => ({}));
+  let response, body;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      response = await fetch(
+        GEMINI_PROXY_URL,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }
+      );
+    } catch (netErr) {
+      console.error('[BrainDump] Network error:', netErr);
+      if (attempt < MAX_ATTEMPTS) {
+        await retryWait(attempt, RETRY_DELAYS_MS);
+        continue;
+      }
+      setLoading(false);
+      showToast('⚠️ Cannot reach the proxy — check internet connection.');
+      return;
+    }
+
+    body = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      setLoading(false);
-      const err    = body.error || {};
-      const msg    = err.message || 'Unknown error';
-      const status = err.status  || response.status;
+      const err = body.error || {};
 
       // Extract retryDelay from Gemini's RetryInfo detail if present
       const retryInfo  = (err.details || []).find(d => d['@type']?.includes('RetryInfo'));
       const retryDelay = retryInfo?.retryDelay;              // e.g. "47s"
       const retrySecs  = retryDelay ? parseInt(retryDelay) : null;
+
+      const isRetryable = response.status === 503 || response.status === 429;
+
+      if (isRetryable && attempt < MAX_ATTEMPTS) {
+        console.warn(`[BrainDump] ${response.status} on attempt ${attempt} — retrying`, body);
+        const waitMs = (response.status === 429 && retrySecs)
+          ? Math.min(retrySecs * 1000, 10000)
+          : RETRY_DELAYS_MS[attempt - 1];
+        document.getElementById('loadingText').textContent =
+          `Gemini is busy — retrying (${attempt + 1}/${MAX_ATTEMPTS})…`;
+        await sleep(waitMs);
+        continue;
+      }
+
+      // Final failure (non-retryable, or retries exhausted)
+      setLoading(false);
+      const msg    = err.message || 'Unknown error';
+      const status = err.status  || response.status;
 
       console.error('[BrainDump] API error', response.status, body);
 
@@ -661,6 +683,9 @@ async function analyse() {
           ? `Rate limit hit — Gemini says wait ${retrySecs}s before trying again.`
           : 'Rate limit hit — wait ~60s and try again.';
         showToast('⚠️ ' + waitMsg);
+
+      } else if (response.status === 503) {
+        showToast('⚠️ 503 Gemini is overloaded — please try again in a moment.');
 
       } else if (response.status === 403) {
         showToast('⚠️ 403 Invalid API key — check GEMINI_API_KEY in Netlify env vars.');
@@ -677,6 +702,11 @@ async function analyse() {
       return;
     }
 
+    // Success
+    break;
+  }
+
+  try {
     const raw = body.candidates?.[0]?.content?.parts?.[0]?.text || '';
     console.log('[BrainDump] Raw Gemini response:', raw);
 
@@ -720,6 +750,16 @@ async function analyse() {
   }
 }
 
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function retryWait(attempt, delays) {
+  document.getElementById('loadingText').textContent =
+    `Connection issue — retrying (${attempt + 1}/${delays.length + 1})…`;
+  return sleep(delays[attempt - 1]);
+}
 
 function setLoading(on) {
   document.getElementById('loadingState').className = 'loading-state' + (on ? ' show' : '');
