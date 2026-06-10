@@ -12,7 +12,9 @@
       "Bash(git stash *)",
       "Bash(git push *)",
       "Bash(git branch *)",
-      "Bash(git pull *)"
+      "Bash(git pull *)",
+      "Bash(grep -n -B1 -A 50 \"/\\\\* ── NAV\" EL1.HTML)",
+      "Bash(grep -n -A11 \"/\\\\* ── NAV\" rba_cash_rate_history_3.html)"
     ]
   }
 }

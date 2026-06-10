@@ -35,14 +35,14 @@
 
     /* ── NAV ── */
     nav {
-      position: sticky; top: 0; z-index: 100;
+      position: sticky; top: 0; z-index: 200;
       background: rgba(255,255,255,0.94);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
     }
     .nav-inner {
-      max-width: 960px; margin: 0 auto;
+      max-width: 860px; margin: 0 auto;
       padding: 0 24px; height: 60px;
       display: flex; align-items: center; justify-content: space-between;
     }
@@ -51,11 +51,11 @@
       text-decoration: none; letter-spacing: -0.02em;
       display: flex; align-items: center; gap: 6px;
     }
-    .nav-dot { width: 5px; height: 5px; background: var(--blue); border-radius: 50%; }
+    .nav-brand-dot { width: 5px; height: 5px; background: var(--blue); border-radius: 50%; flex-shrink: 0; }
     .nav-links { display: flex; align-items: center; gap: 24px; }
     .nav-links a {
       font-size: 20px; font-weight: 400; color: var(--muted);
-      text-decoration: none; transition: color 0.14s;
+      text-decoration: none; letter-spacing: 0.01em; transition: color 0.14s;
     }
     .nav-links a:hover { color: var(--black); }
     .nav-links a.active { color: var(--black); font-weight: 600; }
@@ -407,7 +407,7 @@
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="nav-brand">
-      Seun Gwak <span class="nav-dot"></span>
+      Seun Gwak <span class="nav-brand-dot"></span>
     </a>
     <div class="nav-links">
       <a href="EL1.HTML">EL1</a>

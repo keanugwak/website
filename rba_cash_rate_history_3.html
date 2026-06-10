@@ -13,7 +13,8 @@
     --card:#1c2128; --purchase:#58a6ff;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:28px 20px;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  .page-wrap{padding:28px 20px;}
 
   .header{text-align:center;margin-bottom:24px;}
   .header h1{font-family:'DM Serif Display',serif;font-size:clamp(20px,4vw,38px);letter-spacing:-0.5px;line-height:1.15;}
@@ -110,26 +111,26 @@
   .footer-note{text-align:center;font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);padding:12px;border-top:1px solid var(--border);background:var(--surface);}
   .era-divider{background:var(--surface);padding:8px 20px;font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
 
-/* ── SITE NAV ── */
-.site-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #e8e8e8;}
-.site-nav-inner{max-width:1240px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;}
-.site-nav-brand{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:600;color:#0a0a0a;text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px;}
-.site-nav-dot{width:5px;height:5px;background:#1a6bff;border-radius:50%;flex-shrink:0;display:inline-block;}
-.site-nav-links{display:flex;align-items:center;gap:20px;}
-.site-nav-links a{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:400;color:#555;text-decoration:none;transition:color .14s;}
-.site-nav-links a:hover{color:#0a0a0a;}
-.site-nav-links a.active{color:#0a0a0a;font-weight:600;}
-@media(max-width:540px){.site-nav-links{gap:12px;}.site-nav-links a{font-size:13px;}}
-@media(max-width:380px){.site-nav-links{display:none;}}
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #e8e8e8;}
+.nav-inner{max-width:860px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;}
+.nav-brand{font-size:20px;font-weight:600;color:#0a0a0a;text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px;}
+.nav-brand-dot{width:5px;height:5px;background:#1a6bff;border-radius:50%;flex-shrink:0;}
+.nav-links{display:flex;align-items:center;gap:24px;}
+.nav-links a{font-size:20px;font-weight:400;color:#888888;text-decoration:none;letter-spacing:0.01em;transition:color .14s;}
+.nav-links a:hover{color:#0a0a0a;}
+.nav-links a.active{color:#0a0a0a;font-weight:600;}
+@media(max-width:540px){.nav-links{gap:16px;}.nav-links a{font-size:16px;}}
+@media(max-width:380px){.nav-links{display:none;}}
 </style>
 </head>
 <body>
 
-<!-- SITE NAV -->
-<nav class="site-nav">
-  <div class="site-nav-inner">
-    <a href="index.html" class="site-nav-brand">Seun Gwak <span class="site-nav-dot"></span></a>
-    <div class="site-nav-links">
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">Seun Gwak <span class="nav-brand-dot"></span></a>
+    <div class="nav-links">
       <a href="EL1.HTML">EL1</a>
       <a href="BrainDump.html">Brain Dump</a>
       <a href="Newsite.html">Budget</a>
@@ -139,6 +140,7 @@
   </div>
 </nav>
 
+<div class="page-wrap">
 <div class="header">
   <h1>RBA Cash Rate<br><span>30-Year History 1995–2026</span></h1>
   <p>Reserve Bank of Australia · Every Monetary Policy Decision</p>
@@ -245,6 +247,7 @@
 </div>
 
 <div class="table-section" id="tableSection"></div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════

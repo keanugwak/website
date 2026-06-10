@@ -20,7 +20,7 @@
       min-height: 100vh; display: flex; flex-direction: column;
     }
     nav {
-      position: sticky; top: 0; z-index: 100;
+      position: sticky; top: 0; z-index: 200;
       background: rgba(255,255,255,0.94);
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
@@ -38,9 +38,10 @@
     .nav-links { display: flex; align-items: center; gap: 24px; }
     .nav-links a {
       font-size: 20px; font-weight: 400; color: var(--muted);
-      text-decoration: none; transition: color 0.14s;
+      text-decoration: none; letter-spacing: 0.01em; transition: color 0.14s;
     }
     .nav-links a:hover { color: var(--black); }
+    .nav-links a.active { color: var(--black); font-weight: 600; }
     main { max-width: 860px; margin: 0 auto; padding: 60px 24px 80px; flex: 1; }
     h1 {
       font-family: 'DM Serif Display', serif; font-style: italic;

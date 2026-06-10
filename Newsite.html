@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Budget Overview — Seun Gwak</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
@@ -24,14 +24,14 @@
 }
 html{scroll-behavior:smooth}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
-.site-nav{position:sticky;top:0;z-index:200;height:56px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;align-items:center}
-.sn-inner{max-width:1240px;margin:0 auto;width:100%;padding:0 48px;display:flex;align-items:center;justify-content:space-between}
-.sn-brand{font-size:17px;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-.02em;display:flex;align-items:center;gap:6px}
-.sn-dot{width:5px;height:5px;background:var(--blue);border-radius:50%;flex-shrink:0}
-.sn-links{display:flex;align-items:center;gap:28px}
-.sn-links a{font-size:15px;font-weight:400;color:var(--ink3);text-decoration:none;transition:color .14s}
-.sn-links a:hover{color:var(--ink)}
-.sn-links a.active{font-weight:600;color:var(--ink)}
+nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #e8e8e8}
+.nav-inner{max-width:860px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:600;color:#0a0a0a;text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:6px}
+.nav-brand-dot{width:5px;height:5px;background:#1a6bff;border-radius:50%;flex-shrink:0}
+.nav-links{display:flex;align-items:center;gap:24px}
+.nav-links a{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:400;color:#888888;text-decoration:none;letter-spacing:0.01em;transition:color .14s}
+.nav-links a:hover{color:#0a0a0a}
+.nav-links a.active{color:#0a0a0a;font-weight:600}
 header{background:#fff;border-bottom:1px solid var(--border);padding:30px 48px;position:relative}
 header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal) 0%,var(--blue) 50%,var(--purple) 100%)}
 .header-inner{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap}
@@ -48,7 +48,7 @@ h1 em{font-style:normal;color:var(--teal)}
 .bc-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
 .bc-value{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.025em;line-height:1}
 .bc-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);margin-top:5px}
-.budget-nav{position:sticky;top:56px;z-index:100;background:var(--surface);border-bottom:2px solid var(--border)}
+.budget-nav{position:sticky;top:60px;z-index:100;background:var(--surface);border-bottom:2px solid var(--border)}
 .bn-inner{max-width:1240px;margin:0 auto;display:flex;padding:0 48px;overflow-x:auto}
 .nav-tab{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;color:var(--ink3);padding:13px 22px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;transition:all .18s;white-space:nowrap;letter-spacing:-.005em}
 .nav-tab:hover{color:var(--ink);background:var(--surface2)}
@@ -248,23 +248,23 @@ footer{max-width:1240px;margin:48px auto 0;padding:22px 48px;border-top:1px soli
 .back-link{color:var(--ink4);text-decoration:none;transition:color .15s}.back-link:hover{color:var(--blue)}
 @media(max-width:768px){
   header,.budget-nav,#sub-nav{padding-left:20px;padding-right:20px}
-  main{padding:24px 20px}.sn-inner,.bn-inner{padding:0 20px}
+  main{padding:24px 20px}.nav-inner,.bn-inner{padding:0 20px}
   .chart-grid{grid-template-columns:1fr}
   h1{font-size:26px}.balance-card{display:none}
   .bt-heads,.bt-row{grid-template-columns:1fr 90px 90px}
   .bt-heads span:nth-child(3),.bt-row .bt-cell:nth-child(3){display:none}
   .col-map-grid{grid-template-columns:1fr}.type-row{flex-direction:column}
 }
-@media(max-width:540px){.sn-links{gap:16px}.sn-links a{font-size:14px}}
-@media(max-width:380px){.sn-links{display:none}}
+@media(max-width:540px){.nav-links{gap:16px}.nav-links a{font-size:16px}}
+@media(max-width:380px){.nav-links{display:none}}
 </style>
 </head>
 <body>
 
-<nav class="site-nav">
-  <div class="sn-inner">
-    <a href="index.html" class="sn-brand">Seun Gwak<span class="sn-dot"></span></a>
-    <div class="sn-links">
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">Seun Gwak <span class="nav-brand-dot"></span></a>
+    <div class="nav-links">
       <a href="EL1.HTML">EL1</a>
       <a href="BrainDump.html">Brain Dump</a>
       <a href="Newsite.html" class="active">Budget</a>
